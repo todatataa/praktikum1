@@ -1,5 +1,25 @@
 # praktikum1
 
+## pomebno!!!!
+
+Folders
+/frontend: Place all HTML, CSS, and JavaScript files here.
+
+/backend: This is for all Java logic and server-side code.
+
+/docs: Upload all project documentation here (ER Diagrams, DPU, DFD)
+
+
+
+
+Team Rules Prosim Pratite
+
+If using the Web IDE, always refresh your browser before starting work to get the latest version.
+
+Descriptive Commits: When you save (commit), write a short note about what you changed (na primer "Added login button" ili "Updated ER diagram").
+
+
+
 
 
 ## Getting started
