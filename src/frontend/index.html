@@ -1,373 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Evently — Find & Host Events</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White Orchid Events — Discover & Host</title>
+    
+    <!-- Tailwind CDN for Week 1 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="bg-gray-50 font-sans text-gray-900">
 
-  <!-- ===================== NAVIGATION ===================== -->
-  <nav id="navbar">
-    <div id="nav-logo">
-      <a href="#">Evently</a>
-    </div>
-
-    <div id="nav-search">
-      <input type="text" placeholder="Search events..." />
-      <button type="button">Search</button>
-    </div>
-
-    <div id="nav-actions">
-      <a href="#login">Log In</a>
-      <a href="#login">Sign Up</a>
-      <a href="#organizer">Host an Event</a>
-    </div>
-  </nav>
-
-  <!-- ===================== HERO ===================== -->
-  <section id="hero">
-    <h1>Discover Events Near You</h1>
-    <p>Find concerts, workshops, meetups, and more — or host your own.</p>
-
-    <div id="hero-search">
-      <input type="text" placeholder="What are you looking for?" />
-      <input type="text" placeholder="Location" />
-      <input type="date" />
-      <button type="button">Find Events</button>
-    </div>
-  </section>
-
-  <!-- ===================== FEATURED EVENTS ===================== -->
-  <section id="featured-events">
-    <h2>Featured Events</h2>
-
-    <div id="events-grid">
-
-      <article class="event-card">
-        <div class="event-image-placeholder"></div>
-        <h3>Event Title Placeholder</h3>
-        <p class="event-meta">Date · Location · Category</p>
-        <p class="event-description">Short description of the event goes here.</p>
-        <a href="#event-detail">View Event</a>
-      </article>
-
-      <article class="event-card">
-        <div class="event-image-placeholder"></div>
-        <h3>Event Title Placeholder</h3>
-        <p class="event-meta">Date · Location · Category</p>
-        <p class="event-description">Short description of the event goes here.</p>
-        <a href="#event-detail">View Event</a>
-      </article>
-
-      <article class="event-card">
-        <div class="event-image-placeholder"></div>
-        <h3>Event Title Placeholder</h3>
-        <p class="event-meta">Date · Location · Category</p>
-        <p class="event-description">Short description of the event goes here.</p>
-        <a href="#event-detail">View Event</a>
-      </article>
-
-    </div>
-
-    <button type="button" id="load-more">Load More Events</button>
-  </section>
-
-  <!-- ===================== SEARCH / FILTER ===================== -->
-  <section id="search-filter">
-    <h2>Browse by Category</h2>
-
-    <div id="category-filters">
-      <button type="button" class="filter-btn">All</button>
-      <button type="button" class="filter-btn">Music</button>
-      <button type="button" class="filter-btn">Sports</button>
-      <button type="button" class="filter-btn">Arts</button>
-      <button type="button" class="filter-btn">Food & Drink</button>
-      <button type="button" class="filter-btn">Tech</button>
-      <button type="button" class="filter-btn">Networking</button>
-      <button type="button" class="filter-btn">Education</button>
-    </div>
-  </section>
-
-  <!-- ===================== HOW IT WORKS ===================== -->
-  <section id="how-it-works">
-    <h2>How It Works</h2>
-
-    <div id="steps">
-
-      <div class="step">
-        <span class="step-number">1</span>
-        <h3>Find an Event</h3>
-        <p>Search by keyword, category, date, or location.</p>
-      </div>
-
-      <div class="step">
-        <span class="step-number">2</span>
-        <h3>Book Your Spot</h3>
-        <p>Select your tickets, confirm your details, and pay securely.</p>
-      </div>
-
-      <div class="step">
-        <span class="step-number">3</span>
-        <h3>Get Your Confirmation</h3>
-        <p>Receive an email confirmation and RSVP details instantly.</p>
-      </div>
-
-      <div class="step">
-        <span class="step-number">4</span>
-        <h3>Show Up & Enjoy</h3>
-        <p>Present your ticket and have a great time.</p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ===================== EVENT DETAIL (placeholder page) ===================== -->
-  <section id="event-detail">
-    <h2>Event Name Placeholder</h2>
-
-    <div id="event-detail-layout">
-
-      <div id="event-detail-main">
-        <div class="event-image-placeholder large"></div>
-        <p><strong>Date:</strong> DD/MM/YYYY</p>
-        <p><strong>Time:</strong> 00:00</p>
-        <p><strong>Location:</strong> Venue Name, City</p>
-        <p><strong>Organizer:</strong> <a href="#organizer-profile">Organizer Name</a></p>
-
-        <h3>About this Event</h3>
-        <p>Full event description placeholder. Lorem ipsum dolor sit amet.</p>
-
-        <!-- Comments Section -->
-        <div id="comments">
-          <h3>Comments</h3>
-
-          <div class="comment">
-            <strong>User Name</strong>
-            <span class="comment-date">DD/MM/YYYY</span>
-            <p>Comment text placeholder.</p>
-          </div>
-
-          <div class="comment">
-            <strong>User Name</strong>
-            <span class="comment-date">DD/MM/YYYY</span>
-            <p>Comment text placeholder.</p>
-          </div>
-
-          <div id="add-comment">
-            <textarea placeholder="Leave a comment..."></textarea>
-            <button type="button">Post Comment</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Booking Sidebar -->
-      <aside id="booking-sidebar">
-        <h3>Book Tickets</h3>
-        <p>Price: <strong>€0.00</strong></p>
-
-        <label for="ticket-type">Ticket Type</label>
-        <select id="ticket-type">
-          <option>General Admission</option>
-          <option>VIP</option>
-          <option>Early Bird</option>
-        </select>
-
-        <label for="ticket-qty">Quantity</label>
-        <input type="number" id="ticket-qty" value="1" min="1" />
-
-        <!-- RSVP -->
-        <div id="rsvp">
-          <p>Will you attend?</p>
-          <button type="button" class="rsvp-btn" id="rsvp-yes">✓ Going</button>
-          <button type="button" class="rsvp-btn" id="rsvp-no">✗ Not Going</button>
+    <!-- NAVIGATION -->
+    <nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm">
+        <div class="text-2xl font-bold text-blue-600 tracking-tight">White Orchid Events</div>
+        
+        <div class="hidden md:flex space-x-6 font-medium">
+            <a href="#" class="hover:text-blue-600 transition">Browse Events</a>
+            <a href="#" class="hover:text-blue-600 transition">Host an Event</a>
         </div>
 
-        <button type="button" id="book-now">Book Now</button>
-        <p id="email-notice">A confirmation email will be sent to your address.</p>
-      </aside>
+        <div class="flex items-center space-x-4">
+            <a href="#" class="text-gray-600 hover:text-black">Log In</a>
+            <a href="#" class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition">Sign Up</a>
+        </div>
+    </nav>
 
-    </div>
-  </section>
+    <!-- HERO SECTION -->
+    <section class="py-20 px-10 text-center bg-gradient-to-b from-white to-gray-100">
+        <h1 class="text-5xl font-extrabold mb-6">Discover Events Near You</h1>
+        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+            Find concerts, workshops, meetups, and more — or host your own.
+        </p>
 
-  <!-- ===================== BOOKING FLOW ===================== -->
-  <section id="booking-flow">
-    <h2>Complete Your Booking</h2>
+        <!-- Search Bar -->
+        <div class="bg-white p-2 rounded-xl shadow-lg flex flex-col md:flex-row max-w-4xl mx-auto gap-2">
+            <input type="text" placeholder="What are you looking for?" class="flex-1 p-3 outline-none border-b md:border-b-0 md:border-r border-gray-200">
+            <input type="text" placeholder="Location" class="flex-1 p-3 outline-none border-b md:border-b-0 md:border-r border-gray-200">
+            <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">Find Events</button>
+        </div>
+    </section>
 
-    <div id="booking-steps">
+    <!-- FEATURED EVENTS GRID -->
+    <section class="py-16 px-10 max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-bold">Featured Events</h2>
+            <a href="#" class="text-blue-600 font-semibold hover:underline">View All</a>
+        </div>
 
-      <div id="booking-step-1" class="booking-step">
-        <h3>Step 1 — Your Details</h3>
-        <input type="text" placeholder="Full Name" />
-        <input type="email" placeholder="Email Address" />
-        <input type="tel" placeholder="Phone Number (optional)" />
-        <button type="button">Continue</button>
-      </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Event Card 1 -->
+            <article class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group">
+                <div class="h-48 bg-gray-300 group-hover:bg-gray-400 transition"><img src="https://www.visitmaribor.si/media/17418/visitmb_zametna_vecerja_najstarejsa_trta_lent_mb_2025_06_06mava3985_foto_mv_pigac_si.jpg?anchor=center&mode=crop&width=1200&height=630"></div>
+                <div class="p-6">
+                    <span class="text-blue-600 text-sm font-bold uppercase">Music</span>
+                    <h3 class="text-xl font-bold mt-2">Summer Jazz Festival</h3>
+                    <p class="text-gray-500 text-sm mt-1">May 20 · Maribor City Square</p>
+                    <button class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">Details</button>
+                </div>
+            </article>
 
-      <div id="booking-step-2" class="booking-step">
-        <h3>Step 2 — Payment</h3>
-        <input type="text" placeholder="Card Number" />
-        <input type="text" placeholder="Expiry Date" />
-        <input type="text" placeholder="CVV" />
-        <button type="button">Pay & Confirm</button>
-      </div>
+            <!-- Event Card 2 (Placeholder) -->
+            <article class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
+                <div class="h-48 bg-gray-300"><img src="https://editorial.netmedia.si/s3fs-public/styles/768x440/public/slike/naslovne/2025/2/17/photo_2025-02-14-10.webp?h=29234840"></div>
+                <div class="p-6">
+                    <span class="text-green-600 text-sm font-bold uppercase">Tech</span>
+                    <h3 class="text-xl font-bold mt-2">AI Workshop 2026</h3>
+                    <p class="text-gray-500 text-sm mt-1">June 12 · UM FERI</p>
+                    <button class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">Details</button>
+                </div>
+            </article>
 
-      <div id="booking-step-3" class="booking-step">
-        <h3>Step 3 — Confirmation</h3>
-        <p>Your booking is confirmed! Check your email for details.</p>
-        <a href="#">View My Tickets</a>
-      </div>
+            <!-- Event Card 3 (Placeholder) -->
+            <article class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
+                <div class="h-48 bg-gray-300"><img src="https://scontent.flju2-3.fna.fbcdn.net/v/t39.30808-6/641512314_1490488276411136_4554379958508162526_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=aJH9SDUYyWYQ7kNvwHRPMLD&_nc_oc=AdpGCATja4vU6XbBua9-g1A5e8csbu365CPPs9UVN3m1IHp64lITSWKNj89jKcfRHzE&_nc_zt=23&_nc_ht=scontent.flju2-3.fna&_nc_gid=Kt9CUdNvgTK38L9SajyhtQ&_nc_ss=7b2a8&oh=00_Af4DF5DEtvuGjtu6xSmr8Dt9R19qnEvIZG0GAHa1qq2Exg&oe=6A0ABDB5"></div>
+                <div class="p-6">
+                    <span class="text-purple-600 text-sm font-bold uppercase">Arts</span>
+                    <h3 class="text-xl font-bold mt-2">Modern Art Gallery</h3>
+                    <p class="text-gray-500 text-sm mt-1">June 15 · Lent Maribor</p>
+                    <button class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">Details</button>
+                </div>
+            </article>
+        </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- ===================== ORGANIZER CTA ===================== -->
-  <section id="organizer">
-    <h2>Are You an Event Organizer?</h2>
-    <p>Create your profile, publish events, manage bookings, and reach your audience.</p>
-    <a href="#create-event">Create Your Event</a>
-    <a href="#organizer-profile">Set Up Organizer Profile</a>
-  </section>
-
-  <!-- ===================== CREATE EVENT (Organizer) ===================== -->
-  <section id="create-event">
-    <h2>Create a New Event</h2>
-
-    <div id="create-event-form">
-
-      <label for="event-title">Event Title</label>
-      <input type="text" id="event-title" placeholder="My Awesome Event" />
-
-      <label for="event-category">Category</label>
-      <select id="event-category">
-        <option>Music</option>
-        <option>Sports</option>
-        <option>Arts</option>
-        <option>Food & Drink</option>
-        <option>Tech</option>
-        <option>Networking</option>
-        <option>Education</option>
-        <option>Other</option>
-      </select>
-
-      <label for="event-date">Date & Time</label>
-      <input type="datetime-local" id="event-date" />
-
-      <label for="event-location">Location / Venue</label>
-      <input type="text" id="event-location" placeholder="Venue name or address" />
-
-      <label for="event-desc">Description</label>
-      <textarea id="event-desc" placeholder="Tell people about your event..."></textarea>
-
-      <label for="event-image">Cover Image</label>
-      <input type="file" id="event-image" accept="image/*" />
-
-      <label for="event-capacity">Capacity</label>
-      <input type="number" id="event-capacity" placeholder="Max attendees" />
-
-      <label for="event-price">Ticket Price (€)</label>
-      <input type="number" id="event-price" placeholder="0.00" />
-
-      <button type="button">Publish Event</button>
-      <button type="button">Save as Draft</button>
-
-    </div>
-  </section>
-
-  <!-- ===================== ORGANIZER PROFILE ===================== -->
-  <section id="organizer-profile">
-    <h2>Organizer Profile</h2>
-
-    <div id="organizer-profile-layout">
-
-      <div id="organizer-info">
-        <div class="event-image-placeholder avatar"></div>
-        <h3>Organizer Name</h3>
-        <p>Short bio / description of the organizer.</p>
-        <p>Member since: DD/MM/YYYY</p>
-        <p>Events hosted: 0</p>
-      </div>
-
-      <div id="organizer-events">
-        <h3>Past Events</h3>
-        <p>No events yet.</p>
-
-        <h3>Upcoming Events</h3>
-        <p>No upcoming events.</p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ===================== LOGIN / SIGN UP ===================== -->
-  <section id="login">
-    <h2>Log In or Sign Up</h2>
-    <p>One account for attendees and organizers.</p>
-
-    <div id="auth-tabs">
-      <button type="button" class="auth-tab active">Log In</button>
-      <button type="button" class="auth-tab">Sign Up</button>
-    </div>
-
-    <div id="auth-form">
-      <input type="email" placeholder="Email Address" />
-      <input type="password" placeholder="Password" />
-      <button type="button">Continue</button>
-      <a href="#">Forgot password?</a>
-
-      <hr />
-
-      <button type="button" id="google-login">Continue with Google</button>
-    </div>
-  </section>
-
-  <!-- ===================== USER PROFILE ===================== -->
-  <section id="user-profile">
-    <h2>My Profile</h2>
-
-    <div id="profile-layout">
-
-      <div id="profile-info">
-        <div class="event-image-placeholder avatar"></div>
-        <h3>User Name</h3>
-        <p>user@email.com</p>
-        <button type="button">Edit Profile</button>
-      </div>
-
-      <div id="profile-tickets">
-        <h3>My Tickets</h3>
-        <p>No tickets yet.</p>
-
-        <h3>Saved Events</h3>
-        <p>No saved events.</p>
-
-        <h3>Email Notifications</h3>
-        <label>
-          <input type="checkbox" /> Event reminders
-        </label>
-        <label>
-          <input type="checkbox" /> RSVP updates
-        </label>
-        <label>
-          <input type="checkbox" /> New events from followed organizers
-        </label>
-        <button type="button">Save Preferences</button>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ===================== FOOTER ===================== -->
-  <footer id="footer">
-    <div id="footer-links">
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-      <a href="#">Help</a>
-    </div>
-    <p>&copy; 2026 Evently. All rights reserved.</p>
-  </footer>
+    <!-- FOOTER -->
+    <footer class="py-10 text-center border-t border-gray-200 text-gray-500 text-sm">
+        <p>&copy; 2026 Evently. Built for Praktikum 1, FERI IPT 1st Year</p>
+    </footer>
 
 </body>
 </html>
