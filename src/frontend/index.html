@@ -1,93 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>White Orchid Events — Discover & Host</title>
-    
-    <!-- Tailwind CDN for Week 1 -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-50 font-sans text-gray-900">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>White Orchid Events — Discover & Host</title>
 
-    <!-- NAVIGATION -->
-    <nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm">
-        <div class="text-2xl font-bold text-blue-600 tracking-tight">White Orchid Events</div>
-        
-        <div class="hidden md:flex space-x-6 font-medium">
-            <a href="#" class="hover:text-blue-600 transition">Browse Events</a>
-            <a href="#" class="hover:text-blue-600 transition">Host an Event</a>
-        </div>
+        <!-- Tailwind CDN for Week 1 -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body class="bg-gray-50 font-sans text-gray-900">
+        <!-- NAVIGATION -->
+        <nav
+            class="flex items-center justify-between px-10 py-6 bg-white shadow-sm"
+        >
+            <div class="text-2xl font-bold text-blue-600 tracking-tight">
+                White Orchid Event Organizers
+            </div>
 
-        <div class="flex items-center space-x-4">
-            <a href="#" class="text-gray-600 hover:text-black">Log In</a>
-            <a href="#" class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition">Sign Up</a>
-        </div>
-    </nav>
+            <div class="hidden md:flex space-x-6 font-medium">
+                <a href="#" class="hover:text-blue-600 transition"
+                    >Browse Ogranizers</a
+                >
+                <a href="#" class="hover:text-blue-600 transition"
+                    >Top Organizers Last Week</a
+                >
+            </div>
 
-    <!-- HERO SECTION -->
-    <section class="py-20 px-10 text-center bg-gradient-to-b from-white to-gray-100">
-        <h1 class="text-5xl font-extrabold mb-6">Discover Events Near You</h1>
-        <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Find concerts, workshops, meetups, and more — or host your own.
-        </p>
+            <div class="flex items-center space-x-4">
+                <a href="logIn.html" class="text-gray-600 hover:text-black"
+                    >Log In</a
+                >
+                <a
+                    href="#"
+                    class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition"
+                    >Sign Up</a
+                >
+            </div>
+        </nav>
 
-        <!-- Search Bar -->
-        <div class="bg-white p-2 rounded-xl shadow-lg flex flex-col md:flex-row max-w-4xl mx-auto gap-2">
-            <input type="text" placeholder="What are you looking for?" class="flex-1 p-3 outline-none border-b md:border-b-0 md:border-r border-gray-200">
-            <input type="text" placeholder="Location" class="flex-1 p-3 outline-none border-b md:border-b-0 md:border-r border-gray-200">
-            <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">Find Events</button>
-        </div>
-    </section>
+        <!-- HERO SECTION -->
+        <section
+            class="py-20 px-10 text-center bg-gradient-to-b from-white to-gray-100"
+        >
+            <h1 class="text-5xl font-extrabold mb-6">
+                Discover Organizers Near You
+            </h1>
+            <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+                Find professional organizers near you.
+            </p>
 
-    <!-- FEATURED EVENTS GRID -->
-    <section class="py-16 px-10 max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-3xl font-bold">Featured Events</h2>
-            <a href="#" class="text-blue-600 font-semibold hover:underline">View All</a>
-        </div>
+            <!-- Search Bar -->
+            <div
+                class="bg-white p-2 rounded-xl shadow-lg flex flex-col md:flex-row max-w-4xl mx-auto gap-2"
+            >
+                <input
+                    type="text"
+                    placeholder="What are you looking for?"
+                    class="flex-1 p-3 outline-none border-b md:border-b-0 md:border-r border-gray-200"
+                />
+                <input
+                    type="text"
+                    placeholder="Location"
+                    class="flex-1 p-3 outline-none border-b md:border-b-0 md:border-r border-gray-200"
+                />
+                <button
+                    class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition"
+                >
+                    Find Organizers
+                </button>
+            </div>
+        </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Event Card 1 -->
-            <article class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group">
-                <div class="h-48 bg-gray-300 group-hover:bg-gray-400 transition"><img src="https://www.visitmaribor.si/media/17418/visitmb_zametna_vecerja_najstarejsa_trta_lent_mb_2025_06_06mava3985_foto_mv_pigac_si.jpg?anchor=center&mode=crop&width=1200&height=630"></div>
-                <div class="p-6">
-                    <span class="text-blue-600 text-sm font-bold uppercase">Music</span>
-                    <h3 class="text-xl font-bold mt-2">Summer Jazz Festival</h3>
-                    <p class="text-gray-500 text-sm mt-1">May 20 · Maribor City Square</p>
-                    <button class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">Details</button>
-                </div>
-            </article>
+        <!-- FEATURED EVENTS GRID -->
+        <section class="py-16 px-10 max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="text-3xl font-bold">Featured Organizers</h2>
+                <a href="#" class="text-blue-600 font-semibold hover:underline"
+                    >View All</a
+                >
+            </div>
 
-            <!-- Event Card 2 (Placeholder) -->
-            <article class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
-                <div class="h-48 bg-gray-300"><img src="https://editorial.netmedia.si/s3fs-public/styles/768x440/public/slike/naslovne/2025/2/17/photo_2025-02-14-10.webp?h=29234840"></div>
-                <div class="p-6">
-                    <span class="text-green-600 text-sm font-bold uppercase">Tech</span>
-                    <h3 class="text-xl font-bold mt-2">AI Workshop 2026</h3>
-                    <p class="text-gray-500 text-sm mt-1">June 12 · UM FERI</p>
-                    <button class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">Details</button>
-                </div>
-            </article>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Event Card 1 -->
+                <article
+                    class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
+                >
+                    <div
+                        class="h-48 bg-gray-300 group-hover:bg-gray-400 transition overflow-hidden"
+                    >
+                        <img
+                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                            class="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div class="p-6">
+                        <span class="text-blue-600 text-sm font-bold uppercase"
+                            >Music</span
+                        >
+                        <h3 class="text-xl font-bold mt-2">John Smith</h3>
+                        <p class="text-gray-500 text-sm mt-1">
+                            May 20 · Maribor City Square
+                        </p>
+                        <button
+                            class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition"
+                        >
+                            Details
+                        </button>
+                    </div>
+                </article>
 
-            <!-- Event Card 3 (Placeholder) -->
-            <article class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition">
-                <div class="h-48 bg-gray-300"><img src="https://scontent.flju2-3.fna.fbcdn.net/v/t39.30808-6/641512314_1490488276411136_4554379958508162526_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=127cfc&_nc_ohc=aJH9SDUYyWYQ7kNvwHRPMLD&_nc_oc=AdpGCATja4vU6XbBua9-g1A5e8csbu365CPPs9UVN3m1IHp64lITSWKNj89jKcfRHzE&_nc_zt=23&_nc_ht=scontent.flju2-3.fna&_nc_gid=Kt9CUdNvgTK38L9SajyhtQ&_nc_ss=7b2a8&oh=00_Af4DF5DEtvuGjtu6xSmr8Dt9R19qnEvIZG0GAHa1qq2Exg&oe=6A0ABDB5"></div>
-                <div class="p-6">
-                    <span class="text-purple-600 text-sm font-bold uppercase">Arts</span>
-                    <h3 class="text-xl font-bold mt-2">Modern Art Gallery</h3>
-                    <p class="text-gray-500 text-sm mt-1">June 15 · Lent Maribor</p>
-                    <button class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition">Details</button>
-                </div>
-            </article>
-        </div>
-    </section>
+                <!-- Event Card 2 (Placeholder) -->
+                <article
+                    class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition"
+                >
+                    <div class="h-48 bg-gray-300 overflow-hidden">
+                        <img
+                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                            class="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div class="p-6">
+                        <span class="text-green-600 text-sm font-bold uppercase"
+                            >Tech</span
+                        >
+                        <h3 class="text-xl font-bold mt-2">Jane Smith</h3>
+                        <p class="text-gray-500 text-sm mt-1">
+                            June 12 · UM FERI
+                        </p>
+                        <button
+                            class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition"
+                        >
+                            Details
+                        </button>
+                    </div>
+                </article>
 
-    <!-- FOOTER -->
-    <footer class="py-10 text-center border-t border-gray-200 text-gray-500 text-sm">
-        <p>&copy; 2026 Evently. Built for Praktikum 1, FERI IPT 1st Year</p>
-    </footer>
+                <!-- Event Card 3 (Placeholder) -->
+                <article
+                    class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition"
+                >
+                    <div class="h-48 bg-gray-300 overflow-hidden">
+                        <img
+                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                            class="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div class="p-6">
+                        <span
+                            class="text-purple-600 text-sm font-bold uppercase"
+                            >Arts</span
+                        >
+                        <h3 class="text-xl font-bold mt-2">Jane Smith</h3>
+                        <p class="text-gray-500 text-sm mt-1">
+                            June 15 · Lent Maribor
+                        </p>
+                        <button
+                            class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition"
+                        >
+                            Details
+                        </button>
+                    </div>
+                </article>
 
-</body>
+                <article
+                    class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition"
+                >
+                    <div class="h-48 bg-gray-300 overflow-hidden">
+                        <img
+                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                            class="w-full h-full object-cover"
+                        />
+                    </div>
+                    <div class="p-6">
+                        <span class="text-green-600 text-sm font-bold uppercase"
+                            >Tech</span
+                        >
+                        <h3 class="text-xl font-bold mt-2">Jane Smith</h3>
+                        <p class="text-gray-500 text-sm mt-1">
+                            June 12 · UM FERI
+                        </p>
+                        <button
+                            class="mt-4 w-full border border-gray-200 py-2 rounded-lg hover:bg-gray-50 transition"
+                        >
+                            Details
+                        </button>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer
+            class="py-10 text-center border-t border-gray-200 text-gray-500 text-sm"
+        >
+            <p>&copy; 2026 Evently. Built for Praktikum 1, FERI IPT 1st Year</p>
+        </footer>
+    </body>
 </html>
