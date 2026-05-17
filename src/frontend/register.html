@@ -1,275 +1,200 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>White Orchid Events — Register</title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
-            rel="stylesheet"
-        />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>White Orchid Events — Register</title>
 
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            navy: {
-                                DEFAULT: "#0D1B2A",
-                                light: "#162536",
-                                dark: "#08111A",
-                            },
-                            gold: {
-                                DEFAULT: "#C9A84C",
-                                light: "#E2C06B",
-                                dark: "#A8883A",
-                            },
-                            cream: {
-                                DEFAULT: "#FAFAF7",
-                                dark: "#F0EFE8",
-                            },
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            DEFAULT: "#0D1B2A",
+                            light: "#162536",
+                            dark: "#08111A",
                         },
-                        fontFamily: {
-                            display: ['"Playfair Display"', "Georgia", "serif"],
-                            sans: ["Jost", "system-ui", "sans-serif"],
+                        gold: {
+                            DEFAULT: "#C9A84C",
+                            light: "#E2C06B",
+                            dark: "#A8883A",
+                        },
+                        cream: {
+                            DEFAULT: "#FAFAF7",
+                            dark: "#F0EFE8",
                         },
                     },
+                    fontFamily: {
+                        display: ['"Playfair Display"', "Georgia", "serif"],
+                        sans: ["Jost", "system-ui", "sans-serif"],
+                    },
                 },
-            };
-        </script>
+            },
+        };
+    </script>
 
-        <link rel="stylesheet" href="css/style.css" />
-    </head>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
 
-    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
-        <!-- NAVIGATION -->
-        <nav
-            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
-        >
+<body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+    <!-- NAVIGATION -->
+    <nav
+        class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
+        <a href="index.html" class="no-underline">
+            <div class="font-display text-2xl font-semibold text-navy tracking-wide">
+                White Orchid
+            </div>
+            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">
+                Event Organizers
+            </div>
+        </a>
+
+        <div class="hidden md:flex space-x-8 text-sm">
+            <a href="#" class="nav-link-luxury">How It Works</a>
+            <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+        </div>
+
+        <div class="flex items-center space-x-6">
+            <a href="login.html"
+                class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log
+                In</a>
+            <a href="register.html" class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium">Sign
+                Up</a>
+        </div>
+    </nav>
+
+    <!-- REGISTER SECTION -->
+    <section class="flex-grow flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full bg-white p-8 md:p-10 shadow-lg rounded-lg border border-gold/10">
             <div>
-                <div
-                    class="font-display text-2xl font-semibold text-navy tracking-wide"
-                >
-                    White Orchid
+                <h2 class="mt-6 text-center text-3xl font-display font-semibold text-navy">
+                    Create a new account
+                </h2>
+                <p class="mt-2 text-center text-sm text-navy/70">
+                    Or
+                    <a href="login.html" class="font-medium text-gold hover:text-gold-dark">
+                        log in to your existing account
+                    </a>
+                </p>
+            </div>
+            <form class="mt-8 space-y-6" action="#" method="POST">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="username" class="sr-only">Username</label>
+                        <input id="username" name="username" type="text" autocomplete="username" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Username" />
+                    </div>
+                    <div>
+                        <label for="email-address" class="sr-only">Email address</label>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Email address" />
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" autocomplete="new-password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Password" />
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="sr-only">Confirm Password</label>
+                        <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password"
+                            required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Confirm Password" />
+                    </div>
                 </div>
-                <div
-                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
-                >
-                    Event Organizers
-                </div>
-            </div>
 
-            <div class="hidden md:flex space-x-8 text-sm">
-                <a href="org-search.html" class="nav-link-luxury"
-                    >Browse Organizers</a
-                >
-                <a href="#" class="nav-link-luxury">Top Organizers</a>
-                <a href="#" class="nav-link-luxury">How It Works</a>
-                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
-            </div>
-
-            <div class="flex items-center space-x-6">
-                <a
-                    href="login.html"
-                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
-                    >Log In</a
-                >
-                <a
-                    href="register.html"
-                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
-                    >Sign Up</a
-                >
-            </div>
-        </nav>
-
-        <!-- REGISTER SECTION -->
-        <section
-            class="flex-grow flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8"
-        >
-            <div
-                class="max-w-md w-full bg-white p-8 md:p-10 shadow-lg rounded-lg border border-gold/10"
-            >
                 <div>
-                    <h2
-                        class="mt-6 text-center text-3xl font-display font-semibold text-navy"
-                    >
-                        Create a new account
-                    </h2>
-                    <p class="mt-2 text-center text-sm text-navy/70">
-                        Or
-                        <a
-                            href="login.html"
-                            class="font-medium text-gold hover:text-gold-dark"
-                        >
-                            log in to your existing account
-                        </a>
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium uppercase tracking-widest text-navy bg-gold hover:bg-gold-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition-colors duration-300">
+                        Register
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-dark py-16 px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                <div class="md:col-span-2">
+                    <div class="font-display text-2xl text-white mb-1">
+                        White Orchid
+                    </div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">
+                        Event Organizers
+                    </p>
+                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">
+                        The premier platform for discovering and connecting
+                        with elite event organizers across Slovenia and
+                        beyond.
                     </p>
                 </div>
-                <form class="mt-8 space-y-6" action="#" method="POST">
-                    <div class="rounded-md shadow-sm -space-y-px">
-                        <div>
-                            <label for="username" class="sr-only"
-                                >Username</label
-                            >
-                            <input
-                                id="username"
-                                name="username"
-                                type="text"
-                                autocomplete="username"
-                                required
-                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                                placeholder="Username"
-                            />
-                        </div>
-                        <div>
-                            <label for="email-address" class="sr-only"
-                                >Email address</label
-                            >
-                            <input
-                                id="email-address"
-                                name="email"
-                                type="email"
-                                autocomplete="email"
-                                required
-                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                                placeholder="Email address"
-                            />
-                        </div>
-                        <div>
-                            <label for="password" class="sr-only"
-                                >Password</label
-                            >
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autocomplete="new-password"
-                                required
-                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                                placeholder="Password"
-                            />
-                        </div>
-                        <div>
-                            <label for="confirm-password" class="sr-only"
-                                >Confirm Password</label
-                            >
-                            <input
-                                id="confirm-password"
-                                name="confirm-password"
-                                type="password"
-                                autocomplete="new-password"
-                                required
-                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                                placeholder="Confirm Password"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <button
-                            type="submit"
-                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium uppercase tracking-widest text-navy bg-gold hover:bg-gold-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition-colors duration-300"
-                        >
-                            Register
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- FOOTER -->
-        <footer class="bg-navy-dark py-16 px-10">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
-                    <div class="md:col-span-2">
-                        <div class="font-display text-2xl text-white mb-1">
-                            White Orchid
-                        </div>
-                        <p
-                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
-                        >
-                            Event Organizers
-                        </p>
-                        <p
-                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
-                        >
-                            The premier platform for discovering and connecting
-                            with elite event organizers across Slovenia and
-                            beyond.
-                        </p>
-                    </div>
-                    <div>
-                        <h4
-                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
-                        >
-                            Platform
-                        </h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Browse Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Top Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link">How It Works</a>
-                            </li>
-                            <li>
-                                <a href="pricing.html" class="footer-link"
-                                    >Service Pricing</a
-                                >
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4
-                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
-                        >
-                            Company
-                        </h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="#" class="footer-link">About Us</a>
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >For Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Privacy Policy</a
-                                >
-                            </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
-                        </ul>
-                    </div>
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
+                        Platform
+                    </h4>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="#" class="footer-link">Browse Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">Top Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">How It Works</a>
+                        </li>
+                        <li>
+                            <a href="pricing.html" class="footer-link">Service Pricing</a>
+                        </li>
+                    </ul>
                 </div>
-
-                <div class="h-px bg-white/[0.07] mb-8"></div>
-
-                <div
-                    class="flex flex-col md:flex-row justify-between items-center gap-4"
-                >
-                    <p class="text-white/25 text-xs font-light">
-                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
-                        IPT 1st Year.
-                    </p>
-                    <div class="flex space-x-6">
-                        <a href="#" class="footer-link text-xs">Terms</a>
-                        <a href="#" class="footer-link text-xs">Privacy</a>
-                        <a href="#" class="footer-link text-xs">Cookies</a>
-                    </div>
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
+                        Company
+                    </h4>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="#" class="footer-link">About Us</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">For Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">Privacy Policy</a>
+                        </li>
+                        <li><a href="#" class="footer-link">Contact</a></li>
+                    </ul>
                 </div>
             </div>
-        </footer>
-    </body>
+
+            <div class="h-px bg-white/[0.07] mb-8"></div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-white/25 text-xs font-light">
+                    © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                    IPT 1st Year.
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="footer-link text-xs">Terms</a>
+                    <a href="#" class="footer-link text-xs">Privacy</a>
+                    <a href="#" class="footer-link text-xs">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
 </html>

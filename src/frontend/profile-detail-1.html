@@ -1,329 +1,263 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>White Orchid Events — John Smith Profile</title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
-            rel="stylesheet"
-        />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>White Orchid Events — John Smith Profile</title>
 
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            navy: {
-                                DEFAULT: "#0D1B2A",
-                                light: "#162536",
-                                dark: "#08111A",
-                            },
-                            gold: {
-                                DEFAULT: "#C9A84C",
-                                light: "#E2C06B",
-                                dark: "#A8883A",
-                            },
-                            cream: {
-                                DEFAULT: "#FAFAF7",
-                                dark: "#F0EFE8",
-                            },
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            DEFAULT: "#0D1B2A",
+                            light: "#162536",
+                            dark: "#08111A",
                         },
-                        fontFamily: {
-                            display: ['"Playfair Display"', "Georgia", "serif"],
-                            sans: ["Jost", "system-ui", "sans-serif"],
+                        gold: {
+                            DEFAULT: "#C9A84C",
+                            light: "#E2C06B",
+                            dark: "#A8883A",
+                        },
+                        cream: {
+                            DEFAULT: "#FAFAF7",
+                            dark: "#F0EFE8",
                         },
                     },
+                    fontFamily: {
+                        display: ['"Playfair Display"', "Georgia", "serif"],
+                        sans: ["Jost", "system-ui", "sans-serif"],
+                    },
                 },
-            };
-        </script>
+            },
+        };
+    </script>
 
-        <link rel="stylesheet" href="style.css" />
-    </head>
+    <link rel="stylesheet" href="style.css" />
+</head>
 
-    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
-        <!-- NAVIGATION -->
-        <nav
-            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
-        >
-            <div>
-                <div
-                    class="font-display text-2xl font-semibold text-navy tracking-wide"
-                >
-                    White Orchid
-                </div>
-                <div
-                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
-                >
-                    Event Organizers
-                </div>
+<body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+    <!-- NAVIGATION -->
+    <nav
+        class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
+        <a href="index.html" class="no-underline">
+            <div class="font-display text-2xl font-semibold text-navy tracking-wide">
+                White Orchid
             </div>
-
-            <div class="hidden md:flex space-x-8 text-sm">
-                <a href="org-search.html" class="nav-link-luxury"
-                    >Browse Organizers</a
-                >
-                <a href="#" class="nav-link-luxury">Top Organizers</a>
-                <a href="#" class="nav-link-luxury">How It Works</a>
-                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">
+                Event Organizers
             </div>
+        </a>
 
-            <div class="flex items-center space-x-6">
-                <a
-                    href="login.html"
-                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
-                    >Log In</a
-                >
-                <a
-                    href="register.html"
-                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
-                    >Sign Up</a
-                >
-            </div>
-        </nav>
+        <div class="hidden md:flex space-x-8 text-sm">
+            <a href="#" class="nav-link-luxury">How It Works</a>
+            <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+        </div>
 
-        <!-- PROFILE DETAIL SECTION -->
-        <section class="flex-grow py-20 px-10 max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <!-- Profile Sidebar -->
-                <div
-                    class="md:col-span-1 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-center"
-                >
-                    <img
-                        src="https://t4.ftcdn.net/jpg/02/45/56/35/360_F_245563558_XH9Pe5LJI2kr7VQuzQKAjAbz9PAyejG1.jpg"
-                        alt="John Smith Profile Picture"
-                        class="w-40 h-40 rounded-full object-cover mx-auto mb-6 border-4 border-gold"
-                    />
-                    <h1
-                        class="font-display text-3xl font-semibold text-navy mb-2"
-                    >
-                        John Smith Events
-                    </h1>
-                    <p class="text-navy/60 text-sm font-light mb-4">
-                        Maribor City Square
-                    </p>
-                    <div class="text-gold text-base tracking-widest mb-6">
-                        ★★★★★
-                    </div>
+        <div class="flex items-center space-x-6">
+            <a href="login.html"
+                class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log
+                In</a>
+            <a href="register.html" class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium">Sign
+                Up</a>
+        </div>
+    </nav>
 
-                    <div class="space-y-4">
-                        <a
-                            href="#"
-                            class="btn-gold block w-full py-3 text-sm tracking-widest uppercase font-medium"
-                            >Get in Touch</a
-                        >
-                        <a
-                            href="#"
-                            class="btn-gold-dark block w-full py-3 text-sm tracking-widest uppercase font-medium"
-                            >View Availability</a
-                        >
-                    </div>
-
-                    <div class="mt-8 pt-8 border-t border-navy/10 text-left">
-                        <h3 class="font-display text-xl text-navy mb-3">
-                            Specialties
-                        </h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="category-pill category-pill--active"
-                                >🎵 Music Events</span
-                            >
-                            <span class="category-pill">🎤 Concerts</span>
-                            <span class="category-pill">🎶 Festivals</span>
-                        </div>
-                    </div>
+    <!-- PROFILE DETAIL SECTION -->
+    <section class="flex-grow py-20 px-10 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <!-- Profile Sidebar -->
+            <div class="md:col-span-1 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-center">
+                <img src="https://t4.ftcdn.net/jpg/02/45/56/35/360_F_245563558_XH9Pe5LJI2kr7VQuzQKAjAbz9PAyejG1.jpg"
+                    alt="John Smith Profile Picture"
+                    class="w-40 h-40 rounded-full object-cover mx-auto mb-6 border-4 border-gold" />
+                <h1 class="font-display text-3xl font-semibold text-navy mb-2">
+                    John Smith Events
+                </h1>
+                <p class="text-navy/60 text-sm font-light mb-4">
+                    Maribor City Square
+                </p>
+                <div class="text-gold text-base tracking-widest mb-6">
+                    ★★★★★
                 </div>
 
-                <!-- Profile Content -->
-                <div
-                    class="md:col-span-2 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-left"
-                >
-                    <h2
-                        class="font-display text-4xl font-semibold text-navy mb-6"
-                    >
-                        About John Smith Events
-                    </h2>
-                    <p class="text-navy/70 text-base leading-relaxed mb-6">
-                        John Smith Events is renowned for crafting unforgettable
-                        music experiences in Maribor and beyond. With years of
-                        expertise, John and his team specialize in orchestrating
-                        everything from intimate acoustic nights to large-scale
-                        outdoor festivals. Their passion for music combined with
-                        meticulous planning ensures every event hits the perfect
-                        note.
-                    </p>
-                    <p class="text-navy/70 text-base leading-relaxed mb-8">
-                        Whether you're looking to host a lively concert in a
-                        city square, a sophisticated classical recital, or a
-                        vibrant music festival, John Smith Events brings a
-                        unique blend of creativity and precision to each
-                        project. They handle all aspects, including venue
-                        selection, artist liaison, sound and lighting
-                        production, and audience engagement, delivering seamless
-                        and captivating events.
-                    </p>
+                <div class="space-y-4">
+                    <a href="#" class="btn-gold block w-full py-3 text-sm tracking-widest uppercase font-medium">Get in
+                        Touch</a>
+                    <a href="#"
+                        class="btn-gold-dark block w-full py-3 text-sm tracking-widest uppercase font-medium">View
+                        Availability</a>
+                </div>
 
-                    <h3
-                        class="font-display text-3xl font-semibold text-navy mb-6 mt-12"
-                    >
-                        Past Events & Highlights
+                <div class="mt-8 pt-8 border-t border-navy/10 text-left">
+                    <h3 class="font-display text-xl text-navy mb-3">
+                        Specialties
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                        <div>
-                            <img
-                                src="https://via.placeholder.com/400x250"
-                                alt="Past Event 1"
-                                class="rounded-lg mb-4"
-                            />
-                            <h4 class="font-display text-xl text-navy mb-2">
-                                Summer Beats Festival
-                            </h4>
-                            <p class="text-navy/60 text-sm font-light">
-                                August 2023 · Maribor City Park
-                            </p>
-                        </div>
-                        <div>
-                            <img
-                                src="https://via.placeholder.com/400x250"
-                                alt="Past Event 2"
-                                class="rounded-lg mb-4"
-                            />
-                            <h4 class="font-display text-xl text-navy mb-2">
-                                Acoustic Evenings at Lent
-                            </h4>
-                            <p class="text-navy/60 text-sm font-light">
-                                July 2023 · Lent Festival Stage
-                            </p>
-                        </div>
-                    </div>
-
-                    <h3
-                        class="font-display text-3xl font-semibold text-navy mb-6 mt-12"
-                    >
-                        Testimonials
-                    </h3>
-                    <div class="space-y-6">
-                        <blockquote
-                            class="bg-cream-dark p-6 rounded-lg border border-navy/10"
-                        >
-                            <p class="text-navy/70 italic mb-4">
-                                "John Smith Events transformed our annual music
-                                festival into an unparalleled success. Their
-                                attention to detail and ability to manage
-                                complex logistics was truly impressive!"
-                            </p>
-                            <p class="text-navy font-medium">
-                                — Local Music Enthusiast
-                            </p>
-                        </blockquote>
-                        <blockquote
-                            class="bg-cream-dark p-6 rounded-lg border border-navy/10"
-                        >
-                            <p class="text-navy/70 italic mb-4">
-                                "Working with John was a dream. He understood
-                                our vision perfectly and delivered a flawless
-                                concert experience that exceeded all
-                                expectations."
-                            </p>
-                            <p class="text-navy font-medium">— Band Manager</p>
-                        </blockquote>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="category-pill category-pill--active">🎵 Music Events</span>
+                        <span class="category-pill">🎤 Concerts</span>
+                        <span class="category-pill">🎶 Festivals</span>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- FOOTER -->
-        <footer class="bg-navy-dark py-16 px-10">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
-                    <div class="md:col-span-2">
-                        <div class="font-display text-2xl text-white mb-1">
-                            White Orchid
-                        </div>
-                        <p
-                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
-                        >
-                            Event Organizers
-                        </p>
-                        <p
-                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
-                        >
-                            The premier platform for discovering and connecting
-                            with elite event organizers across Slovenia and
-                            beyond.
+            <!-- Profile Content -->
+            <div class="md:col-span-2 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-left">
+                <h2 class="font-display text-4xl font-semibold text-navy mb-6">
+                    About John Smith Events
+                </h2>
+                <p class="text-navy/70 text-base leading-relaxed mb-6">
+                    John Smith Events is renowned for crafting unforgettable
+                    music experiences in Maribor and beyond. With years of
+                    expertise, John and his team specialize in orchestrating
+                    everything from intimate acoustic nights to large-scale
+                    outdoor festivals. Their passion for music combined with
+                    meticulous planning ensures every event hits the perfect
+                    note.
+                </p>
+                <p class="text-navy/70 text-base leading-relaxed mb-8">
+                    Whether you're looking to host a lively concert in a
+                    city square, a sophisticated classical recital, or a
+                    vibrant music festival, John Smith Events brings a
+                    unique blend of creativity and precision to each
+                    project. They handle all aspects, including venue
+                    selection, artist liaison, sound and lighting
+                    production, and audience engagement, delivering seamless
+                    and captivating events.
+                </p>
+
+                <h3 class="font-display text-3xl font-semibold text-navy mb-6 mt-12">
+                    Past Events & Highlights
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div>
+                        <img src="https://via.placeholder.com/400x250" alt="Past Event 1" class="rounded-lg mb-4" />
+                        <h4 class="font-display text-xl text-navy mb-2">
+                            Summer Beats Festival
+                        </h4>
+                        <p class="text-navy/60 text-sm font-light">
+                            August 2023 · Maribor City Park
                         </p>
                     </div>
                     <div>
-                        <h4
-                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
-                        >
-                            Platform
+                        <img src="https://via.placeholder.com/400x250" alt="Past Event 2" class="rounded-lg mb-4" />
+                        <h4 class="font-display text-xl text-navy mb-2">
+                            Acoustic Evenings at Lent
                         </h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="org-search.html" class="footer-link"
-                                    >Browse Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Top Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link">How It Works</a>
-                            </li>
-                            <li>
-                                <a href="pricing.html" class="footer-link"
-                                    >Pricing</a
-                                >
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4
-                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
-                        >
-                            Company
-                        </h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="#" class="footer-link">About Us</a>
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >For Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Privacy Policy</a
-                                >
-                            </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
-                        </ul>
+                        <p class="text-navy/60 text-sm font-light">
+                            July 2023 · Lent Festival Stage
+                        </p>
                     </div>
                 </div>
 
-                <div class="h-px bg-white/[0.07] mb-8"></div>
-
-                <div
-                    class="flex flex-col md:flex-row justify-between items-center gap-4"
-                >
-                    <p class="text-white/25 text-xs font-light">
-                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
-                        IPT 1st Year.
-                    </p>
-                    <div class="flex space-x-6">
-                        <a href="#" class="footer-link text-xs">Terms</a>
-                        <a href="#" class="footer-link text-xs">Privacy</a>
-                        <a href="#" class="footer-link text-xs">Cookies</a>
-                    </div>
+                <h3 class="font-display text-3xl font-semibold text-navy mb-6 mt-12">
+                    Testimonials
+                </h3>
+                <div class="space-y-6">
+                    <blockquote class="bg-cream-dark p-6 rounded-lg border border-navy/10">
+                        <p class="text-navy/70 italic mb-4">
+                            "John Smith Events transformed our annual music
+                            festival into an unparalleled success. Their
+                            attention to detail and ability to manage
+                            complex logistics was truly impressive!"
+                        </p>
+                        <p class="text-navy font-medium">
+                            — Local Music Enthusiast
+                        </p>
+                    </blockquote>
+                    <blockquote class="bg-cream-dark p-6 rounded-lg border border-navy/10">
+                        <p class="text-navy/70 italic mb-4">
+                            "Working with John was a dream. He understood
+                            our vision perfectly and delivered a flawless
+                            concert experience that exceeded all
+                            expectations."
+                        </p>
+                        <p class="text-navy font-medium">— Band Manager</p>
+                    </blockquote>
                 </div>
             </div>
-        </footer>
-    </body>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-dark py-16 px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                <div class="md:col-span-2">
+                    <div class="font-display text-2xl text-white mb-1">
+                        White Orchid
+                    </div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">
+                        Event Organizers
+                    </p>
+                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">
+                        The premier platform for discovering and connecting
+                        with elite event organizers across Slovenia and
+                        beyond.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
+                        Platform
+                    </h4>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="org-search.html" class="footer-link">Browse Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">Top Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">How It Works</a>
+                        </li>
+                        <li>
+                            <a href="pricing.html" class="footer-link">Pricing</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
+                        Company
+                    </h4>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="#" class="footer-link">About Us</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">For Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">Privacy Policy</a>
+                        </li>
+                        <li><a href="#" class="footer-link">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="h-px bg-white/[0.07] mb-8"></div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-white/25 text-xs font-light">
+                    © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                    IPT 1st Year.
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="footer-link text-xs">Terms</a>
+                    <a href="#" class="footer-link text-xs">Privacy</a>
+                    <a href="#" class="footer-link text-xs">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
 </html>

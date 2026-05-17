@@ -1,502 +1,395 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>White Orchid Events — Discover & Host</title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
-            rel="stylesheet"
-        />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>White Orchid Events — Discover & Host</title>
 
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            navy: {
-                                DEFAULT: "#0D1B2A",
-                                light: "#162536",
-                                dark: "#08111A",
-                            },
-                            gold: {
-                                DEFAULT: "#C9A84C",
-                                light: "#E2C06B",
-                                dark: "#A8883A",
-                            },
-                            cream: {
-                                DEFAULT: "#FAFAF7",
-                                dark: "#F0EFE8",
-                            },
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            DEFAULT: "#0D1B2A",
+                            light: "#162536",
+                            dark: "#08111A",
                         },
-                        fontFamily: {
-                            display: ['"Playfair Display"', "Georgia", "serif"],
-                            sans: ["Jost", "system-ui", "sans-serif"],
+                        gold: {
+                            DEFAULT: "#C9A84C",
+                            light: "#E2C06B",
+                            dark: "#A8883A",
+                        },
+                        cream: {
+                            DEFAULT: "#FAFAF7",
+                            dark: "#F0EFE8",
                         },
                     },
+                    fontFamily: {
+                        display: ['"Playfair Display"', "Georgia", "serif"],
+                        sans: ["Jost", "system-ui", "sans-serif"],
+                    },
                 },
-            };
-        </script>
+            },
+        };
+    </script>
 
-        <link rel="stylesheet" href="css/style.css" />
-    </head>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
 
-    <body class="bg-cream font-sans text-navy">
-        <!-- NAVIGATION -->
-        <nav
-            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
-        >
+<body class="bg-cream font-sans text-navy">
+    <!-- NAVIGATION -->
+    <nav
+        class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
+        <a href="index.html" class="no-underline">
+            <div class="font-display text-2xl font-semibold text-navy tracking-wide">
+                White Orchid
+            </div>
+            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">
+                Event Organizers
+            </div>
+        </a>
+
+        <div class="hidden md:flex space-x-8 text-sm">
+            <a href="#" class="nav-link-luxury">How It Works</a>
+            <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+        </div>
+
+        <div class="flex items-center space-x-6">
+            <a href="login.html"
+                class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log
+                In</a>
+            <a href="register.html" class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium">Sign
+                Up</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section py-36 px-10 text-center text-white">
+        <div class="max-w-4xl mx-auto">
+            <p class="text-gold tracking-widest uppercase text-xs font-light mb-6 fade-in">
+                Maribor & Beyond
+            </p>
+            <h1 class="font-display text-6xl font-semibold leading-tight mb-8 fade-in delay-1">
+                Discover the Art of<br />
+                <em class="italic font-normal">Extraordinary</em> Events
+            </h1>
+            <p class="text-white/70 text-lg font-light mb-14 max-w-2xl mx-auto fade-in delay-2">
+                Connect with elite event organizers who transform your
+                vision into an unforgettable experience.
+            </p>
+            <a href="org-search.html"
+                class="btn-gold inline-block text-sm px-10 py-4 tracking-widest uppercase font-medium fade-in delay-3">Browse
+                Organizers</a>
+        </div>
+    </section>
+
+    <!-- STATS BAR -->
+    <section class="bg-navy-light py-14">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-around items-center gap-8 text-center">
             <div>
-                <div
-                    class="font-display text-2xl font-semibold text-navy tracking-wide"
-                >
-                    White Orchid
-                </div>
-                <div
-                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
-                >
-                    Event Organizers
-                </div>
-            </div>
-
-            <div class="hidden md:flex space-x-8 text-sm">
-                <a href="org-search.html" class="nav-link-luxury"
-                    >Browse Organizers</a
-                >
-                <a href="#" class="nav-link-luxury">Top Organizers</a>
-                <a href="#" class="nav-link-luxury">How It Works</a>
-                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
-            </div>
-
-            <div class="flex items-center space-x-6">
-                <a
-                    href="login.html"
-                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
-                    >Log In</a
-                >
-                <a
-                    href="#"
-                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
-                    >Sign Up</a
-                >
-            </div>
-        </nav>
-
-        <!-- HERO SECTION -->
-        <section class="hero-section py-36 px-10 text-center text-white">
-            <div class="max-w-4xl mx-auto">
-                <p
-                    class="text-gold tracking-widest uppercase text-xs font-light mb-6 fade-in"
-                >
-                    Maribor & Beyond
+                <p class="font-display text-4xl text-gold font-semibold">
+                    1,200+
                 </p>
-                <h1
-                    class="font-display text-6xl font-semibold leading-tight mb-8 fade-in delay-1"
-                >
-                    Discover the Art of<br />
-                    <em class="italic font-normal">Extraordinary</em> Events
-                </h1>
-                <p
-                    class="text-white/70 text-lg font-light mb-14 max-w-2xl mx-auto fade-in delay-2"
-                >
-                    Connect with elite event organizers who transform your
-                    vision into an unforgettable experience.
+                <p class="text-white/50 text-xs tracking-widest uppercase mt-2 font-light">
+                    Events Hosted
                 </p>
             </div>
-        </section>
-
-        <!-- STATS BAR -->
-        <section class="bg-navy-light py-14">
-            <div
-                class="max-w-4xl mx-auto flex flex-col md:flex-row justify-around items-center gap-8 text-center"
-            >
-                <div>
-                    <p class="font-display text-4xl text-gold font-semibold">
-                        1,200+
-                    </p>
-                    <p
-                        class="text-white/50 text-xs tracking-widest uppercase mt-2 font-light"
-                    >
-                        Events Hosted
-                    </p>
-                </div>
-                <div class="w-px h-12 bg-gold/20 hidden md:block"></div>
-                <div>
-                    <p class="font-display text-4xl text-gold font-semibold">
-                        340
-                    </p>
-                    <p
-                        class="text-white/50 text-xs tracking-widest uppercase mt-2 font-light"
-                    >
-                        Organizers
-                    </p>
-                </div>
-                <div class="w-px h-12 bg-gold/20 hidden md:block"></div>
-                <div>
-                    <p class="font-display text-4xl text-gold font-semibold">
-                        28
-                    </p>
-                    <p
-                        class="text-white/50 text-xs tracking-widest uppercase mt-2 font-light"
-                    >
-                        Cities
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- CATEGORIES -->
-        <section class="py-16 px-10 bg-cream-dark">
-            <div class="max-w-7xl mx-auto">
-                <p
-                    class="text-gold tracking-widest uppercase text-xs font-light text-center mb-4"
-                >
-                    Browse By
+            <div class="w-px h-12 bg-gold/20 hidden md:block"></div>
+            <div>
+                <p class="font-display text-4xl text-gold font-semibold">
+                    340
                 </p>
-                <h2 class="font-display text-3xl text-center text-navy mb-10">
-                    Event Categories
+                <p class="text-white/50 text-xs tracking-widest uppercase mt-2 font-light">
+                    Organizers
+                </p>
+            </div>
+            <div class="w-px h-12 bg-gold/20 hidden md:block"></div>
+            <div>
+                <p class="font-display text-4xl text-gold font-semibold">
+                    28
+                </p>
+                <p class="text-white/50 text-xs tracking-widest uppercase mt-2 font-light">
+                    Cities
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="py-16 px-10 bg-cream-dark">
+        <div class="max-w-7xl mx-auto">
+            <p class="text-gold tracking-widest uppercase text-xs font-light text-center mb-4">
+                Browse By
+            </p>
+            <h2 class="font-display text-3xl text-center text-navy mb-10">
+                Event Categories
+            </h2>
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="#" class="category-pill">🎵 Music</a>
+                <a href="#" class="category-pill category-pill--active">💻 Technology</a>
+                <a href="#" class="category-pill">🎨 Arts & Culture</a>
+                <a href="#" class="category-pill">🍽️ Food & Wine</a>
+                <a href="#" class="category-pill">💼 Business</a>
+                <a href="#" class="category-pill">💒 Weddings</a>
+                <a href="#" class="category-pill">🏃 Sports</a>
+                <a href="#" class="category-pill">🎓 Education</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED ORGANIZERS -->
+    <section class="py-20 px-10 max-w-7xl mx-auto">
+        <div class="flex justify-between items-end mb-14">
+            <div>
+                <p class="text-gold tracking-widest uppercase text-xs font-light mb-3">
+                    Handpicked for You
+                </p>
+                <h2 class="font-display text-4xl text-navy">
+                    Featured Organizers
                 </h2>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <a href="#" class="category-pill">🎵 Music</a>
-                    <a href="#" class="category-pill category-pill--active"
-                        >💻 Technology</a
-                    >
-                    <a href="#" class="category-pill">🎨 Arts & Culture</a>
-                    <a href="#" class="category-pill">🍽️ Food & Wine</a>
-                    <a href="#" class="category-pill">💼 Business</a>
-                    <a href="#" class="category-pill">💒 Weddings</a>
-                    <a href="#" class="category-pill">🏃 Sports</a>
-                    <a href="#" class="category-pill">🎓 Education</a>
+            </div>
+            <a href="#"
+                class="text-gold hover:text-gold-dark transition-colors text-sm tracking-widest uppercase font-light no-underline">View
+                All →</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <article class="organizer-card group">
+                <div class="h-52 relative bg-cream-dark overflow-hidden">
+                    <img src="https://t4.ftcdn.net/jpg/02/45/56/35/360_F_245563558_XH9Pe5LJI2kr7VQuzQKAjAbz9PAyejG1.jpg"
+                        class="card-image w-full h-full object-cover transition-transform duration-700" />
+                    <span class="card-badge">Music</span>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-display text-xl font-semibold text-navy">
+                        John Smith Events
+                    </h3>
+                    <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
+                        May 20 · Maribor City Square
+                    </p>
+                    <div class="text-gold text-xs tracking-widest mt-2">
+                        ★★★★★
+                    </div>
+                    <a href="profile-detail-1.html"
+                        class="card-btn block mt-5 w-full py-2.5 text-xs tracking-widest uppercase text-center">
+                        View Profile
+                    </a>
+                </div>
+            </article>
+
+            <!-- Card 2 -->
+            <article class="organizer-card group">
+                <div class="h-52 relative bg-cream-dark overflow-hidden">
+                    <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                        class="card-image w-full h-full object-cover transition-transform duration-700" />
+                    <span class="card-badge card-badge--tech">Tech</span>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-display text-xl font-semibold text-navy">
+                        Jane Smith
+                    </h3>
+                    <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
+                        June 12 · UM FERI
+                    </p>
+                    <div class="text-gold text-xs tracking-widest mt-2">
+                        ★★★★☆
+                    </div>
+                    <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
+                        View Profile
+                    </button>
+                </div>
+            </article>
+
+            <!-- Card 3 -->
+            <article class="organizer-card group">
+                <div class="h-52 relative bg-cream-dark overflow-hidden">
+                    <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                        class="card-image w-full h-full object-cover transition-transform duration-700" />
+                    <span class="card-badge card-badge--arts">Arts</span>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-display text-xl font-semibold text-navy">
+                        Marc Dubois
+                    </h3>
+                    <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
+                        June 15 · Lent Maribor
+                    </p>
+                    <div class="text-gold text-xs tracking-widest mt-2">
+                        ★★★★★
+                    </div>
+                    <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
+                        View Profile
+                    </button>
+                </div>
+            </article>
+
+            <!-- Card 4 -->
+            <article class="organizer-card group">
+                <div class="h-52 relative bg-cream-dark overflow-hidden">
+                    <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                        class="card-image w-full h-full object-cover transition-transform duration-700" />
+                    <span class="card-badge card-badge--tech">Tech</span>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-display text-xl font-semibold text-navy">
+                        Ana Kovač
+                    </h3>
+                    <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
+                        July 3 · Narodni Dom
+                    </p>
+                    <div class="text-gold text-xs tracking-widest mt-2">
+                        ★★★★☆
+                    </div>
+                    <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
+                        View Profile
+                    </button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-section py-28 px-10">
+        <div class="max-w-5xl mx-auto text-center">
+            <p class="text-gold tracking-widest uppercase text-xs font-light mb-4">
+                Simple & Seamless
+            </p>
+            <h2 class="font-display text-4xl text-navy mb-16">
+                How It Works
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="p-8 border border-gold/10 text-left hover:border-gold/40 transition-colors duration-300">
+                    <div class="step-number">01</div>
+                    <h3 class="font-display text-xl text-navy mt-5 mb-3">
+                        Search
+                    </h3>
+                    <p class="text-navy/60 text-sm font-light leading-relaxed">
+                        Browse our curated directory of professional event
+                        organizers by category, location, or specialty.
+                    </p>
+                </div>
+                <div class="p-8 border border-gold/10 text-left hover:border-gold/40 transition-colors duration-300">
+                    <div class="step-number">02</div>
+                    <h3 class="font-display text-xl text-navy mt-5 mb-3">
+                        Connect
+                    </h3>
+                    <p class="text-navy/60 text-sm font-light leading-relaxed">
+                        Review portfolios, read verified reviews, and reach
+                        out directly to your chosen organizer.
+                    </p>
+                </div>
+                <div class="p-8 border border-gold/10 text-left hover:border-gold/40 transition-colors duration-300">
+                    <div class="step-number">03</div>
+                    <h3 class="font-display text-xl text-navy mt-5 mb-3">
+                        Celebrate
+                    </h3>
+                    <p class="text-navy/60 text-sm font-light leading-relaxed">
+                        Sit back and experience an event crafted with
+                        precision, passion, and uncompromising attention to
+                        detail.
+                    </p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- FEATURED ORGANIZERS -->
-        <section class="py-20 px-10 max-w-7xl mx-auto">
-            <div class="flex justify-between items-end mb-14">
+    <!-- CTA BANNER -->
+    <section class="py-24 px-10 bg-cream-dark border-t border-b border-navy/[0.07]">
+        <div class="max-w-3xl mx-auto text-center">
+            <p class="text-gold tracking-widest uppercase text-xs font-light mb-4">
+                For Professionals
+            </p>
+            <h2 class="font-display text-4xl text-navy mb-6">
+                Are You an Event Organizer?
+            </h2>
+            <p class="text-navy/60 font-light text-lg mb-10 max-w-xl mx-auto">
+                Join our exclusive network and connect with clients who
+                appreciate exceptional craftsmanship.
+            </p>
+            <a href="register.html" class="btn-gold-dark text-sm px-10 py-4 tracking-widest uppercase font-light">Sign
+                Up</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-dark py-16 px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                <div class="md:col-span-2">
+                    <div class="font-display text-2xl text-white mb-1">
+                        White Orchid
+                    </div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">
+                        Event Organizers
+                    </p>
+                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">
+                        The premier platform for discovering and connecting
+                        with elite event organizers across Slovenia and
+                        beyond.
+                    </p>
+                </div>
                 <div>
-                    <p
-                        class="text-gold tracking-widest uppercase text-xs font-light mb-3"
-                    >
-                        Handpicked for You
-                    </p>
-                    <h2 class="font-display text-4xl text-navy">
-                        Featured Organizers
-                    </h2>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
+                        Platform
+                    </h4>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="org-search.html" class="footer-link">Browse Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">Top Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">How It Works</a>
+                        </li>
+                        <li>
+                            <a href="pricing.html" class="footer-link">Service Pricing</a>
+                        </li>
+                    </ul>
                 </div>
-                <a
-                    href="#"
-                    class="text-gold hover:text-gold-dark transition-colors text-sm tracking-widest uppercase font-light no-underline"
-                    >View All →</a
-                >
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
+                        Company
+                    </h4>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="#" class="footer-link">About Us</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">For Organizers</a>
+                        </li>
+                        <li>
+                            <a href="#" class="footer-link">Privacy Policy</a>
+                        </li>
+                        <li><a href="#" class="footer-link">Contact</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img
-                            src="https://t4.ftcdn.net/jpg/02/45/56/35/360_F_245563558_XH9Pe5LJI2kr7VQuzQKAjAbz9PAyejG1.jpg"
-                            class="card-image w-full h-full object-cover transition-transform duration-700"
-                        />
-                        <span class="card-badge">Music</span>
-                    </div>
-                    <div class="p-6">
-                        <h3
-                            class="font-display text-xl font-semibold text-navy"
-                        >
-                            John Smith Events
-                        </h3>
-                        <p
-                            class="text-navy/50 text-xs tracking-wide mt-1 font-light"
-                        >
-                            May 20 · Maribor City Square
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★★
-                        </div>
-                        <a
-                            href="profile-detail-1.html"
-                            class="card-btn block mt-5 w-full py-2.5 text-xs tracking-widest uppercase text-center"
-                        >
-                            View Profile
-                        </a>
-                    </div>
-                </article>
+            <div class="h-px bg-white/[0.07] mb-8"></div>
 
-                <!-- Card 2 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img
-                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700"
-                        />
-                        <span class="card-badge card-badge--tech">Tech</span>
-                    </div>
-                    <div class="p-6">
-                        <h3
-                            class="font-display text-xl font-semibold text-navy"
-                        >
-                            Jane Smith
-                        </h3>
-                        <p
-                            class="text-navy/50 text-xs tracking-wide mt-1 font-light"
-                        >
-                            June 12 · UM FERI
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★☆
-                        </div>
-                        <button
-                            class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
-                        >
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Card 3 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img
-                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700"
-                        />
-                        <span class="card-badge card-badge--arts">Arts</span>
-                    </div>
-                    <div class="p-6">
-                        <h3
-                            class="font-display text-xl font-semibold text-navy"
-                        >
-                            Marc Dubois
-                        </h3>
-                        <p
-                            class="text-navy/50 text-xs tracking-wide mt-1 font-light"
-                        >
-                            June 15 · Lent Maribor
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★★
-                        </div>
-                        <button
-                            class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
-                        >
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Card 4 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img
-                            src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700"
-                        />
-                        <span class="card-badge card-badge--tech">Tech</span>
-                    </div>
-                    <div class="p-6">
-                        <h3
-                            class="font-display text-xl font-semibold text-navy"
-                        >
-                            Ana Kovač
-                        </h3>
-                        <p
-                            class="text-navy/50 text-xs tracking-wide mt-1 font-light"
-                        >
-                            July 3 · Narodni Dom
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★☆
-                        </div>
-                        <button
-                            class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
-                        >
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-            </div>
-        </section>
-
-        <!-- HOW IT WORKS -->
-        <section class="how-section py-28 px-10">
-            <div class="max-w-5xl mx-auto text-center">
-                <p
-                    class="text-gold tracking-widest uppercase text-xs font-light mb-4"
-                >
-                    Simple & Seamless
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-white/25 text-xs font-light">
+                    © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                    IPT 1st Year.
                 </p>
-                <h2 class="font-display text-4xl text-navy mb-16">
-                    How It Works
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                    <div
-                        class="p-8 border border-gold/10 text-left hover:border-gold/40 transition-colors duration-300"
-                    >
-                        <div class="step-number">01</div>
-                        <h3 class="font-display text-xl text-navy mt-5 mb-3">
-                            Search
-                        </h3>
-                        <p
-                            class="text-navy/60 text-sm font-light leading-relaxed"
-                        >
-                            Browse our curated directory of professional event
-                            organizers by category, location, or specialty.
-                        </p>
-                    </div>
-                    <div
-                        class="p-8 border border-gold/10 text-left hover:border-gold/40 transition-colors duration-300"
-                    >
-                        <div class="step-number">02</div>
-                        <h3 class="font-display text-xl text-navy mt-5 mb-3">
-                            Connect
-                        </h3>
-                        <p
-                            class="text-navy/60 text-sm font-light leading-relaxed"
-                        >
-                            Review portfolios, read verified reviews, and reach
-                            out directly to your chosen organizer.
-                        </p>
-                    </div>
-                    <div
-                        class="p-8 border border-gold/10 text-left hover:border-gold/40 transition-colors duration-300"
-                    >
-                        <div class="step-number">03</div>
-                        <h3 class="font-display text-xl text-navy mt-5 mb-3">
-                            Celebrate
-                        </h3>
-                        <p
-                            class="text-navy/60 text-sm font-light leading-relaxed"
-                        >
-                            Sit back and experience an event crafted with
-                            precision, passion, and uncompromising attention to
-                            detail.
-                        </p>
-                    </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="footer-link text-xs">Terms</a>
+                    <a href="#" class="footer-link text-xs">Privacy</a>
+                    <a href="#" class="footer-link text-xs">Cookies</a>
                 </div>
             </div>
-        </section>
+        </div>
+    </footer>
+</body>
 
-        <!-- CTA BANNER -->
-        <section
-            class="py-24 px-10 bg-cream-dark border-t border-b border-navy/[0.07]"
-        >
-            <div class="max-w-3xl mx-auto text-center">
-                <p
-                    class="text-gold tracking-widest uppercase text-xs font-light mb-4"
-                >
-                    For Professionals
-                </p>
-                <h2 class="font-display text-4xl text-navy mb-6">
-                    Are You an Event Organizer?
-                </h2>
-                <p
-                    class="text-navy/60 font-light text-lg mb-10 max-w-xl mx-auto"
-                >
-                    Join our exclusive network and connect with clients who
-                    appreciate exceptional craftsmanship.
-                </p>
-                <a
-                    href="#"
-                    class="btn-gold-dark text-sm px-10 py-4 tracking-widest uppercase font-light"
-                    >Apply to Join</a
-                >
-            </div>
-        </section>
-
-        <!-- FOOTER -->
-        <footer class="bg-navy-dark py-16 px-10">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
-                    <div class="md:col-span-2">
-                        <div class="font-display text-2xl text-white mb-1">
-                            White Orchid
-                        </div>
-                        <p
-                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
-                        >
-                            Event Organizers
-                        </p>
-                        <p
-                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
-                        >
-                            The premier platform for discovering and connecting
-                            with elite event organizers across Slovenia and
-                            beyond.
-                        </p>
-                    </div>
-                    <div>
-                        <h4
-                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
-                        >
-                            Platform
-                        </h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="org-search.html" class="footer-link"
-                                    >Browse Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Top Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link">How It Works</a>
-                            </li>
-                            <li>
-                                <a href="pricing.html" class="footer-link"
-                                    >Service Pricing</a
-                                >
-                            </li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4
-                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
-                        >
-                            Company
-                        </h4>
-                        <ul class="space-y-4">
-                            <li>
-                                <a href="#" class="footer-link">About Us</a>
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >For Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="#" class="footer-link"
-                                    >Privacy Policy</a
-                                >
-                            </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="h-px bg-white/[0.07] mb-8"></div>
-
-                <div
-                    class="flex flex-col md:flex-row justify-between items-center gap-4"
-                >
-                    <p class="text-white/25 text-xs font-light">
-                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
-                        IPT 1st Year.
-                    </p>
-                    <div class="flex space-x-6">
-                        <a href="#" class="footer-link text-xs">Terms</a>
-                        <a href="#" class="footer-link text-xs">Privacy</a>
-                        <a href="#" class="footer-link text-xs">Cookies</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </body>
 </html>
