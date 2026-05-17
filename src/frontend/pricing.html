@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>White Orchid Events — Pricing</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: {
+                                DEFAULT: "#0D1B2A",
+                                light: "#162536",
+                                dark: "#08111A",
+                            },
+                            gold: {
+                                DEFAULT: "#C9A84C",
+                                light: "#E2C06B",
+                                dark: "#A8883A",
+                            },
+                            cream: {
+                                DEFAULT: "#FAFAF7",
+                                dark: "#F0EFE8",
+                            },
+                        },
+                        fontFamily: {
+                            display: ['"Playfair Display"', "Georgia", "serif"],
+                            sans: ["Jost", "system-ui", "sans-serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+
+    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+        <!-- NAVIGATION -->
+        <nav
+            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
+        >
+            <div>
+                <div
+                    class="font-display text-2xl font-semibold text-navy tracking-wide"
+                >
+                    White Orchid
+                </div>
+                <div
+                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
+                >
+                    Event Organizers
+                </div>
+            </div>
+
+            <div class="hidden md:flex space-x-8 text-sm">
+                <a href="#" class="nav-link-luxury">Browse Organizers</a>
+                <a href="#" class="nav-link-luxury">Top Organizers</a>
+                <a href="#" class="nav-link-luxury">How It Works</a>
+                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+            </div>
+
+            <div class="flex items-center space-x-6">
+                <a
+                    href="login.html"
+                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
+                    >Log In</a
+                >
+                <a
+                    href="register.html"
+                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
+                    >Sign Up</a
+                >
+            </div>
+        </nav>
+
+        <!-- PRICING SECTION -->
+        <section class="flex-grow py-24 px-10 text-center">
+            <div class="max-w-4xl mx-auto">
+                <p
+                    class="text-gold tracking-widest uppercase text-xs font-light mb-4"
+                >
+                    Transparent Costs
+                </p>
+                <h1
+                    class="font-display text-5xl font-semibold leading-tight text-navy mb-8"
+                >
+                    Service Pricing
+                </h1>
+                <p
+                    class="text-navy/70 text-lg font-light mb-14 max-w-2xl mx-auto"
+                >
+                    At White Orchid Events, we believe in clear and simple
+                    pricing. Our platform is designed to connect event
+                    organizers with clients seamlessly.
+                </p>
+
+                <div
+                    class="bg-white p-8 md:p-12 shadow-lg rounded-lg border border-gold/10 max-w-2xl mx-auto"
+                >
+                    <h2
+                        class="font-display text-3xl font-semibold text-navy mb-6"
+                    >
+                        Our Commission Structure
+                    </h2>
+                    <p class="text-navy/60 text-base leading-relaxed mb-8">
+                        For every event successfully organized through our
+                        platform, we take a **10% commission**. This commission
+                        allows us to continuously improve our services, maintain
+                        the platform, and provide robust support to both
+                        organizers and clients.
+                    </p>
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mt-10"
+                    >
+                        <div>
+                            <h3 class="font-display text-xl text-navy mb-3">
+                                What's Included?
+                            </h3>
+                            <ul
+                                class="text-navy/70 text-sm space-y-2 list-disc list-inside"
+                            >
+                                <li>Access to a curated network of clients</li>
+                                <li>Secure payment processing</li>
+                                <li>Dedicated customer support</li>
+                                <li>
+                                    Marketing and visibility for your services
+                                </li>
+                                <li>
+                                    Tools for event management and communication
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-display text-xl text-navy mb-3">
+                                How It Works:
+                            </h3>
+                            <ol
+                                class="text-navy/70 text-sm space-y-2 list-decimal list-inside"
+                            >
+                                <li>
+                                    Client books your service through White
+                                    Orchid.
+                                </li>
+                                <li>You successfully execute the event.</li>
+                                <li>
+                                    Upon completion, the payment is processed.
+                                </li>
+                                <li>
+                                    We deduct 10% commission, and the rest is
+                                    transferred to you.
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    <p class="text-navy/60 text-sm mt-10">
+                        Our goal is to foster successful collaborations and
+                        create unforgettable experiences. Your success is our
+                        success!
+                    </p>
+                </div>
+
+                <div class="mt-16">
+                    <p
+                        class="text-gold tracking-widest uppercase text-xs font-light mb-4"
+                    >
+                        Questions?
+                    </p>
+                    <a
+                        href="#"
+                        class="btn-gold text-sm px-8 py-3 tracking-widest uppercase font-medium"
+                        >Contact Us</a
+                    >
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-navy-dark py-16 px-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                    <div class="md:col-span-2">
+                        <div class="font-display text-2xl text-white mb-1">
+                            White Orchid
+                        </div>
+                        <p
+                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
+                        >
+                            Event Organizers
+                        </p>
+                        <p
+                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
+                        >
+                            The premier platform for discovering and connecting
+                            with elite event organizers across Slovenia and
+                            beyond.
+                        </p>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Platform
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Browse Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Top Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link">How It Works</a>
+                            </li>
+                            <li>
+                                <a href="pricing.html" class="footer-link"
+                                    >Pricing</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Company
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="#" class="footer-link">About Us</a>
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >For Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Privacy Policy</a
+                                >
+                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/[0.07] mb-8"></div>
+
+                <div
+                    class="flex flex-col md:flex-row justify-between items-center gap-4"
+                >
+                    <p class="text-white/25 text-xs font-light">
+                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                        IPT 1st Year.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="footer-link text-xs">Terms</a>
+                        <a href="#" class="footer-link text-xs">Privacy</a>
+                        <a href="#" class="footer-link text-xs">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
