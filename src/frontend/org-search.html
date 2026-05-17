@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>White Orchid Events — Browse Organizers</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: {
+                                DEFAULT: "#0D1B2A",
+                                light: "#162536",
+                                dark: "#08111A",
+                            },
+                            gold: {
+                                DEFAULT: "#C9A84C",
+                                light: "#E2C06B",
+                                dark: "#A8883A",
+                            },
+                            cream: {
+                                DEFAULT: "#FAFAF7",
+                                dark: "#F0EFE8",
+                            },
+                        },
+                        fontFamily: {
+                            display: ['"Playfair Display"', "Georgia", "serif"],
+                            sans: ["Jost", "system-ui", "sans-serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+
+    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+        <!-- NAVIGATION -->
+        <nav
+            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
+        >
+            <div>
+                <div
+                    class="font-display text-2xl font-semibold text-navy tracking-wide"
+                >
+                    White Orchid
+                </div>
+                <div
+                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
+                >
+                    Event Organizers
+                </div>
+            </div>
+
+            <div class="hidden md:flex space-x-8 text-sm">
+                <a href="org-search.html" class="nav-link-luxury"
+                    >Browse Organizers</a
+                >
+                <a href="#" class="nav-link-luxury">Top Organizers</a>
+                <a href="#" class="nav-link-luxury">How It Works</a>
+                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+            </div>
+
+            <div class="flex items-center space-x-6">
+                <a
+                    href="login.html"
+                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
+                    >Log In</a
+                >
+                <a
+                    href="register.html"
+                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
+                    >Sign Up</a
+                >
+            </div>
+        </nav>
+
+        <!-- ORGANIZER SEARCH SECTION -->
+        <section class="flex-grow py-24 px-10 text-center">
+            <div class="max-w-6xl mx-auto">
+                <p
+                    class="text-gold tracking-widest uppercase text-xs font-light mb-4"
+                >
+                    Find Your Perfect Match
+                </p>
+                <h1
+                    class="font-display text-5xl font-semibold leading-tight text-navy mb-8"
+                >
+                    Browse Our Elite Organizers
+                </h1>
+                <p
+                    class="text-navy/70 text-lg font-light mb-14 max-w-2xl mx-auto"
+                >
+                    Discover professional event organizers tailored to your
+                    needs by category, location, or specialty.
+                </p>
+
+                <!-- Search Bar for Organizers -->
+                <div
+                    class="search-bar-luxury flex flex-col md:flex-row max-w-4xl mx-auto mb-16"
+                >
+                    <input
+                        type="text"
+                        placeholder="Organizer name or specialty..."
+                        class="search-input flex-1 p-4 text-sm font-light"
+                    />
+                    <div class="w-px bg-navy/10 my-2.5 hidden md:block"></div>
+                    <input
+                        type="text"
+                        placeholder="Location"
+                        class="search-input flex-1 p-4 text-sm font-light"
+                    />
+                    <button
+                        class="btn-search px-10 py-4 text-sm tracking-widest uppercase font-semibold"
+                    >
+                        Search
+                    </button>
+                </div>
+
+                <!-- Categories for Filtering (Optional, similar to index.html) -->
+                <div class="mb-16">
+                    <p
+                        class="text-gold tracking-widest uppercase text-xs font-light text-center mb-4"
+                    >
+                        Filter By Category
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <a href="#" class="category-pill">🎵 Music</a>
+                        <a href="#" class="category-pill">💻 Technology</a>
+                        <a href="#" class="category-pill">🎨 Arts & Culture</a>
+                        <a href="#" class="category-pill">🍽️ Food & Wine</a>
+                        <a href="#" class="category-pill">💼 Business</a>
+                        <a href="#" class="category-pill">💒 Weddings</a>
+                        <a href="#" class="category-pill">🏃 Sports</a>
+                        <a href="#" class="category-pill">🎓 Education</a>
+                    </div>
+                </div>
+
+                <!-- Organizer Listing (Example cards, similar to featured section) -->
+                <div
+                    class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 text-left"
+                >
+                    <!-- Example Organizer Card 1 -->
+                    <article class="organizer-card group">
+                        <div
+                            class="h-52 relative bg-cream-dark overflow-hidden"
+                        >
+                            <img
+                                src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                                class="card-image w-full h-full object-cover transition-transform duration-700"
+                            />
+                            <span class="card-badge">Music</span>
+                        </div>
+                        <div class="p-6">
+                            <h3
+                                class="font-display text-xl font-semibold text-navy"
+                            >
+                                John Smith Events
+                            </h3>
+                            <p
+                                class="text-navy/50 text-xs tracking-wide mt-1 font-light"
+                            >
+                                Specializes in concerts & festivals
+                            </p>
+                            <div class="text-gold text-xs tracking-widest mt-2">
+                                ★★★★★
+                            </div>
+                            <button
+                                class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
+                            >
+                                View Profile
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Example Organizer Card 2 -->
+                    <article class="organizer-card group">
+                        <div
+                            class="h-52 relative bg-cream-dark overflow-hidden"
+                        >
+                            <img
+                                src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                                class="card-image w-full h-full object-cover transition-transform duration-700"
+                            />
+                            <span class="card-badge card-badge--tech"
+                                >Tech</span
+                            >
+                        </div>
+                        <div class="p-6">
+                            <h3
+                                class="font-display text-xl font-semibold text-navy"
+                            >
+                                Innovate Conferences
+                            </h3>
+                            <p
+                                class="text-navy/50 text-xs tracking-wide mt-1 font-light"
+                            >
+                                Leaders in tech summits
+                            </p>
+                            <div class="text-gold text-xs tracking-widest mt-2">
+                                ★★★★☆
+                            </div>
+                            <button
+                                class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
+                            >
+                                View Profile
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Example Organizer Card 3 -->
+                    <article class="organizer-card group">
+                        <div
+                            class="h-52 relative bg-cream-dark overflow-hidden"
+                        >
+                            <img
+                                src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                                class="card-image w-full h-full object-cover transition-transform duration-700"
+                            />
+                            <span class="card-badge card-badge--arts"
+                                >Arts</span
+                            >
+                        </div>
+                        <div class="p-6">
+                            <h3
+                                class="font-display text-xl font-semibold text-navy"
+                            >
+                                Creative Canvas Events
+                            </h3>
+                            <p
+                                class="text-navy/50 text-xs tracking-wide mt-1 font-light"
+                            >
+                                Galleries & cultural showcases
+                            </p>
+                            <div class="text-gold text-xs tracking-widest mt-2">
+                                ★★★★★
+                            </div>
+                            <button
+                                class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
+                            >
+                                View Profile
+                            </button>
+                        </div>
+                    </article>
+
+                    <!-- Example Organizer Card 4 -->
+                    <article class="organizer-card group">
+                        <div
+                            class="h-52 relative bg-cream-dark overflow-hidden"
+                        >
+                            <img
+                                src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                                class="card-image w-full h-full object-cover transition-transform duration-700"
+                            />
+                            <span class="card-badge">Weddings</span>
+                        </div>
+                        <div class="p-6">
+                            <h3
+                                class="font-display text-xl font-semibold text-navy"
+                            >
+                                Dream Day Planners
+                            </h3>
+                            <p
+                                class="text-navy/50 text-xs tracking-wide mt-1 font-light"
+                            >
+                                Exquisite wedding coordination
+                            </p>
+                            <div class="text-gold text-xs tracking-widest mt-2">
+                                ★★★★☆
+                            </div>
+                            <button
+                                class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase"
+                            >
+                                View Profile
+                            </button>
+                        </div>
+                    </article>
+                    <!-- Add more organizer cards as needed -->
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="bg-navy-dark py-16 px-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                    <div class="md:col-span-2">
+                        <div class="font-display text-2xl text-white mb-1">
+                            White Orchid
+                        </div>
+                        <p
+                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
+                        >
+                            Event Organizers
+                        </p>
+                        <p
+                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
+                        >
+                            The premier platform for discovering and connecting
+                            with elite event organizers across Slovenia and
+                            beyond.
+                        </p>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Platform
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="org-search.html" class="footer-link"
+                                    >Browse Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Top Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link">How It Works</a>
+                            </li>
+                            <li>
+                                <a href="pricing.html" class="footer-link"
+                                    >Pricing</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Company
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="#" class="footer-link">About Us</a>
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >For Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Privacy Policy</a
+                                >
+                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="h-px bg-white/[0.07] mb-8"></div>
+
+                <div
+                    class="flex flex-col md:flex-row justify-between items-center gap-4"
+                >
+                    <p class="text-white/25 text-xs font-light">
+                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                        IPT 1st Year.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="footer-link text-xs">Terms</a>
+                        <a href="#" class="footer-link text-xs">Privacy</a>
+                        <a href="#" class="footer-link text-xs">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
