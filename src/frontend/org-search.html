@@ -18,20 +18,9 @@
             theme: {
                 extend: {
                     colors: {
-                        navy: {
-                            DEFAULT: "#0D1B2A",
-                            light: "#162536",
-                            dark: "#08111A",
-                        },
-                        gold: {
-                            DEFAULT: "#C9A84C",
-                            light: "#E2C06B",
-                            dark: "#A8883A",
-                        },
-                        cream: {
-                            DEFAULT: "#FAFAF7",
-                            dark: "#F0EFE8",
-                        },
+                        navy: { DEFAULT: "#0D1B2A", light: "#162536", dark: "#08111A" },
+                        gold: { DEFAULT: "#C9A84C", light: "#E2C06B", dark: "#A8883A" },
+                        cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
                     },
                     fontFamily: {
                         display: ['"Playfair Display"', "Georgia", "serif"],
@@ -43,26 +32,234 @@
     </script>
 
     <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+        /* ── Filter panel ─────────────────────────────────── */
+        .filter-panel {
+            background: white;
+            border: 1px solid rgba(201, 168, 76, 0.18);
+        }
+
+        .filter-label {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(13, 27, 42, 0.50);
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .filter-input,
+        .filter-select {
+            width: 100%;
+            padding: 0.6rem 0.85rem;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.82rem;
+            color: #0D1B2A;
+            background: #FAFAF7;
+            border: 1px solid rgba(13, 27, 42, 0.12);
+            outline: none;
+            transition: border-color 0.25s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            border-color: #C9A84C;
+        }
+
+        .filter-select-wrap {
+            position: relative;
+        }
+
+        .filter-select-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #C9A84C;
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+
+        .price-range-wrap {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .price-range-wrap input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .price-range-wrap input[type="number"]::-webkit-inner-spin-button,
+        .price-range-wrap input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .filter-divider {
+            width: 1.5rem;
+            height: 1px;
+            background: rgba(13, 27, 42, 0.15);
+            flex-shrink: 0;
+        }
+
+        /* ── Star rating display ──────────────────────────── */
+        .star-select {
+            display: flex;
+            gap: 0.2rem;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: rgba(13, 27, 42, 0.2);
+            padding: 0;
+            transition: color 0.2s, transform 0.15s;
+        }
+
+        .star-btn.active,
+        .star-btn:hover,
+        .star-btn.hover {
+            color: #C9A84C;
+        }
+
+        .star-btn:hover {
+            transform: scale(1.15);
+        }
+
+        /* ── Results header ───────────────────────────────── */
+        .results-meta {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.78rem;
+            color: rgba(13, 27, 42, 0.45);
+            letter-spacing: 0.04em;
+        }
+
+        .results-count {
+            font-weight: 600;
+            color: #C9A84C;
+        }
+
+        /* ── Active filter tags ───────────────────────────── */
+        .active-filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.7rem;
+            background: rgba(201, 168, 76, 0.10);
+            border: 1px solid rgba(201, 168, 76, 0.30);
+            font-size: 0.72rem;
+            font-family: 'Jost', sans-serif;
+            color: #0D1B2A;
+            letter-spacing: 0.05em;
+        }
+
+        .active-filter-tag button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            color: #A8883A;
+            font-size: 0.8rem;
+            line-height: 1;
+        }
+
+        .active-filter-tag button:hover {
+            color: #0D1B2A;
+        }
+
+        /* ── Organizer card (same as existing style.css + extras) */
+        .organizer-card {
+            background: white;
+            border: 1px solid rgba(13, 27, 42, 0.07);
+            transition: box-shadow 0.4s, transform 0.4s;
+        }
+
+        .organizer-card:hover {
+            box-shadow: 0 24px 60px rgba(13, 27, 42, 0.11);
+            transform: translateY(-5px);
+        }
+
+        .organizer-card:hover .card-image {
+            transform: scale(1.05);
+        }
+
+        .ocena-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(8, 17, 26, 0.82);
+            color: #C9A84C;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            padding: 3px 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ── Skeleton loader ──────────────────────────────── */
+        @keyframes shimmer {
+            0% {
+                background-position: -600px 0;
+            }
+
+            100% {
+                background-position: 600px 0;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0eee8 25%, #e8e5dc 50%, #f0eee8 75%);
+            background-size: 600px 100%;
+            animation: shimmer 1.4s infinite linear;
+        }
+
+        /* ── Empty state ──────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: rgba(13, 27, 42, 0.4);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.35;
+        }
+
+        /* ── Error state ──────────────────────────────────── */
+        .error-state {
+            background: rgba(220, 38, 38, 0.06);
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            color: #7f1d1d;
+            padding: 1rem 1.5rem;
+            font-size: 0.85rem;
+            font-family: 'Jost', sans-serif;
+        }
+    </style>
 </head>
 
 <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
-    <!-- NAVIGATION -->
+
+    <!-- ── NAVIGATION ──────────────────────────────────────── -->
     <nav
         class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
         <a href="index.html" class="no-underline">
-            <div class="font-display text-2xl font-semibold text-navy tracking-wide">
-                White Orchid
-            </div>
-            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">
-                Event Organizers
-            </div>
+            <div class="font-display text-2xl font-semibold text-navy tracking-wide">White Orchid</div>
+            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">Event Organizers</div>
         </a>
-
         <div class="hidden md:flex space-x-8 text-sm">
             <a href="#" class="nav-link-luxury">How It Works</a>
             <a href="pricing.html" class="nav-link-luxury">Pricing</a>
         </div>
-
         <div class="flex items-center space-x-6">
             <a href="login.html"
                 class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log
@@ -72,208 +269,151 @@
         </div>
     </nav>
 
-    <!-- ORGANIZER SEARCH SECTION -->
-    <section class="flex-grow py-24 px-10 text-center">
-        <div class="max-w-6xl mx-auto">
-            <p class="text-gold tracking-widest uppercase text-xs font-light mb-4">
-                Find Your Perfect Match
-            </p>
-            <h1 class="font-display text-5xl font-semibold leading-tight text-navy mb-8">
-                Browse Our Elite Organizers
-            </h1>
-            <p class="text-navy/70 text-lg font-light mb-14 max-w-2xl mx-auto">
-                Discover professional event organizers tailored to your
-                needs by category, location, or specialty.
-            </p>
+    <!-- ── PAGE HEADER ─────────────────────────────────────── -->
+    <section class="py-16 px-10 text-center border-b border-navy/[0.06]">
+        <p class="text-gold tracking-widest uppercase text-xs font-light mb-3">Find Your Perfect Match</p>
+        <h1 class="font-display text-5xl font-semibold leading-tight text-navy mb-4">Browse Our Elite Organizers</h1>
+        <p class="text-navy/60 text-base font-light max-w-xl mx-auto">Filter by location, event type, price range and
+            rating to find the organizer that fits your vision perfectly.</p>
+    </section>
 
-            <!-- Search Bar for Organizers -->
-            <div class="search-bar-luxury flex flex-col md:flex-row max-w-4xl mx-auto mb-16">
-                <input type="text" placeholder="Organizer name or specialty..."
-                    class="search-input flex-1 p-4 text-sm font-light" />
-                <div class="w-px bg-navy/10 my-2.5 hidden md:block"></div>
-                <input type="text" placeholder="Location" class="search-input flex-1 p-4 text-sm font-light" />
-                <button class="btn-search px-10 py-4 text-sm tracking-widest uppercase font-semibold">
-                    Search
-                </button>
-            </div>
+    <!-- ── MAIN CONTENT ────────────────────────────────────── -->
+    <main class="flex-grow py-12 px-10">
+        <div class="max-w-7xl mx-auto">
 
-            <!-- Categories for Filtering (Optional, similar to index.html) -->
-            <div class="mb-16">
-                <p class="text-gold tracking-widest uppercase text-xs font-light text-center mb-4">
-                    Filter By Category
-                </p>
-                <div class="flex flex-wrap justify-center gap-3">
-                    <a href="#" class="category-pill">🎵 Music</a>
-                    <a href="#" class="category-pill">💻 Technology</a>
-                    <a href="#" class="category-pill">🎨 Arts & Culture</a>
-                    <a href="#" class="category-pill">🍽️ Food & Wine</a>
-                    <a href="#" class="category-pill">💼 Business</a>
-                    <a href="#" class="category-pill">💒 Weddings</a>
-                    <a href="#" class="category-pill">🏃 Sports</a>
-                    <a href="#" class="category-pill">🎓 Education</a>
+            <!-- ── FILTER PANEL ── -->
+            <div class="filter-panel p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-5">
+
+                    <!-- Search -->
+                    <div class="lg:col-span-2">
+                        <label class="filter-label">Search Organizer</label>
+                        <input id="f-search" type="text" class="filter-input"
+                            placeholder="Name, surname or event type…" />
+                    </div>
+
+                    <!-- City -->
+                    <div>
+                        <label class="filter-label">City</label>
+                        <div class="filter-select-wrap">
+                            <select id="f-city" class="filter-select">
+                                <option value="">All cities</option>
+                                <option value="Ljubljana">Ljubljana</option>
+                                <option value="Maribor">Maribor</option>
+                                <option value="Koper">Koper</option>
+                                <option value="Celje">Celje</option>
+                                <option value="Kranj">Kranj</option>
+                                <option value="Novo Mesto">Novo Mesto</option>
+                                <option value="Velenje">Velenje</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Event type -->
+                    <div>
+                        <label class="filter-label">Event Type</label>
+                        <div class="filter-select-wrap">
+                            <select id="f-tip" class="filter-select">
+                                <option value="">All types</option>
+                                <option value="poroka">💒 Poroka</option>
+                                <option value="rojstni dan">🎂 Rojstni dan</option>
+                                <option value="konferenca">💼 Konferenca</option>
+                                <option value="koncert">🎵 Koncert</option>
+                                <option value="festival">🎪 Festival</option>
+                                <option value="teambuilding">🤝 Teambuilding</option>
+                                <option value="gala večer">✨ Gala večer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Min rating -->
+                    <div>
+                        <label class="filter-label">Min. Rating</label>
+                        <div class="star-select" id="f-ocena" data-value="0">
+                            <button class="star-btn" data-val="1" title="1+ stars">★</button>
+                            <button class="star-btn" data-val="2" title="2+ stars">★</button>
+                            <button class="star-btn" data-val="3" title="3+ stars">★</button>
+                            <button class="star-btn" data-val="4" title="4+ stars">★</button>
+                            <button class="star-btn" data-val="5" title="5 stars">★</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second row: price + buttons -->
+                <div class="flex flex-col md:flex-row md:items-end gap-5">
+                    <!-- Price range -->
+                    <div>
+                        <label class="filter-label">Price Range (EUR)</label>
+                        <div class="price-range-wrap">
+                            <input id="f-min-price" type="number" class="filter-input w-28" placeholder="Min" min="0" />
+                            <div class="filter-divider"></div>
+                            <input id="f-max-price" type="number" class="filter-input w-28" placeholder="Max" min="0" />
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-3 md:ml-auto">
+                        <button id="btn-reset"
+                            class="px-6 py-2.5 text-xs tracking-widest uppercase font-medium border border-navy/15 text-navy/60 hover:border-navy/40 hover:text-navy transition-colors duration-200">
+                            Reset
+                        </button>
+                        <button id="btn-search"
+                            class="btn-search px-10 py-2.5 text-xs tracking-widest uppercase font-semibold">
+                            Search
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Organizer Listing (Example cards, similar to featured section) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 text-left">
-                <!-- Example Organizer Card 1 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700" />
-                        <span class="card-badge">Music</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-display text-xl font-semibold text-navy">
-                            John Smith Events
-                        </h3>
-                        <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
-                            Specializes in concerts & festivals
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★★
-                        </div>
-                        <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Example Organizer Card 2 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700" />
-                        <span class="card-badge card-badge--tech">Tech</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-display text-xl font-semibold text-navy">
-                            Innovate Conferences
-                        </h3>
-                        <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
-                            Leaders in tech summits
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★☆
-                        </div>
-                        <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Example Organizer Card 3 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700" />
-                        <span class="card-badge card-badge--arts">Arts</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-display text-xl font-semibold text-navy">
-                            Creative Canvas Events
-                        </h3>
-                        <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
-                            Galleries & cultural showcases
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★★
-                        </div>
-                        <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-
-                <!-- Example Organizer Card 4 -->
-                <article class="organizer-card group">
-                    <div class="h-52 relative bg-cream-dark overflow-hidden">
-                        <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                            class="card-image w-full h-full object-cover transition-transform duration-700" />
-                        <span class="card-badge">Weddings</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-display text-xl font-semibold text-navy">
-                            Dream Day Planners
-                        </h3>
-                        <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">
-                            Exquisite wedding coordination
-                        </p>
-                        <div class="text-gold text-xs tracking-widest mt-2">
-                            ★★★★☆
-                        </div>
-                        <button class="card-btn mt-5 w-full py-2.5 text-xs tracking-widest uppercase">
-                            View Profile
-                        </button>
-                    </div>
-                </article>
-                <!-- Add more organizer cards as needed -->
+            <!-- ── ACTIVE FILTERS + RESULTS META ── -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                <div id="active-filters" class="flex flex-wrap gap-2"></div>
+                <p class="results-meta whitespace-nowrap">
+                    Showing <span class="results-count" id="result-count">–</span> organizers
+                </p>
             </div>
-        </div>
-    </section>
 
-    <!-- FOOTER -->
+            <!-- ── ORGANIZER GRID ── -->
+            <div id="organizer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Populated by JS -->
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ── FOOTER ──────────────────────────────────────────── -->
     <footer class="bg-navy-dark py-16 px-10">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
                 <div class="md:col-span-2">
-                    <div class="font-display text-2xl text-white mb-1">
-                        White Orchid
-                    </div>
-                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">
-                        Event Organizers
-                    </p>
-                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">
-                        The premier platform for discovering and connecting
-                        with elite event organizers across Slovenia and
-                        beyond.
-                    </p>
+                    <div class="font-display text-2xl text-white mb-1">White Orchid</div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">Event Organizers</p>
+                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">The premier platform for
+                        discovering and connecting with elite event organizers across Slovenia and beyond.</p>
                 </div>
                 <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
-                        Platform
-                    </h4>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
                     <ul class="space-y-4">
-                        <li>
-                            <a href="org-search.html" class="footer-link">Browse Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">Top Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">How It Works</a>
-                        </li>
-                        <li>
-                            <a href="pricing.html" class="footer-link">Pricing</a>
-                        </li>
+                        <li><a href="org-search.html" class="footer-link">Browse Organizers</a></li>
+                        <li><a href="#" class="footer-link">Top Organizers</a></li>
+                        <li><a href="#" class="footer-link">How It Works</a></li>
+                        <li><a href="pricing.html" class="footer-link">Pricing</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
-                        Company
-                    </h4>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
                     <ul class="space-y-4">
-                        <li>
-                            <a href="#" class="footer-link">About Us</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">For Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">Privacy Policy</a>
-                        </li>
+                        <li><a href="#" class="footer-link">About Us</a></li>
+                        <li><a href="#" class="footer-link">For Organizers</a></li>
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
                         <li><a href="#" class="footer-link">Contact</a></li>
                     </ul>
                 </div>
             </div>
-
             <div class="h-px bg-white/[0.07] mb-8"></div>
-
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-white/25 text-xs font-light">
-                    © 2026 White Orchid Events. Built for Praktikum 1, FERI
-                    IPT 1st Year.
-                </p>
+                <p class="text-white/25 text-xs font-light">© 2026 White Orchid Events. Built for Praktikum 1, FERI IPT
+                    1st Year.</p>
                 <div class="flex space-x-6">
                     <a href="#" class="footer-link text-xs">Terms</a>
                     <a href="#" class="footer-link text-xs">Privacy</a>
@@ -282,6 +422,232 @@
             </div>
         </div>
     </footer>
+
+    <!-- ── JAVASCRIPT ───────────────────────────────────────── -->
+    <script>
+        // ── Config ─────────────────────────────────────────────────
+        const API_URL = '/api/organizers';
+
+        // Fallback slike za organizatorje (rotiramo jih)
+        const PLACEHOLDER_IMAGES = [
+            'https://images.unsplash.com/photo-1519671282429-b44b31bfd2df?w=400&h=300&fit=crop',
+            'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop',
+            'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=300&fit=crop',
+            'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=300&fit=crop',
+            'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop',
+            'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=400&h=300&fit=crop',
+        ];
+
+        // ── State ───────────────────────────────────────────────────
+        let currentRating = 0;
+
+        // ── DOM refs ────────────────────────────────────────────────
+        const grid = document.getElementById('organizer-grid');
+        const resultCount = document.getElementById('result-count');
+        const activeFilters = document.getElementById('active-filters');
+        const fSearch = document.getElementById('f-search');
+        const fCity = document.getElementById('f-city');
+        const fTip = document.getElementById('f-tip');
+        const fMinPrice = document.getElementById('f-min-price');
+        const fMaxPrice = document.getElementById('f-max-price');
+        const fOcena = document.getElementById('f-ocena');
+        const btnSearch = document.getElementById('btn-search');
+        const btnReset = document.getElementById('btn-reset');
+
+        // ── Star rating widget ──────────────────────────────────────
+        const starBtns = fOcena.querySelectorAll('.star-btn');
+
+        starBtns.forEach(btn => {
+            btn.addEventListener('mouseenter', () => highlightStars(+btn.dataset.val));
+            btn.addEventListener('mouseleave', () => highlightStars(currentRating));
+            btn.addEventListener('click', () => {
+                // Click on same rating deselects
+                currentRating = currentRating === +btn.dataset.val ? 0 : +btn.dataset.val;
+                fOcena.dataset.value = currentRating;
+                highlightStars(currentRating);
+            });
+        });
+
+        function highlightStars(val) {
+            starBtns.forEach(b => b.classList.toggle('active', +b.dataset.val <= val));
+        }
+
+        // ── Build filter params ─────────────────────────────────────
+        function buildParams() {
+            const p = new URLSearchParams();
+            if (fSearch.value.trim()) p.set('search', fSearch.value.trim());
+            if (fCity.value) p.set('city', fCity.value);
+            if (fTip.value) p.set('tip_eventa', fTip.value);
+            if (fMinPrice.value !== '') p.set('min_price', fMinPrice.value);
+            if (fMaxPrice.value !== '') p.set('max_price', fMaxPrice.value);
+            if (currentRating > 0) p.set('ocena_min', currentRating.toFixed(1));
+            return p;
+        }
+
+        // ── Active filter tags ──────────────────────────────────────
+        function renderActiveFilters(params) {
+            activeFilters.innerHTML = '';
+            const labels = {
+                search: v => `"${v}"`,
+                city: v => `📍 ${v}`,
+                tip_eventa: v => `🎪 ${v}`,
+                min_price: v => `≥ €${v}`,
+                max_price: v => `≤ €${v}`,
+                ocena_min: v => `★ ${v}+`,
+            };
+            params.forEach((val, key) => {
+                if (!labels[key]) return;
+                const tag = document.createElement('span');
+                tag.className = 'active-filter-tag';
+                tag.innerHTML = `${labels[key](val)} <button title="Remove filter">✕</button>`;
+                tag.querySelector('button').addEventListener('click', () => removeFilter(key));
+                activeFilters.appendChild(tag);
+            });
+        }
+
+        function removeFilter(key) {
+            if (key === 'search') { fSearch.value = ''; }
+            if (key === 'city') { fCity.value = ''; }
+            if (key === 'tip_eventa') { fTip.value = ''; }
+            if (key === 'min_price') { fMinPrice.value = ''; }
+            if (key === 'max_price') { fMaxPrice.value = ''; }
+            if (key === 'ocena_min') { currentRating = 0; fOcena.dataset.value = 0; highlightStars(0); }
+            fetchOrganizers();
+        }
+
+        // ── Skeleton loaders ────────────────────────────────────────
+        function showSkeletons(n = 8) {
+            grid.innerHTML = Array.from({ length: n }, (_, i) => `
+            <div class="organizer-card">
+                <div class="h-52 skeleton"></div>
+                <div class="p-6 space-y-3">
+                    <div class="skeleton h-5 w-3/4 rounded"></div>
+                    <div class="skeleton h-3 w-1/2 rounded"></div>
+                    <div class="skeleton h-3 w-1/3 rounded"></div>
+                    <div class="skeleton h-9 w-full rounded mt-4"></div>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        // ── Render stars ────────────────────────────────────────────
+        function renderStars(rating) {
+            const full = Math.floor(rating);
+            const half = rating - full >= 0.5 ? 1 : 0;
+            const empty = 5 - full - half;
+            return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+        }
+
+        // ── Render single card ──────────────────────────────────────
+        function renderCard(org, index) {
+            const imgSrc = PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
+            const fullName = `${org.ime} ${org.priimek}`;
+            const eventEmoji = {
+                'poroka': '💒', 'rojstni dan': '🎂', 'konferenca': '💼',
+                'koncert': '🎵', 'festival': '🎪', 'teambuilding': '🤝', 'gala večer': '✨'
+            }[org.tip_eventa] || '🗓️';
+
+            return `
+        <article class="organizer-card group fade-in" style="animation-delay:${index * 0.05}s">
+            <div class="h-52 relative bg-cream-dark overflow-hidden">
+                <img src="${imgSrc}"
+                     alt="${fullName}"
+                     class="card-image w-full h-full object-cover transition-transform duration-700"
+                     onerror="this.src='https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png'" />
+                <span class="card-badge">${eventEmoji} ${capitalise(org.tip_eventa || '–')}</span>
+                <span class="ocena-badge">★ ${parseFloat(org.ocena).toFixed(1)}</span>
+            </div>
+            <div class="p-6">
+                <h3 class="font-display text-xl font-semibold text-navy leading-snug">${fullName}</h3>
+                <p class="text-navy/50 text-xs tracking-wide mt-1 font-light">📍 ${org.city || '–'}</p>
+                <p class="text-navy/60 text-xs mt-1 font-light">
+                    From <span class="text-gold font-medium">€${parseInt(org.cena_od).toLocaleString()}</span>
+                    · ${org.stevilo_eventov} event${org.stevilo_eventov != 1 ? 's' : ''}
+                </p>
+                <a href="profile-detail-1.html"
+                   class="card-btn block mt-5 w-full py-2.5 text-xs tracking-widest uppercase text-center">
+                    View Profile
+                </a>
+            </div>
+        </article>`;
+        }
+
+        // ── Fetch & render ──────────────────────────────────────────
+        async function fetchOrganizers() {
+            const params = buildParams();
+            renderActiveFilters(params);
+            showSkeletons();
+            resultCount.textContent = '…';
+
+            try {
+                const res = await fetch(`${API_URL}?${params.toString()}`);
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+
+                if (data.error) throw new Error(data.error);
+
+                resultCount.textContent = data.length;
+
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                <div class="empty-state col-span-full xl:col-span-4">
+                    <div class="empty-icon">🌸</div>
+                    <p class="font-display text-2xl text-navy/40 mb-2">No organizers found</p>
+                    <p class="text-sm text-navy/30">Try adjusting your filters or broadening your search.</p>
+                </div>`;
+                    return;
+                }
+
+                grid.innerHTML = data.map((org, i) => renderCard(org, i)).join('');
+
+            } catch (err) {
+                resultCount.textContent = '0';
+                grid.innerHTML = `
+            <div class="error-state col-span-full xl:col-span-4">
+                <strong>Napaka pri nalaganju podatkov.</strong><br>
+                Preveri, da PHP strežnik teče in da je baza dostopna.<br>
+                <code style="font-size:0.75rem;opacity:0.7">${err.message}</code>
+            </div>`;
+            }
+        }
+
+        // ── Helpers ─────────────────────────────────────────────────
+        function capitalise(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        // ── Event listeners ─────────────────────────────────────────
+        btnSearch.addEventListener('click', fetchOrganizers);
+
+        // Search on Enter key
+        [fSearch, fMinPrice, fMaxPrice].forEach(el => {
+            el.addEventListener('keydown', e => { if (e.key === 'Enter') fetchOrganizers(); });
+        });
+
+        // Instant filter on select change
+        [fCity, fTip].forEach(el => {
+            el.addEventListener('change', fetchOrganizers);
+        });
+
+        // Reset all filters
+        btnReset.addEventListener('click', () => {
+            fSearch.value = '';
+            fCity.value = '';
+            fTip.value = '';
+            fMinPrice.value = '';
+            fMaxPrice.value = '';
+            currentRating = 0;
+            fOcena.dataset.value = 0;
+            highlightStars(0);
+            fetchOrganizers();
+        });
+
+        // ── Initial load ────────────────────────────────────────────
+        fetchOrganizers();
+    </script>
+
 </body>
 
 </html>
