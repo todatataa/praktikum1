@@ -86,7 +86,7 @@
                     </a>
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="#" method="POST">
+            <form id="loginForm" class="mt-8 space-y-6" action="#" method="POST">
                 <input type="hidden" name="remember" value="true" />
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
@@ -113,14 +113,17 @@
                     </div>
 
                     <div class="text-sm">
-                        <a href="#" class="font-medium text-gold hover:text-gold-dark">
+                        <a href="forgot-password.html" class="font-medium text-gold hover:text-gold-dark">
                             Forgot your password?
                         </a>
                     </div>
                 </div>
 
+                <!-- Error message -->
+                <p id="form-error" style="display:none;" class="text-red-500 text-xs text-center"></p>
+
                 <div>
-                    <button type="submit"
+                    <button type="button" onclick="handleLogin()"
                         class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium uppercase tracking-widest text-navy bg-gold hover:bg-gold-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition-colors duration-300">
                         Log In
                     </button>
@@ -144,7 +147,7 @@
                         The premier platform for discovering and connecting
                         with elite event organizers across Slovenia and
                         beyond.
-                    </p>
+                        </p>
                 </div>
                 <div>
                     <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
@@ -199,6 +202,8 @@
             </div>
         </div>
     </footer>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
