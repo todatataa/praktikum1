@@ -86,26 +86,37 @@
                     </a>
                 </p>
             </div>
-            <form class="mt-8 space-y-6" action="#" method="POST">
+            <form id="registerForm" class="mt-8 space-y-6" action="#" method="POST">
                 <div class="rounded-md shadow-sm -space-y-px">
+                    <!-- First Name -->
                     <div>
-                        <label for="username" class="sr-only">Username</label>
-                        <input id="username" name="username" type="text" autocomplete="username" required
+                        <label for="first-name" class="sr-only">First Name</label>
+                        <input id="first-name" name="first-name" type="text" autocomplete="given-name" required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                            placeholder="Username" />
+                            placeholder="First Name" />
                     </div>
+                    <!-- Last Name -->
+                    <div>
+                        <label for="last-name" class="sr-only">Last Name</label>
+                        <input id="last-name" name="last-name" type="text" autocomplete="family-name" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Last Name" />
+                    </div>
+                    <!-- Email -->
                     <div>
                         <label for="email-address" class="sr-only">Email address</label>
                         <input id="email-address" name="email" type="email" autocomplete="email" required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
                             placeholder="Email address" />
                     </div>
+                    <!-- Password -->
                     <div>
                         <label for="password" class="sr-only">Password</label>
                         <input id="password" name="password" type="password" autocomplete="new-password" required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                            placeholder="Password" />
+                            placeholder="Password (min. 8 characters)" />
                     </div>
+                    <!-- Confirm Password -->
                     <div>
                         <label for="confirm-password" class="sr-only">Confirm Password</label>
                         <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password"
@@ -115,8 +126,65 @@
                     </div>
                 </div>
 
+                <!-- User Type -->
+                <div class="pt-2">
+                    <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Account Type</p>
+                    <div class="flex gap-6">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light">
+                            <input type="radio" name="user-type" value="client" id="type-client" checked
+                                class="h-4 w-4 text-gold focus:ring-gold border-navy/20"
+                                onchange="toggleOrganizerFields()" />
+                            Client
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light">
+                            <input type="radio" name="user-type" value="organizer" id="type-organizer"
+                                class="h-4 w-4 text-gold focus:ring-gold border-navy/20"
+                                onchange="toggleOrganizerFields()" />
+                            Organizer
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Organizer-only fields (hidden by default) -->
+                <div id="organizer-fields" style="display:none;" class="rounded-md shadow-sm -space-y-px">
+                    <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Organizer Details</p>
+                    <!-- Location -->
+                    <div>
+                        <label for="location" class="sr-only">Location</label>
+                        <input id="location" name="location" type="text" autocomplete="address-level2"
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Location (City)" />
+                    </div>
+                    <!-- Telephone (optional) -->
+                    <div>
+                        <label for="telephone" class="sr-only">Telephone</label>
+                        <input id="telephone" name="telephone" type="tel" autocomplete="tel"
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Telephone (optional)" />
+                    </div>
+                    <!-- Event Type -->
+                    <div>
+                        <label for="event-type" class="sr-only">Event Type</label>
+                        <select id="event-type" name="event-type"
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm bg-white">
+                            <option value="" disabled selected>Select Event Type</option>
+                            <option value="music">🎵 Music</option>
+                            <option value="technology">💻 Technology</option>
+                            <option value="arts">🎨 Arts &amp; Culture</option>
+                            <option value="food">🍽️ Food &amp; Wine</option>
+                            <option value="business">💼 Business</option>
+                            <option value="weddings">💒 Weddings</option>
+                            <option value="sports">🏃 Sports</option>
+                            <option value="education">🎓 Education</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Error message -->
+                <p id="form-error" style="display:none;" class="text-red-500 text-xs text-center"></p>
+
                 <div>
-                    <button type="submit"
+                    <button type="button" onclick="handleRegister()"
                         class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium uppercase tracking-widest text-navy bg-gold hover:bg-gold-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition-colors duration-300">
                         Register
                     </button>
@@ -195,6 +263,8 @@
             </div>
         </div>
     </footer>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
