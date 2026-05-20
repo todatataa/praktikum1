@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>White Orchid Events — Profile</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: {
+                                DEFAULT: "#0D1B2A",
+                                light: "#162536",
+                                dark: "#08111A",
+                            },
+                            gold: {
+                                DEFAULT: "#C9A84C",
+                                light: "#E2C06B",
+                                dark: "#A8883A",
+                            },
+                            cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
+                        },
+                        fontFamily: {
+                            display: ['"Playfair Display"', "Georgia", "serif"],
+                            sans: ["Jost", "system-ui", "sans-serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+        <nav
+            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
+        >
+            <a href="index.html" class="no-underline">
+                <div
+                    class="font-display text-2xl font-semibold text-navy tracking-wide"
+                >
+                    White Orchid
+                </div>
+                <div
+                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
+                >
+                    Event Organizers
+                </div>
+            </a>
+            <div class="hidden md:flex space-x-8 text-sm">
+                <a href="#" class="nav-link-luxury">How It Works</a>
+                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a
+                    href="login.html"
+                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
+                    >Log In</a
+                >
+                <a
+                    href="register.html"
+                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
+                    >Sign Up</a
+                >
+            </div>
+        </nav>
+
+        <section class="flex-grow py-20 px-10 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div
+                    class="md:col-span-1 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-center"
+                >
+                    <img
+                        id="profile-img"
+                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+                        class="w-40 h-40 rounded-full object-cover mx-auto mb-6 border-4 border-gold"
+                    />
+                    <h1
+                        id="profile-name"
+                        class="font-display text-3xl font-semibold text-navy mb-2"
+                    >
+                        Loading...
+                    </h1>
+                    <p
+                        id="profile-location"
+                        class="text-navy/60 text-sm font-light mb-4"
+                    >
+                        Loading...
+                    </p>
+                    <div
+                        id="profile-rating"
+                        class="text-gold text-base tracking-widest mb-6"
+                    >
+                        ★★★★★
+                    </div>
+                    <div class="space-y-4">
+                        <a
+                            id="profile-email-btn"
+                            href="#"
+                            class="btn-gold block w-full py-3 text-sm tracking-widest uppercase font-medium"
+                            >Get in Touch</a
+                        >
+                        <div class="text-xs text-navy/40 mt-2">
+                            Events Hosted:
+                            <span
+                                id="profile-event-count"
+                                class="font-semibold text-gold"
+                                >0</span
+                            >
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-8 border-t border-navy/10 text-left">
+                        <h3 class="font-display text-xl text-navy mb-3">
+                            Specialty
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                id="profile-specialty"
+                                class="category-pill category-pill--active"
+                                >Event Type</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="md:col-span-2 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-left"
+                >
+                    <h2
+                        class="font-display text-4xl font-semibold text-navy mb-6"
+                    >
+                        About Our Services
+                    </h2>
+                    <p
+                        id="profile-about"
+                        class="text-navy/70 text-base leading-relaxed mb-6"
+                    >
+                        Loading details...
+                    </p>
+                    <div class="mt-6 pt-6 border-t border-navy/10">
+                        <p class="text-sm font-light text-navy/60">
+                            Starting Price:
+                            <span
+                                id="profile-price"
+                                class="font-medium text-navy text-base"
+                                >0 EUR</span
+                            >
+                        </p>
+                        <p class="text-sm font-light text-navy/60 mt-1">
+                            Website/Portfolio:
+                            <a
+                                id="profile-portfolio"
+                                href="#"
+                                target="_blank"
+                                class="text-gold hover:underline"
+                                >Loading...</a
+                            >
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    class="md:col-span-3 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-left mt-12"
+                >
+                    <h2
+                        class="font-display text-4xl font-semibold text-navy mb-6"
+                    >
+                        Customer Reviews
+                    </h2>
+                    <div class="mb-6 flex items-center">
+                        <div class="text-gold text-2xl tracking-widest mr-2">
+                            ★★★★☆
+                        </div>
+                        <span class="text-navy/70 text-lg font-semibold"
+                            >(4.7 / 5.0) based on 10 reviews</span
+                        >
+                    </div>
+
+                    <div class="space-y-8 mb-8">
+                        <!-- Static Review 1 -->
+                        <div>
+                            <div class="flex items-center mb-2">
+                                <span class="font-semibold text-navy mr-2"
+                                    >Client Name 1</span
+                                >
+                                <div class="text-gold text-sm">★★★★★</div>
+                            </div>
+                            <p class="text-navy/70 text-base leading-relaxed">
+                                "Absolutely fantastic! The event was flawlessly
+                                organized and exceeded all expectations. Highly
+                                recommend White Orchid Events."
+                            </p>
+                            <p class="text-navy/50 text-xs mt-2">
+                                — Reviewed on 2024-01-15
+                            </p>
+                        </div>
+                        <!-- Static Review 2 -->
+                        <div>
+                            <div class="flex items-center mb-2">
+                                <span class="font-semibold text-navy mr-2"
+                                    >Client Name 2</span
+                                >
+                                <div class="text-gold text-sm">★★★★☆</div>
+                            </div>
+                            <p class="text-navy/70 text-base leading-relaxed">
+                                "Good service overall. Some minor hiccups, but
+                                they were quickly resolved. Our wedding was
+                                beautiful."
+                            </p>
+                            <p class="text-navy/50 text-xs mt-2">
+                                — Reviewed on 2023-11-20
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-navy/10 text-center">
+                        <button
+                            class="btn-gold px-8 py-3 text-lg tracking-widest uppercase font-medium"
+                        >
+                            Leave a Review
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <script src="script.js"></script>
+    </body>
+</html>
