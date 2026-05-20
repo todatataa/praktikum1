@@ -1,25 +1,24 @@
-// ============================================================
-//  White Orchid Events – Node.js / Express server
-//
-//  Instalacija:  npm install
-//  Pokretanje:   node server.js   (ili: npm start)
-//  Browser:      http://localhost:3000
-// ============================================================
+
 
 const express = require('express');
 const { Pool } = require('pg');
-const path = require('path');
+const path    = require('path');
+const cors    = require('cors');
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ── PostgreSQL konekcija ─────────────────────────────────────
-// Prilagodi vrijednosti svom lokalnom okruženju
+
+app.use(cors({
+    origin: '*' // u produkciji zamijeniti s konkretnim URL-om
+}));
+
+
 const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'moja_baza',
-    user: process.env.DB_USER || 'postgres',
+    host:     process.env.DB_HOST     || 'localhost',
+    port:     process.env.DB_PORT     || 5432,
+    database: process.env.DB_NAME     || 'moja_baza',
+    user:     process.env.DB_USER     || 'postgres',
     password: process.env.DB_PASSWORD || 'superVarnoGeslo',
 });
 
@@ -27,27 +26,16 @@ pool.connect()
     .then(() => console.log('✅  Spojen na PostgreSQL bazu'))
     .catch(err => console.error('❌  Greška pri spajanju na bazu:', err.message));
 
-// ── Serviraj statičke fajlove (HTML, CSS, slike) ─────────────
-// Sve HTML/CSS/img fajlove stavi u isti folder kao server.js
-app.use(express.static(path.join(__dirname)));
 
-// ── API: GET /api/organizers ─────────────────────────────────
-//
-//  Query parametri (svi opcijski):
-//    search      – pretraga po imenu, prezimenu ili tipu eventa
-//    city        – tačno podudaranje grada
-//    tip_eventa  – tačno podudaranje tipa eventa
-//    min_price   – minimalna cena_od (EUR)
-//    max_price   – maksimalna cena_od (EUR)
-//    ocena_min   – minimalna ocena (npr. 4.0)
-//
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+
 app.get('/api/organizers', async (req, res) => {
     const { search, city, tip_eventa, min_price, max_price, ocena_min } = req.query;
 
-    // Dinamički gradimo WHERE klauzulu i niz parametara
     const conditions = [];
-    const params = [];
-    let idx = 1; // PostgreSQL koristi $1, $2, ...
+    const params     = [];
+    let   idx        = 1;
 
     if (search) {
         conditions.push(`(o.ime ILIKE $${idx} OR o.priimek ILIKE $${idx} OR o.tip_eventa ILIKE $${idx})`);
@@ -117,8 +105,8 @@ app.get('/api/organizers', async (req, res) => {
     }
 });
 
-// ── Start ────────────────────────────────────────────────────
+
 app.listen(PORT, () => {
-    console.log(`🌸  White Orchid server pokrenut: http://localhost:${PORT}`);
+    console.log(`    White Orchid server pokrenut: http://localhost:${PORT}`);
     console.log(`    Pritisnite Ctrl+C za zaustavljanje`);
 });

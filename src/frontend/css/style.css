@@ -255,3 +255,198 @@ body {
 .footer-link:hover {
     color: var(--gold);
 }
+
+/* ============================================================
+   org-search.html — Filter panel & search UI
+   ============================================================ */
+
+/* ── Filter panel ─────────────────────────────────────────── */
+.filter-panel {
+    background: white;
+    border: 1px solid rgba(201, 168, 76, 0.18);
+}
+
+.filter-label {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(13, 27, 42, 0.50);
+    margin-bottom: 0.4rem;
+    display: block;
+}
+
+.filter-input,
+.filter-select {
+    width: 100%;
+    padding: 0.6rem 0.85rem;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.82rem;
+    color: #0D1B2A;
+    background: #FAFAF7;
+    border: 1px solid rgba(13, 27, 42, 0.12);
+    outline: none;
+    transition: border-color 0.25s;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    border-color: #C9A84C;
+}
+
+.filter-select-wrap {
+    position: relative;
+}
+
+.filter-select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #C9A84C;
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+.price-range-wrap {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.price-range-wrap input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.price-range-wrap input[type="number"]::-webkit-inner-spin-button,
+.price-range-wrap input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.filter-divider {
+    width: 1.5rem;
+    height: 1px;
+    background: rgba(13, 27, 42, 0.15);
+    flex-shrink: 0;
+}
+
+/* ── Star rating widget ───────────────────────────────────── */
+.star-select {
+    display: flex;
+    gap: 0.2rem;
+}
+
+.star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: rgba(13, 27, 42, 0.2);
+    padding: 0;
+    transition: color 0.2s, transform 0.15s;
+}
+
+.star-btn.active,
+.star-btn:hover,
+.star-btn.hover {
+    color: #C9A84C;
+}
+
+.star-btn:hover {
+    transform: scale(1.15);
+}
+
+/* ── Results meta ─────────────────────────────────────────── */
+.results-meta {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.78rem;
+    color: rgba(13, 27, 42, 0.45);
+    letter-spacing: 0.04em;
+}
+
+.results-count {
+    font-weight: 600;
+    color: #C9A84C;
+}
+
+/* ── Active filter tags ───────────────────────────────────── */
+.active-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.7rem;
+    background: rgba(201, 168, 76, 0.10);
+    border: 1px solid rgba(201, 168, 76, 0.30);
+    font-size: 0.72rem;
+    font-family: 'Jost', sans-serif;
+    color: #0D1B2A;
+    letter-spacing: 0.05em;
+}
+
+.active-filter-tag button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #A8883A;
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
+.active-filter-tag button:hover {
+    color: #0D1B2A;
+}
+
+/* ── Ocena badge (rating overlay on card image) ───────────── */
+.ocena-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(8, 17, 26, 0.82);
+    color: #C9A84C;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    backdrop-filter: blur(4px);
+}
+
+/* ── Skeleton loader ──────────────────────────────────────── */
+@keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0eee8 25%, #e8e5dc 50%, #f0eee8 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite linear;
+}
+
+/* ── Empty state ──────────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: rgba(13, 27, 42, 0.4);
+}
+
+.empty-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.35;
+}
+
+/* ── Error state ──────────────────────────────────────────── */
+.error-state {
+    background: rgba(220, 38, 38, 0.06);
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    color: #7f1d1d;
+    padding: 1rem 1.5rem;
+    font-size: 0.85rem;
+    font-family: 'Jost', sans-serif;
+}
