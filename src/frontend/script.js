@@ -211,6 +211,15 @@ async function loadOrganizerProfile() {
     if (data.image_content) {
       document.getElementById("profile-img").src = data.image_content;
     }
+
+    const portfolioEl = document.getElementById("profile-portfolio");
+    if (data.portfolio) {
+      portfolioEl.href = data.portfolio;
+      portfolioEl.textContent = data.portfolio;
+    } else {
+      portfolioEl.textContent = "Not available";
+      portfolioEl.removeAttribute("href");
+    }
   } catch (err) {
     console.error(err);
     document.getElementById("profile-name").textContent =
