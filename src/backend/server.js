@@ -21,12 +21,8 @@ const cors    = require('cors');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ── CORS ──────────────────────────────────────────────────────
-// Dozvoljava frontend-u (koji je u drugom folderu / portu)
-// da poziva ovaj backend bez greške u browseru
-app.use(cors({
-    origin: '*' // u produkciji zamijeniti s konkretnim URL-om
-}));
+app.use(cors({ origin: '*' }));
+app.use(express.json());
 
 // ── PostgreSQL konekcija ──────────────────────────────────────
 const pool = new Pool({
@@ -42,7 +38,6 @@ pool.connect()
     .catch(err => console.error('❌  Greška pri spajanju na bazu:', err.message));
 
 // ── Serviraj frontend statičke fajlove ───────────────────────
-// __dirname = backend/  →  ../frontend = folder sa HTML fajlovima
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // ── API: GET /api/organizers ──────────────────────────────────
@@ -93,17 +88,8 @@ app.get('/api/organizers', async (req, res) => {
 
     const sql = `
         SELECT
-            o.id_organizator,
-            o.ime,
-            o.priimek,
-            o.email,
-            o.portfolio,
-            o.telefon,
-            o.image_content,
-            o.city,
-            o.tip_eventa,
-            o.cena_od,
-            o.ocena,
+            o.id_organizator, o.ime, o.priimek, o.email, o.portfolio,
+            o.telefon, o.image_content, o.city, o.tip_eventa, o.cena_od, o.ocena,
             COUNT(DISTINCT e.id_event) AS stevilo_eventov
         FROM organizator o
         LEFT JOIN event e ON e.TK_organizatorid_organizator = o.id_organizator
@@ -127,17 +113,8 @@ app.get('/api/organizers/:id', async (req, res) => {
 
     const sql = `
         SELECT
-            o.id_organizator,
-            o.ime,
-            o.priimek,
-            o.email,
-            o.portfolio,
-            o.telefon,
-            o.image_content,
-            o.city,
-            o.tip_eventa,
-            o.cena_od,
-            o.ocena,
+            o.id_organizator, o.ime, o.priimek, o.email, o.portfolio,
+            o.telefon, o.image_content, o.city, o.tip_eventa, o.cena_od, o.ocena,
             COUNT(DISTINCT e.id_event) AS stevilo_eventov
         FROM organizator o
         LEFT JOIN event e ON e.TK_organizatorid_organizator = o.id_organizator
@@ -154,6 +131,49 @@ app.get('/api/organizers/:id', async (req, res) => {
     } catch (err) {
         console.error('SQL greška:', err.message);
         res.status(500).json({ error: 'Greška pri dohvatanju podataka: ' + err.message });
+    }
+});
+
+// ── API: POST /api/organizers ─────────────────────────────────
+// Registracija novega organizatorja — kliče register.html
+app.post('/api/organizers', async (req, res) => {
+    const { ime, priimek, email, geslo, city, telefon, tip_eventa } = req.body;
+
+    if (!ime || !priimek || !email || !geslo) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Preveri če email že obstaja
+    const checkSql = `SELECT id_organizator FROM organizator WHERE email = $1`;
+    try {
+        const checkResult = await pool.query(checkSql, [email]);
+        if (checkResult.rows.length > 0) {
+            return res.status(409).json({ error: 'Email already exists' });
+        }
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+
+    const insertSql = `
+        INSERT INTO organizator (ime, priimek, email, geslo, city, telefon, tip_eventa)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id_organizator
+    `;
+
+    try {
+        const result = await pool.query(insertSql, [
+            ime,
+            priimek,
+            email,
+            geslo,                          // hashirano geslo iz frontenda
+            city     || null,
+            telefon  ? parseInt(telefon) : null,
+            tip_eventa || null,
+        ]);
+        res.status(201).json({ id_organizator: result.rows[0].id_organizator });
+    } catch (err) {
+        console.error('SQL greška:', err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
