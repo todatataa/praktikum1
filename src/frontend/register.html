@@ -63,7 +63,7 @@
             <a href="pricing.html" class="nav-link-luxury">Pricing</a>
         </div>
 
-        <div class="flex items-center space-x-6">
+        <div id="nav-auth" class="flex items-center space-x-6">
             <a href="login.html"
                 class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log
                 In</a>
@@ -146,37 +146,65 @@
                 </div>
 
                 <!-- Organizer-only fields (hidden by default) -->
-                <div id="organizer-fields" style="display:none;" class="rounded-md shadow-sm -space-y-px">
+                <div id="organizer-fields" style="display:none;">
                     <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Organizer Details</p>
-                    <!-- Location -->
-                    <div>
-                        <label for="location" class="sr-only">Location</label>
-                        <input id="location" name="location" type="text" autocomplete="address-level2"
-                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                            placeholder="Location (City)" />
+                    <div class="rounded-md shadow-sm -space-y-px">
+                        <!-- Location -->
+                        <div>
+                            <label for="location" class="sr-only">Location</label>
+                            <input id="location" name="location" type="text" autocomplete="address-level2"
+                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                                placeholder="Location (City)" />
+                        </div>
+                        <!-- Telephone (optional) -->
+                        <div>
+                            <label for="telephone" class="sr-only">Telephone</label>
+                            <input id="telephone" name="telephone" type="tel" autocomplete="tel"
+                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                                placeholder="Telephone (optional)" />
+                        </div>
                     </div>
-                    <!-- Telephone (optional) -->
-                    <div>
-                        <label for="telephone" class="sr-only">Telephone</label>
-                        <input id="telephone" name="telephone" type="tel" autocomplete="tel"
-                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                            placeholder="Telephone (optional)" />
-                    </div>
-                    <!-- Event Type -->
-                    <div>
-                        <label for="event-type" class="sr-only">Event Type</label>
-                        <select id="event-type" name="event-type"
-                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm bg-white">
-                            <option value="" disabled selected>Select Event Type</option>
-                            <option value="music">🎵 Music</option>
-                            <option value="technology">💻 Technology</option>
-                            <option value="arts">🎨 Arts &amp; Culture</option>
-                            <option value="food">🍽️ Food &amp; Wine</option>
-                            <option value="business">💼 Business</option>
-                            <option value="weddings">💒 Weddings</option>
-                            <option value="sports">🏃 Sports</option>
-                            <option value="education">🎓 Education</option>
-                        </select>
+
+                    <!-- Event Types — checkboxi -->
+                    <div class="mt-4">
+                        <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Event Types (select all that apply)</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="poroka"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                💒 Poroka
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="rojstni dan"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🎂 Rojstni dan
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="konferenca"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                💼 Konferenca
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="koncert"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🎵 Koncert
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="festival"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🎪 Festival
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="teambuilding"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🤝 Teambuilding
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="gala večer"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                ✨ Gala večer
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -198,62 +226,35 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
                 <div class="md:col-span-2">
-                    <div class="font-display text-2xl text-white mb-1">
-                        White Orchid
-                    </div>
-                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">
-                        Event Organizers
-                    </p>
+                    <div class="font-display text-2xl text-white mb-1">White Orchid</div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">Event Organizers</p>
                     <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">
-                        The premier platform for discovering and connecting
-                        with elite event organizers across Slovenia and
-                        beyond.
+                        The premier platform for discovering and connecting with elite event organizers across Slovenia and beyond.
                     </p>
                 </div>
                 <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
-                        Platform
-                    </h4>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
                     <ul class="space-y-4">
-                        <li>
-                            <a href="#" class="footer-link">Browse Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">Top Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">How It Works</a>
-                        </li>
-                        <li>
-                            <a href="pricing.html" class="footer-link">Service Pricing</a>
-                        </li>
+                        <li><a href="#" class="footer-link">Browse Organizers</a></li>
+                        <li><a href="#" class="footer-link">Top Organizers</a></li>
+                        <li><a href="#" class="footer-link">How It Works</a></li>
+                        <li><a href="pricing.html" class="footer-link">Service Pricing</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
-                        Company
-                    </h4>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
                     <ul class="space-y-4">
-                        <li>
-                            <a href="#" class="footer-link">About Us</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">For Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">Privacy Policy</a>
-                        </li>
+                        <li><a href="#" class="footer-link">About Us</a></li>
+                        <li><a href="#" class="footer-link">For Organizers</a></li>
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
                         <li><a href="#" class="footer-link">Contact</a></li>
                     </ul>
                 </div>
             </div>
-
             <div class="h-px bg-white/[0.07] mb-8"></div>
-
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-white/25 text-xs font-light">
-                    © 2026 White Orchid Events. Built for Praktikum 1, FERI
-                    IPT 1st Year.
+                    © 2026 White Orchid Events. Built for Praktikum 1, FERI IPT 1st Year.
                 </p>
                 <div class="flex space-x-6">
                     <a href="#" class="footer-link text-xs">Terms</a>
