@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>White Orchid Events — Create Event</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy:  { DEFAULT: "#0D1B2A", light: "#162536", dark: "#08111A" },
+                        gold:  { DEFAULT: "#C9A84C", light: "#E2C06B", dark: "#A8883A" },
+                        cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
+                    },
+                    fontFamily: {
+                        display: ['"Playfair Display"', "Georgia", "serif"],
+                        sans:    ["Jost", "system-ui", "sans-serif"],
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            from: { opacity: "0", transform: "translateY(24px)" },
+                            to:   { opacity: "1", transform: "translateY(0)" },
+                        }
+                    },
+                    animation: {
+                        fadeInUp: "fadeInUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards",
+                    }
+                },
+            },
+        };
+    </script>
+    <link rel="stylesheet" href="style.css" />
+
+    <style>
+        .form-input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.85rem;
+            color: #0D1B2A;
+            background: #FAFAF7;
+            border: 1px solid rgba(13,27,42,0.15);
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .form-input:focus {
+            border-color: #C9A84C;
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+        }
+        .form-input::placeholder { color: rgba(13,27,42,0.35); }
+        .form-label {
+            display: block;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(13,27,42,0.50);
+            margin-bottom: 0.4rem;
+        }
+        .form-label .required { color: #C9A84C; margin-left: 2px; }
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0 1.5rem;
+        }
+        .section-divider span {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(13,27,42,0.35);
+            white-space: nowrap;
+        }
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(13,27,42,0.1);
+        }
+        /* Step indicator */
+        .step-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(13,27,42,0.15);
+            transition: background 0.3s;
+        }
+        .step-dot.active { background: #C9A84C; }
+        /* Character counter */
+        .char-counter {
+            font-size: 0.68rem;
+            color: rgba(13,27,42,0.35);
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+        /* Success overlay */
+        #success-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(8,17,26,0.92);
+            align-items: center; justify-content: center;
+        }
+        #success-overlay.show { display: flex; }
+    </style>
+</head>
+
+<body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+
+    <!-- NAV -->
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
+        <a href="index.html" class="no-underline">
+            <div class="font-display text-2xl font-semibold text-navy tracking-wide">White Orchid</div>
+            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">Event Organizers</div>
+        </a>
+        <div class="hidden md:flex space-x-8 text-sm">
+            <a href="index.html#how-it-works" class="nav-link-luxury">How It Works</a>
+            <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+        </div>
+        <div id="nav-auth" class="flex items-center space-x-6">
+            <a href="login.html" class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log In</a>
+            <a href="register.html" class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium">Sign Up</a>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="bg-navy py-14 px-10 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-[0.04]"
+            style="background-image: radial-gradient(circle at 30% 50%, #C9A84C 0%, transparent 50%), radial-gradient(circle at 70% 50%, #C9A84C 0%, transparent 50%);">
+        </div>
+        <div class="relative max-w-2xl mx-auto animate-fadeInUp">
+            <p class="text-gold tracking-widest uppercase text-xs font-light mb-3">Organizer Dashboard</p>
+            <h1 class="font-display text-4xl md:text-5xl font-semibold text-white mb-4">Create New Event</h1>
+            <p class="text-white/45 text-sm font-light">Fill in the details below. Fields marked <span class="text-gold">*</span> are required.</p>
+        </div>
+    </div>
+
+    <!-- GUARD: shown if not owner -->
+    <div id="access-denied" style="display:none;" class="flex-grow flex items-center justify-center text-center py-24 px-6">
+        <div>
+            <div class="text-5xl mb-4 opacity-30">🔒</div>
+            <h2 class="font-display text-2xl text-navy mb-3">Access Restricted</h2>
+            <p class="text-navy/50 text-sm mb-6">You must be logged in as the organizer to create events.</p>
+            <a href="login.html" class="btn-gold px-8 py-3 text-sm tracking-widest uppercase font-medium">Log In</a>
+        </div>
+    </div>
+
+    <!-- FORM WRAPPER -->
+    <section id="form-section" style="display:none;" class="flex-grow py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+
+            <!-- Progress dots -->
+            <div class="flex justify-center gap-2 mb-10">
+                <div class="step-dot active" id="dot-1"></div>
+                <div class="step-dot" id="dot-2"></div>
+                <div class="step-dot" id="dot-3"></div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg border border-gold/10 p-8 md:p-10">
+
+                <!-- ── SECTION 1: Basic Info ── -->
+                <div id="step-1">
+                    <h2 class="font-display text-2xl text-navy mb-1">Event Details</h2>
+                    <p class="text-navy/45 text-xs mb-6">Give your event a name and set the date.</p>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="form-label">Event Name <span class="required">*</span></label>
+                            <input id="f-naziv" type="text" class="form-input" placeholder="e.g. Summer Gala 2026" maxlength="255" />
+                            <div class="char-counter"><span id="c-naziv">0</span>/255</div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Event Description</label>
+                            <textarea id="f-opis" rows="3" class="form-input resize-none" placeholder="Brief description of the event…" maxlength="255"></textarea>
+                            <div class="char-counter"><span id="c-opis">0</span>/255</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">Event Date <span class="required">*</span></label>
+                                <input id="f-datum_eventa" type="date" class="form-input" />
+                            </div>
+                            <div>
+                                <label class="form-label">RSVP Deadline</label>
+                                <input id="f-rsvp_due_date" type="date" class="form-input" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Expected Number of Guests</label>
+                            <input id="f-stevilo_gostov" type="number" min="1" class="form-input" placeholder="e.g. 150" />
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="goStep(2)" class="btn-gold px-8 py-3 text-sm tracking-widest uppercase font-medium">
+                            Next — Venue →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── SECTION 2: Venue ── -->
+                <div id="step-2" style="display:none;">
+                    <h2 class="font-display text-2xl text-navy mb-1">Venue Information</h2>
+                    <p class="text-navy/45 text-xs mb-6">Where will this event take place?</p>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="form-label">Venue Name</label>
+                            <input id="f-venue_name" type="text" class="form-input" placeholder="e.g. Grand Hotel Union" maxlength="255" />
+                        </div>
+                        <div>
+                            <label class="form-label">Venue Location / Address</label>
+                            <input id="f-venue_lokacija" type="text" class="form-input" placeholder="e.g. Miklošičeva 1, Ljubljana" maxlength="255" />
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="goStep(1)" class="py-3 px-6 text-sm tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors">
+                            ← Back
+                        </button>
+                        <button onclick="goStep(3)" class="btn-gold px-8 py-3 text-sm tracking-widest uppercase font-medium">
+                            Next — Notifications →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── SECTION 3: Notifications & Submit ── -->
+                <div id="step-3" style="display:none;">
+                    <h2 class="font-display text-2xl text-navy mb-1">Notifications</h2>
+                    <p class="text-navy/45 text-xs mb-6">Optional email for event updates and confirmations.</p>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="form-label">Notification Email</label>
+                            <input id="f-e_mail_notification" type="email" class="form-input" placeholder="notifications@yourdomain.com" />
+                            <p class="text-navy/35 text-xs mt-1.5">Event confirmations and RSVP updates will be sent here.</p>
+                        </div>
+                    </div>
+
+                    <!-- Summary card -->
+                    <div id="event-summary" class="mt-8 p-5 bg-cream border border-gold/15 rounded space-y-2 text-sm">
+                        <p class="text-xs tracking-widest uppercase text-navy/40 mb-3">Event Summary</p>
+                        <div class="flex justify-between"><span class="text-navy/50">Name</span><span id="s-naziv" class="font-medium text-navy text-right max-w-[60%]">—</span></div>
+                        <div class="flex justify-between"><span class="text-navy/50">Date</span><span id="s-datum" class="font-medium text-navy">—</span></div>
+                        <div class="flex justify-between"><span class="text-navy/50">Venue</span><span id="s-venue" class="font-medium text-navy text-right max-w-[60%]">—</span></div>
+                        <div class="flex justify-between"><span class="text-navy/50">Guests</span><span id="s-gosti" class="font-medium text-navy">—</span></div>
+                        <div class="flex justify-between"><span class="text-navy/50">RSVP by</span><span id="s-rsvp" class="font-medium text-navy">—</span></div>
+                    </div>
+
+                    <p id="form-error" style="display:none;" class="text-red-500 text-xs text-center mt-4"></p>
+
+                    <div class="mt-6 flex justify-between">
+                        <button onclick="goStep(2)" class="py-3 px-6 text-sm tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors">
+                            ← Back
+                        </button>
+                        <button onclick="handleCreateEvent()" id="btn-submit"
+                            class="btn-gold px-8 py-3 text-sm tracking-widest uppercase font-medium">
+                            Create Event ✓
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- /card -->
+        </div>
+    </section>
+
+    <!-- SUCCESS OVERLAY -->
+    <div id="success-overlay">
+        <div class="text-center px-6 animate-fadeInUp">
+            <div class="text-6xl mb-6">🌸</div>
+            <h2 class="font-display text-3xl text-white mb-3">Event Created!</h2>
+            <p class="text-white/50 text-sm mb-8">Your event has been added successfully.</p>
+            <a id="back-to-profile" href="#" class="btn-gold px-10 py-3.5 text-sm tracking-widest uppercase font-medium">
+                Back to My Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-navy-dark py-16 px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                <div class="md:col-span-2">
+                    <div class="font-display text-2xl text-white mb-1">White Orchid</div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">Event Organizers</p>
+                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">The premier platform for discovering and connecting with elite event organizers across Slovenia and beyond.</p>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="footer-link">Browse Organizers</a></li>
+                        <li><a href="index.html#how-it-works" class="footer-link">How It Works</a></li>
+                        <li><a href="pricing.html" class="footer-link">Pricing</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="footer-link">About Us</a></li>
+                        <li><a href="#" class="footer-link">Contact</a></li>
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="h-px bg-white/[0.07] mb-8"></div>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-white/25 text-xs font-light">© 2026 White Orchid Events. Built for Praktikum 1, FERI IPT 1st Year.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="footer-link text-xs">Terms</a>
+                    <a href="#" class="footer-link text-xs">Privacy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+    // ── Auth guard ───────────────────────────────────────────
+    (function authGuard() {
+        const session   = JSON.parse(localStorage.getItem("wo_session") || "null");
+        const urlParams = new URLSearchParams(window.location.search);
+        const orgId     = urlParams.get("org_id");
+
+        if (
+            session &&
+            session.userType === "organizer" &&
+            session.organizerId &&
+            String(session.organizerId) === String(orgId)
+        ) {
+            document.getElementById("form-section").style.display = "block";
+            // Set back-to-profile link
+            document.getElementById("back-to-profile").href = `profile-detail.html?id=${orgId}`;
+        } else {
+            document.getElementById("access-denied").style.display = "flex";
+        }
+    })();
+
+    // ── Step navigation ──────────────────────────────────────
+    function goStep(n) {
+        // Validate step 1 before advancing
+        if (n > 1) {
+            const naziv = document.getElementById("f-naziv").value.trim();
+            const datum = document.getElementById("f-datum_eventa").value;
+            if (!naziv) { alert("Please enter the event name."); return; }
+            if (!datum)  { alert("Please select the event date."); return; }
+
+            // RSVP must be before event date
+            const rsvp = document.getElementById("f-rsvp_due_date").value;
+            if (rsvp && rsvp >= datum) {
+                alert("RSVP deadline must be before the event date."); return;
+            }
+        }
+
+        // Populate summary on step 3
+        if (n === 3) {
+            document.getElementById("s-naziv").textContent = document.getElementById("f-naziv").value.trim() || "—";
+            document.getElementById("s-datum").textContent = document.getElementById("f-datum_eventa").value || "—";
+            const vName = document.getElementById("f-venue_name").value.trim();
+            const vLoc  = document.getElementById("f-venue_lokacija").value.trim();
+            document.getElementById("s-venue").textContent = [vName, vLoc].filter(Boolean).join(", ") || "—";
+            document.getElementById("s-gosti").textContent = document.getElementById("f-stevilo_gostov").value || "—";
+            document.getElementById("s-rsvp").textContent  = document.getElementById("f-rsvp_due_date").value || "—";
+        }
+
+        [1,2,3].forEach(i => {
+            document.getElementById(`step-${i}`).style.display = i === n ? "block" : "none";
+            document.getElementById(`dot-${i}`).classList.toggle("active", i <= n);
+        });
+    }
+
+    // ── Character counters ───────────────────────────────────
+    document.getElementById("f-naziv").addEventListener("input", function() {
+        document.getElementById("c-naziv").textContent = this.value.length;
+    });
+    document.getElementById("f-opis").addEventListener("input", function() {
+        document.getElementById("c-opis").textContent = this.value.length;
+    });
+
+    // ── Submit ───────────────────────────────────────────────
+    async function handleCreateEvent() {
+        const errorEl = document.getElementById("form-error");
+        errorEl.style.display = "none";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const orgId     = urlParams.get("org_id");
+
+        const payload = {
+            naziv:               document.getElementById("f-naziv").value.trim(),
+            datum_eventa:        document.getElementById("f-datum_eventa").value,
+            opis:                document.getElementById("f-opis").value.trim() || null,
+            stevilo_gostov:      parseInt(document.getElementById("f-stevilo_gostov").value) || null,
+            venue_name:          document.getElementById("f-venue_name").value.trim() || null,
+            venue_lokacija:      document.getElementById("f-venue_lokacija").value.trim() || null,
+            rsvp_due_date:       document.getElementById("f-rsvp_due_date").value || null,
+            e_mail_notification: document.getElementById("f-e_mail_notification").value.trim() || null,
+            TK_organizatorid_organizator: parseInt(orgId),
+        };
+
+        const btn = document.getElementById("btn-submit");
+        btn.textContent  = "Creating…";
+        btn.disabled     = true;
+
+        try {
+            const resp = await fetch("/api/events", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify(payload),
+            });
+
+            if (!resp.ok) {
+                const err = await resp.json();
+                errorEl.textContent   = err.error || "Failed to create event.";
+                errorEl.style.display = "block";
+                btn.textContent  = "Create Event ✓";
+                btn.disabled     = false;
+                return;
+            }
+
+            // Show success overlay
+            document.getElementById("success-overlay").classList.add("show");
+        } catch (e) {
+            errorEl.textContent   = "Server connection error. Please try again.";
+            errorEl.style.display = "block";
+            btn.textContent  = "Create Event ✓";
+            btn.disabled     = false;
+        }
+    }
+    </script>
+</body>
+</html>

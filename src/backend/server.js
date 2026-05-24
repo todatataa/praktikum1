@@ -1,18 +1,3 @@
-// ============================================================
-//  White Orchid Events – Node.js / Express server
-//
-//  Struktura projekta:
-//    project/
-//    ├── frontend/   ← HTML, CSS, slike
-//    └── backend/
-//        ├── server.js   ← ovaj fajl
-//        └── package.json
-//
-//  Instalacija:  npm install
-//  Pokretanje:   node server.js
-//  Browser:      http://localhost:3000
-// ============================================================
-
 const express = require('express');
 const { Pool } = require('pg');
 const path    = require('path');
@@ -24,7 +9,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// ── PostgreSQL konekcija ──────────────────────────────────────
+app.use(cors({
+    origin: '*' 
+}));
+
+
 const pool = new Pool({
     host:     process.env.DB_HOST     || 'localhost',
     port:     process.env.DB_PORT     || 5432,
@@ -38,9 +27,11 @@ pool.connect()
     .catch(err => console.error('❌  Greška pri spajanju na bazu:', err.message));
 
 // ── Serviraj frontend statičke fajlove ───────────────────────
+
+
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// ── API: GET /api/organizers ──────────────────────────────────
+
 app.get('/api/organizers', async (req, res) => {
     const { search, city, tip_eventa, min_price, max_price, ocena_min } = req.query;
 
@@ -107,7 +98,7 @@ app.get('/api/organizers', async (req, res) => {
     }
 });
 
-// ── API: GET /api/organizers/:id ──────────────────────────────
+
 app.get('/api/organizers/:id', async (req, res) => {
     const { id } = req.params;
 
@@ -177,7 +168,154 @@ app.post('/api/organizers', async (req, res) => {
     }
 });
 
+// ── API: GET /api/events ──────────────────────────────────────
+// Dohvati sve evente (opciono filtrirano po org_id)
+app.get('/api/events', async (req, res) => {
+    const { org_id } = req.query;
+
+    const conditions = [];
+    const params     = [];
+    let   idx        = 1;
+
+    if (org_id) {
+        conditions.push(`e.TK_organizatorid_organizator = $${idx}`);
+        params.push(parseInt(org_id));
+        idx++;
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const sql = `
+        SELECT
+            e.id_event, e.naziv, e.datum_eventa, e.opis,
+            e.stevilo_gostov, e.venue_name, e.venue_lokacija,
+            e.rsvp_due_date, e.e_mail_notification,
+            e.TK_organizatorid_organizator
+        FROM event e
+        ${whereClause}
+        ORDER BY e.datum_eventa ASC
+    `;
+
+    try {
+        const result = await pool.query(sql, params);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('SQL greška (GET events):', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── API: DELETE /api/events/:id ───────────────────────────────
+app.delete('/api/events/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await pool.query(
+            'DELETE FROM event WHERE id_event = $1 RETURNING id_event',
+            [id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Event nije pronađen' });
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('SQL greška (DELETE event):', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── API: PATCH /api/organizers/:id ───────────────────────────
+// Posodobitev profila organizatorja — kliče profile-detail.html (Edit Profile modal)
+app.patch('/api/organizers/:id', async (req, res) => {
+    const { id } = req.params;
+    const { ime, priimek, city, telefon, tip_eventa, portfolio, cena_od } = req.body;
+
+    if (!ime || !priimek) {
+        return res.status(400).json({ error: 'ime and priimek are required' });
+    }
+
+    const sql = `
+        UPDATE organizator
+        SET ime        = $1,
+            priimek    = $2,
+            city       = $3,
+            telefon    = $4,
+            tip_eventa = $5,
+            portfolio  = $6,
+            cena_od    = $7
+        WHERE id_organizator = $8
+        RETURNING id_organizator
+    `;
+
+    try {
+        const result = await pool.query(sql, [
+            ime,
+            priimek,
+            city       || null,
+            telefon    ? parseInt(telefon) : null,
+            tip_eventa || null,
+            portfolio  || null,
+            cena_od    !== undefined ? parseInt(cena_od) : 0,
+            id,
+        ]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Organizator nije pronađen' });
+        }
+        res.json({ success: true, id_organizator: result.rows[0].id_organizator });
+    } catch (err) {
+        console.error('SQL greška (PATCH organizer):', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ── API: POST /api/events ──────────────────────────────────────
+// Kreiranje novog eventa — kliče create-event.html
+app.post('/api/events', async (req, res) => {
+    const {
+        naziv,
+        datum_eventa,
+        opis,
+        stevilo_gostov,
+        venue_name,
+        venue_lokacija,
+        rsvp_due_date,
+        e_mail_notification,
+        TK_organizatorid_organizator,
+    } = req.body;
+
+    if (!naziv || !datum_eventa || !TK_organizatorid_organizator) {
+        return res.status(400).json({ error: 'naziv, datum_eventa and TK_organizatorid_organizator are required' });
+    }
+
+    const sql = `
+        INSERT INTO event
+            (naziv, datum_eventa, opis, stevilo_gostov, venue_name, venue_lokacija,
+             rsvp_due_date, e_mail_notification, TK_organizatorid_organizator)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id_event
+    `;
+
+    try {
+        const result = await pool.query(sql, [
+            naziv,
+            datum_eventa,
+            opis              || null,
+            stevilo_gostov    ? parseInt(stevilo_gostov) : null,
+            venue_name        || null,
+            venue_lokacija    || null,
+            rsvp_due_date     || null,
+            e_mail_notification || null,
+            parseInt(TK_organizatorid_organizator),
+        ]);
+        res.status(201).json({ id_event: result.rows[0].id_event });
+    } catch (err) {
+        console.error('SQL greška (POST event):', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── Start ─────────────────────────────────────────────────────
+
 app.listen(PORT, () => {
     console.log(`🌸  White Orchid server pokrenut: http://localhost:${PORT}`);
     console.log(`    Pritisnite Ctrl+C za zaustavljanje`);

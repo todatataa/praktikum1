@@ -405,13 +405,9 @@ async function handleLogin(event) {
 // ============================================================
 
 window.addEventListener("DOMContentLoaded", async () => {
-  // Seed obstoječe organizatorje (samo enkrat)
   await initSeedUsers();
-
-  // Nav avatar ali Login/Register
   updateNav();
 
-  // Remember me pre-fill
   const remembered = localStorage.getItem("wo_remember_email");
   if (remembered && document.getElementById("email-address")) {
     document.getElementById("email-address").value = remembered;
@@ -419,13 +415,11 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (rememberCheckbox) rememberCheckbox.checked = true;
   }
 
-  // Login forma
   const loginForm = document.getElementById("loginForm") || document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", handleLogin);
   }
 
-  // Organizer field toggles
   const typeOrganizer = document.getElementById("type-organizer");
   const typeClient    = document.getElementById("type-client");
   if (typeOrganizer && typeClient) {
@@ -433,7 +427,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     typeClient.addEventListener("change", toggleOrganizerFields);
   }
 
-  // Sosolčeve funkcije
   if (
     window.location.pathname.endsWith("index.html") ||
     window.location.pathname === "/" ||
@@ -495,8 +488,8 @@ async function loadFeaturedOrganizers() {
 }
 
 async function loadOrganizerProfile() {
-  const urlParams    = new URLSearchParams(window.location.search);
-  const organizerId  = urlParams.get("id");
+  const urlParams   = new URLSearchParams(window.location.search);
+  const organizerId = urlParams.get("id");
 
   if (!organizerId) {
     document.getElementById("profile-name").textContent = "Profile Not Found";

@@ -198,12 +198,12 @@
         </div>
     </footer>
 
-    <!-- ── JAVASCRIPT ───────────────────────────────────────── -->
+   
     <script>
-    // ── Config ─────────────────────────────────────────────────
+    
     const API_URL = 'http://localhost:3000/api/organizers';
 
-    // Fallback slike za organizatorje (rotiramo jih)
+
     const PLACEHOLDER_IMAGES = [
         'https://images.unsplash.com/photo-1519671282429-b44b31bfd2df?w=400&h=300&fit=crop',
         'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop',
@@ -213,10 +213,10 @@
         'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=400&h=300&fit=crop',
     ];
 
-    // ── State ───────────────────────────────────────────────────
+   
     let currentRating = 0;
 
-    // ── DOM refs ────────────────────────────────────────────────
+    
     const grid         = document.getElementById('organizer-grid');
     const resultCount  = document.getElementById('result-count');
     const activeFilters = document.getElementById('active-filters');
@@ -229,7 +229,7 @@
     const btnSearch    = document.getElementById('btn-search');
     const btnReset     = document.getElementById('btn-reset');
 
-    // ── Star rating widget ──────────────────────────────────────
+    
     const starBtns = fOcena.querySelectorAll('.star-btn');
 
     starBtns.forEach(btn => {
@@ -347,7 +347,7 @@
         </article>`;
     }
 
-    // ── Fetch & render ──────────────────────────────────────────
+    
     async function fetchOrganizers() {
         const params = buildParams();
         renderActiveFilters(params);
@@ -388,25 +388,25 @@
         }
     }
 
-    // ── Helpers ─────────────────────────────────────────────────
+
     function capitalise(s) {
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
-    // ── Event listeners ─────────────────────────────────────────
+
     btnSearch.addEventListener('click', fetchOrganizers);
 
-    // Search on Enter key
+
     [fSearch, fMinPrice, fMaxPrice].forEach(el => {
         el.addEventListener('keydown', e => { if (e.key === 'Enter') fetchOrganizers(); });
     });
 
-    // Instant filter on select change
+
     [fCity, fTip].forEach(el => {
         el.addEventListener('change', fetchOrganizers);
     });
 
-    // Reset all filters
+
     btnReset.addEventListener('click', () => {
         fSearch.value = '';
         fCity.value = '';
@@ -419,7 +419,8 @@
         fetchOrganizers();
     });
 
-    // ── Initial load ────────────────────────────────────────────
+    
+    
     fetchOrganizers();
     </script>
 
