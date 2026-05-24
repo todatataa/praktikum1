@@ -87,7 +87,7 @@ app.get("/api/organizers", async (req, res) => {
   const sql = `
         SELECT
             o.id_organizator, o.ime, o.priimek, o.email, o.portfolio,
-            o.telefon, o.image_content, o.city, o.tip_eventa, o.cena_od,
+            o.telefon, o.image_content, o.city, o.tip_eventa, o.portfolio_description, o.cena_od,
             COALESCE(rs.avg_rating, o.ocena) AS ocena,
             COALESCE(rs.review_count, 0) AS stevilo_reviews,
             COALESCE(ev.stevilo_eventov, 0) AS stevilo_eventov
@@ -128,7 +128,7 @@ app.get("/api/organizers/:id", async (req, res) => {
   const sql = `
         SELECT
             o.id_organizator, o.ime, o.priimek, o.email, o.portfolio,
-            o.telefon, o.image_content, o.city, o.tip_eventa, o.cena_od,
+            o.telefon, o.image_content, o.city, o.tip_eventa, o.portfolio_description, o.cena_od,
             COALESCE(rs.avg_rating, o.ocena) AS ocena,
             COALESCE(rs.review_count, 0) AS stevilo_reviews,
             COALESCE(ev.stevilo_eventov, 0) AS stevilo_eventov
@@ -414,8 +414,16 @@ app.delete("/api/events/:id", async (req, res) => {
 // Posodobitev profila organizatorja — kliče profile-detail.html (Edit Profile modal)
 app.patch("/api/organizers/:id", async (req, res) => {
   const { id } = req.params;
-  const { ime, priimek, city, telefon, tip_eventa, portfolio, cena_od } =
-    req.body;
+  const {
+    ime,
+    priimek,
+    city,
+    telefon,
+    tip_eventa,
+    portfolio,
+    portfolio_description,
+    cena_od,
+  } = req.body;
 
   if (!ime || !priimek) {
     return res.status(400).json({ error: "ime and priimek are required" });
@@ -423,14 +431,15 @@ app.patch("/api/organizers/:id", async (req, res) => {
 
   const sql = `
         UPDATE organizator
-        SET ime        = $1,
-            priimek    = $2,
-            city       = $3,
-            telefon    = $4,
-            tip_eventa = $5,
-            portfolio  = $6,
-            cena_od    = $7
-        WHERE id_organizator = $8
+        SET ime                   = $1,
+            priimek               = $2,
+            city                  = $3,
+            telefon               = $4,
+            tip_eventa            = $5,
+            portfolio             = $6,
+            portfolio_description = $7,
+            cena_od               = $8
+        WHERE id_organizator = $9
         RETURNING id_organizator
     `;
 
@@ -442,6 +451,7 @@ app.patch("/api/organizers/:id", async (req, res) => {
       telefon ? parseInt(telefon) : null,
       tip_eventa || null,
       portfolio || null,
+      portfolio_description || null,
       cena_od !== undefined ? parseInt(cena_od) : 0,
       id,
     ]);
@@ -452,6 +462,74 @@ app.patch("/api/organizers/:id", async (req, res) => {
   } catch (err) {
     console.error("SQL greška (PATCH organizer):", err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/organizers/:id", async (req, res) => {
+  const { id } = req.params;
+  const organizerId = parseInt(id);
+
+  if (!Number.isInteger(organizerId)) {
+    return res.status(400).json({ error: "Invalid organizer id" });
+  }
+
+  const db = await pool.connect();
+
+  try {
+    await db.query("BEGIN");
+
+    await db.query(
+      `DELETE FROM invitation
+       WHERE TK_eventid_event IN (
+         SELECT id_event FROM event WHERE TK_organizatorid_organizator = $1
+       )`,
+      [organizerId],
+    );
+
+    await db.query(
+      `DELETE FROM image
+       WHERE eventid_event IN (
+         SELECT id_event FROM event WHERE TK_organizatorid_organizator = $1
+       )`,
+      [organizerId],
+    );
+
+    await db.query(`DELETE FROM review WHERE organizator_id = $1`, [
+      organizerId,
+    ]);
+
+    await db.query(
+      `DELETE FROM event WHERE TK_organizatorid_organizator = $1`,
+      [organizerId],
+    );
+
+    await db.query(
+      `UPDATE zahtev
+       SET TK_organizatorid_organizator = NULL
+       WHERE TK_organizatorid_organizator = $1`,
+      [organizerId],
+    );
+
+    const result = await db.query(
+      `DELETE FROM organizator
+       WHERE id_organizator = $1
+       RETURNING id_organizator`,
+      [organizerId],
+    );
+
+    if (result.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({ error: "Organizator nije pronađen" });
+    }
+
+    await db.query("COMMIT");
+    res.json({ success: true });
+  } catch (err) {
+    await db.query("ROLLBACK");
+    console.error("SQL greška (DELETE organizer):", err.message);
+    res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
   }
 });
 

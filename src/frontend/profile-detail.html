@@ -134,6 +134,13 @@
                             >
                                 Edit Profile
                             </button>
+                            <button
+                                id="btn-delete-profile"
+                                onclick="deleteProfile()"
+                                class="block w-full py-3 text-sm tracking-widest uppercase font-medium text-center text-red-500 border border-red-200 hover:border-red-400 hover:bg-red-50 transition-colors duration-300"
+                            >
+                                Delete Profile
+                            </button>
                         </div>
 
                         <div class="text-xs text-navy/40 mt-2">
@@ -401,7 +408,7 @@
 
             <!-- Dialog -->
             <div
-                class="relative z-10 bg-white w-full max-w-lg p-8 md:p-10 shadow-2xl rounded-lg border border-gold/15 animate-[fadeInUp_0.3s_ease_forwards]"
+                class="relative z-10 bg-white w-full max-w-2xl p-6 md:p-8 shadow-2xl rounded-lg border border-gold/15 animate-[fadeInUp_0.3s_ease_forwards] max-h-[90vh] overflow-y-auto"
             >
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="font-display text-2xl font-semibold text-navy">
@@ -465,13 +472,81 @@
                     <div>
                         <label
                             class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5"
-                            >Specialty / Event Type</label
+                            >Specialty / Event Types</label
                         >
-                        <input
-                            id="edit-tip_eventa"
-                            type="text"
-                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream"
-                        />
+                        <div
+                            id="edit-tip-eventa-options"
+                            class="flex flex-wrap gap-2"
+                        >
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="poroka"
+                            >
+                                Poroka
+                            </button>
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="rojstni dan"
+                            >
+                                Rojstni dan
+                            </button>
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="konferenca"
+                            >
+                                Konferenca
+                            </button>
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="koncert"
+                            >
+                                Koncert
+                            </button>
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="festival"
+                            >
+                                Festival
+                            </button>
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="teambuilding"
+                            >
+                                Teambuilding
+                            </button>
+                            <button
+                                type="button"
+                                class="event-type-option px-3 py-2 text-xs tracking-widest uppercase border border-navy/20 text-navy bg-cream hover:border-gold transition-colors"
+                                data-value="gala večer"
+                            >
+                                Gala večer
+                            </button>
+                        </div>
+                        <input id="edit-tip_eventa" type="hidden" />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5"
+                            >Profile Picture</label
+                        >
+                        <div class="flex items-center gap-3">
+                            <input
+                                id="edit-profile-image"
+                                type="file"
+                                accept="image/*"
+                                class="w-full px-3 py-2.5 border border-dashed border-navy/20 text-navy/60 text-sm bg-cream cursor-not-allowed"
+                                disabled
+                            />
+                            <span class="text-xs text-navy/40"
+                                >Coming soon</span
+                            >
+                        </div>
                     </div>
                     <div>
                         <label
@@ -484,6 +559,140 @@
                             class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream"
                             placeholder="https://"
                         />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5"
+                            >Portfolio Description</label
+                        >
+                        <div
+                            class="border border-navy/20 bg-white overflow-hidden"
+                        >
+                            <div
+                                class="flex flex-wrap items-center gap-2 p-2 border-b border-navy/10 bg-cream"
+                            >
+                                <select
+                                    onchange="setPortfolioBlock(this.value)"
+                                    class="px-2 py-1 text-xs border border-navy/20 bg-white text-navy"
+                                >
+                                    <option value="p">Paragraph</option>
+                                    <option value="h1">Heading 1</option>
+                                    <option value="h2">Heading 2</option>
+                                    <option value="h3">Heading 3</option>
+                                </select>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('bold')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white font-bold"
+                                >
+                                    B
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('italic')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white italic"
+                                >
+                                    I
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('underline')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white underline"
+                                >
+                                    U
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('strikeThrough')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white line-through"
+                                >
+                                    S
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="
+                                        formatPortfolio('insertUnorderedList')
+                                    "
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    • List
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="
+                                        formatPortfolio('insertOrderedList')
+                                    "
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    1. List
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('justifyLeft')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Left
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('justifyCenter')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Center
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('justifyRight')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Right
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="insertPortfolioLink()"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Link
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('unlink')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Unlink
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('removeFormat')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('undo')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Undo
+                                </button>
+                                <button
+                                    type="button"
+                                    onclick="formatPortfolio('redo')"
+                                    class="px-3 py-1 text-xs border border-navy/20 bg-white"
+                                >
+                                    Redo
+                                </button>
+                            </div>
+                            <div
+                                id="edit-portfolio-description"
+                                contenteditable="true"
+                                class="min-h-[160px] max-h-[260px] px-4 py-3 text-sm text-navy bg-white focus:outline-none overflow-auto"
+                            ></div>
+                        </div>
+                        <p class="text-xs text-navy/40 mt-1">
+                            Use the editor toolbar to format your portfolio
+                            description.
+                        </p>
                     </div>
                     <div>
                         <label
@@ -554,8 +763,81 @@
             })();
 
             // ── Edit Profile Modal ────────────────────────────────────
+            function focusPortfolioEditor() {
+                const editor = document.getElementById(
+                    "edit-portfolio-description",
+                );
+                if (editor) editor.focus();
+            }
+
+            function formatPortfolio(command, value = null) {
+                focusPortfolioEditor();
+                document.execCommand(command, false, value);
+            }
+
+            function setPortfolioBlock(tagName) {
+                if (!tagName) return;
+                formatPortfolio("formatBlock", tagName);
+            }
+
+            function insertPortfolioLink() {
+                focusPortfolioEditor();
+                const url = prompt("Enter the URL:");
+                if (!url) return;
+                document.execCommand("createLink", false, url);
+            }
+
+            function syncSelectedEventTypes() {
+                const selected = Array.from(
+                    document.querySelectorAll(
+                        ".event-type-option[data-selected='true']",
+                    ),
+                ).map((btn) => btn.dataset.value);
+
+                document.getElementById("edit-tip_eventa").value =
+                    selected.join(", ");
+            }
+
+            function setSelectedEventTypes(values) {
+                const normalized = values.map((value) =>
+                    String(value).trim().toLowerCase(),
+                );
+
+                document
+                    .querySelectorAll(".event-type-option")
+                    .forEach((btn) => {
+                        const isSelected = normalized.includes(
+                            String(btn.dataset.value || "")
+                                .trim()
+                                .toLowerCase(),
+                        );
+
+                        btn.dataset.selected = isSelected ? "true" : "false";
+                        btn.classList.toggle("bg-navy", isSelected);
+                        btn.classList.toggle("text-white", isSelected);
+                        btn.classList.toggle("border-navy", isSelected);
+                        btn.classList.toggle("bg-cream", !isSelected);
+                        btn.classList.toggle("text-navy", !isSelected);
+                    });
+
+                syncSelectedEventTypes();
+            }
+
+            document.querySelectorAll(".event-type-option").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const selectedNow = btn.dataset.selected === "true";
+                    btn.dataset.selected = selectedNow ? "false" : "true";
+                    btn.classList.toggle("bg-navy", !selectedNow);
+                    btn.classList.toggle("text-white", !selectedNow);
+                    btn.classList.toggle("border-navy", !selectedNow);
+                    btn.classList.toggle("bg-cream", selectedNow);
+                    btn.classList.toggle("text-navy", selectedNow);
+                    syncSelectedEventTypes();
+                });
+            });
+
             function openEditProfileModal() {
-                // Pre-fill fields iz DOM-a
+                const profileData = window.currentOrganizerProfile || {};
                 const name = document
                     .getElementById("profile-name")
                     .textContent.trim()
@@ -566,19 +848,23 @@
                 document.getElementById("edit-city").value = document
                     .getElementById("profile-location")
                     .textContent.trim();
-                document.getElementById("edit-tip_eventa").value = document
-                    .getElementById("profile-specialty")
-                    .textContent.trim();
+                setSelectedEventTypes(
+                    String(profileData.tip_eventa || "")
+                        .split(",")
+                        .map((part) => part.trim())
+                        .filter(Boolean),
+                );
                 document.getElementById("edit-portfolio").value =
-                    document.getElementById("profile-portfolio").href !==
-                    window.location.href
-                        ? document.getElementById("profile-portfolio").href
-                        : "";
+                    profileData.portfolio || "";
                 document.getElementById("edit-cena_od").value = document
                     .getElementById("profile-price")
                     .textContent.replace(" EUR", "")
                     .trim();
-                document.getElementById("edit-telefon").value = "";
+                document.getElementById("edit-telefon").value =
+                    profileData.telefon || "";
+                document.getElementById(
+                    "edit-portfolio-description",
+                ).innerHTML = profileData.portfolio_description || "";
 
                 document.getElementById("edit-profile-modal").style.display =
                     "flex";
@@ -616,6 +902,10 @@
                         document
                             .getElementById("edit-portfolio")
                             .value.trim() || null,
+                    portfolio_description:
+                        document
+                            .getElementById("edit-portfolio-description")
+                            .innerHTML.trim() || null,
                     cena_od:
                         parseInt(
                             document.getElementById("edit-cena_od").value,
@@ -657,16 +947,87 @@
                             : "GENERAL";
                     document.getElementById("profile-price").textContent =
                         `${payload.cena_od} EUR`;
+                    document.getElementById("profile-about").innerHTML =
+                        payload.portfolio_description ||
+                        `Welcome to the portfolio of ${payload.ime} ${payload.priimek}. We host high-end ${payload.tip_eventa || "events"} across ${payload.city || "Slovenia"}, focusing on absolute premium execution and elite customer satisfaction.`;
                     if (payload.portfolio) {
                         const el = document.getElementById("profile-portfolio");
                         el.href = payload.portfolio;
                         el.textContent = payload.portfolio;
                     }
 
+                    if (window.currentOrganizerProfile) {
+                        window.currentOrganizerProfile = {
+                            ...window.currentOrganizerProfile,
+                            ...payload,
+                        };
+                    }
+
                     setTimeout(closeEditProfileModal, 1400);
                 } catch (e) {
                     errorEl.textContent = "Server connection error.";
                     errorEl.style.display = "block";
+                }
+            }
+
+            async function deleteProfile() {
+                const session = JSON.parse(
+                    localStorage.getItem("wo_session") || "null",
+                );
+                const urlParams = new URLSearchParams(window.location.search);
+                const profileId = urlParams.get("id");
+
+                if (
+                    !session ||
+                    session.userType !== "organizer" ||
+                    String(session.organizerId) !== String(profileId)
+                ) {
+                    alert("You can only delete your own profile.");
+                    return;
+                }
+
+                if (
+                    !confirm(
+                        "Delete your profile? This will also remove your related events and cannot be undone.",
+                    )
+                ) {
+                    return;
+                }
+
+                const deleteBtn = document.getElementById("btn-delete-profile");
+                if (deleteBtn) {
+                    deleteBtn.disabled = true;
+                    deleteBtn.textContent = "Deleting...";
+                }
+
+                try {
+                    const resp = await fetch(`/api/organizers/${profileId}`, {
+                        method: "DELETE",
+                    });
+
+                    const raw = await resp.text();
+                    let data = {};
+                    try {
+                        data = raw ? JSON.parse(raw) : {};
+                    } catch {
+                        data = { error: raw };
+                    }
+
+                    if (!resp.ok) {
+                        throw new Error(
+                            data.error || "Could not delete profile.",
+                        );
+                    }
+
+                    localStorage.removeItem("wo_session");
+                    alert("Profile deleted successfully.");
+                    window.location.href = "index.html";
+                } catch (err) {
+                    alert(err.message || "Could not delete profile.");
+                    if (deleteBtn) {
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = "Delete Profile";
+                    }
                 }
             }
 

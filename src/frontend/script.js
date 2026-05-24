@@ -877,6 +877,7 @@ async function loadOrganizerProfile() {
     const response = await fetch(`/api/organizers/${organizerId}`);
     if (!response.ok) throw new Error("Failed to fetch profile");
     const data = await response.json();
+    window.currentOrganizerProfile = data;
 
     document.getElementById("profile-name").textContent =
       `${data.ime} ${data.priimek}`;
@@ -896,7 +897,8 @@ async function loadOrganizerProfile() {
     document.getElementById("profile-rating").textContent =
       renderStars(ratingNum);
 
-    document.getElementById("profile-about").textContent =
+    document.getElementById("profile-about").innerHTML =
+      data.portfolio_description ||
       `Welcome to the portfolio of ${data.ime} ${data.priimek}. We host high-end ${data.tip_eventa || "events"} across ${data.city || "Slovenia"}, focusing on absolute premium execution and elite customer satisfaction.`;
 
     if (data.image_content) {

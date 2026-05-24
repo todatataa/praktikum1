@@ -33,6 +33,7 @@ CREATE TABLE organizator (
     image_content   VARCHAR(255),
     city            VARCHAR(255),
     tip_eventa      VARCHAR(255),
+    portfolio_description TEXT,
     cena_od         INTEGER        DEFAULT 0,
     ocena           NUMERIC(2,1)   DEFAULT 5.0
 );
@@ -210,6 +211,7 @@ INSERT INTO review (client_id, organizator_id, rating, comment, review_date) VAL
     (3, 12, 5, 'The teambuilding event was engaging, well paced, and very professional.', '2024-03-26'),
     (4, 12, 4, 'Good planning, strong communication, and a smooth overall experience.', '2024-06-19');
 
+    ALTER TABLE organizator ADD COLUMN IF NOT EXISTS portfolio_description TEXT
 -- ── Preveri podatke ─────────────────────────────────────────
 SELECT * FROM client;
 SELECT * FROM organizator ORDER BY id_organizator;
