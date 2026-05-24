@@ -9,7 +9,9 @@ async function hashPassword(password) {
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
   return hashHex;
 }
 
@@ -17,7 +19,9 @@ async function hashPassword(password) {
 function generateToken() {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
-  return Array.from(array).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(array)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 // --- Show / clear inline error message ---
@@ -53,12 +57,14 @@ function updateNav() {
   const session = JSON.parse(localStorage.getItem("wo_session") || "null");
 
   if (session && session.token) {
-    const initials = (session.firstName ? session.firstName[0] : "") +
-                     (session.lastName  ? session.lastName[0]  : "");
+    const initials =
+      (session.firstName ? session.firstName[0] : "") +
+      (session.lastName ? session.lastName[0] : "");
 
-    const profileUrl = session.userType === "organizer" && session.organizerId
-      ? `profile-detail.html?id=${session.organizerId}`
-      : "profile-detail.html";
+    const profileUrl =
+      session.userType === "organizer" && session.organizerId
+        ? `profile-detail.html?id=${session.organizerId}`
+        : "profile-detail.html";
 
     navAuth.style.position = "relative";
     navAuth.innerHTML = `
@@ -72,13 +78,17 @@ function updateNav() {
         </button>
         <div id="nav-dropdown"
           style="display:none;position:absolute;right:0;top:48px;background:white;border:1px solid rgba(13,27,42,0.1);box-shadow:0 8px 24px rgba(13,27,42,0.12);min-width:160px;z-index:100;">
-          ${session.userType === "organizer" && session.organizerId ? `
+          ${
+            session.userType === "organizer" && session.organizerId
+              ? `
           <a href="${profileUrl}"
             style="display:block;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);text-decoration:none;border-bottom:1px solid rgba(13,27,42,0.07);"
             onmouseover="this.style.background='#FAFAF7'"
             onmouseout="this.style.background='white'">
             My Profile
-          </a>` : ""}
+          </a>`
+              : ""
+          }
           <button onclick="handleLogout()"
             style="display:block;width:100%;text-align:left;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);background:none;border:none;cursor:pointer;"
             onmouseover="this.style.background='#FAFAF7'"
@@ -93,7 +103,8 @@ function updateNav() {
     document.getElementById("nav-avatar-btn").addEventListener("click", (e) => {
       e.stopPropagation();
       const dropdown = document.getElementById("nav-dropdown");
-      dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+      dropdown.style.display =
+        dropdown.style.display === "none" ? "block" : "none";
     });
 
     // Zapri dropdown ob kliku kjerkoli drugje
@@ -110,18 +121,90 @@ function updateNav() {
 // ============================================================
 
 const SEED_ORGANIZERS = [
-  { id_organizator: 1,  email: "info@elegantevents.si", geslo: "orgpw1",  ime: "Maja",   priimek: "Kovač"    },
-  { id_organizator: 2,  email: "kontakt@zabave.si",     geslo: "orgpw2",  ime: "Luka",   priimek: "Zupan"    },
-  { id_organizator: 3,  email: "sara@konference.si",    geslo: "orgpw3",  ime: "Sara",   priimek: "Benko"    },
-  { id_organizator: 4,  email: "rok@soundstage.si",     geslo: "orgpw4",  ime: "Rok",    priimek: "Petrovič" },
-  { id_organizator: 5,  email: "nina@festivali.si",     geslo: "orgpw5",  ime: "Nina",   priimek: "Leban"    },
-  { id_organizator: 6,  email: "tadej@teamup.si",       geslo: "orgpw6",  ime: "Tadej",  priimek: "Zorko"    },
-  { id_organizator: 7,  email: "eva@galaveceri.si",     geslo: "orgpw7",  ime: "Eva",    priimek: "Mohorič"  },
-  { id_organizator: 8,  email: "gregor@corporate.si",   geslo: "orgpw8",  ime: "Gregor", priimek: "Šuštar"   },
-  { id_organizator: 9,  email: "katja@weddings.si",     geslo: "orgpw9",  ime: "Katja",  priimek: "Fišer"    },
-  { id_organizator: 10, email: "blaz@openair.si",       geslo: "orgpw10", ime: "Blaž",   priimek: "Medved"   },
-  { id_organizator: 11, email: "urska@sladkisvet.si",   geslo: "orgpw11", ime: "Urška",  priimek: "Tomažič"  },
-  { id_organizator: 12, email: "andrej@poslovni.si",    geslo: "orgpw12", ime: "Andrej", priimek: "Pregl"    },
+  {
+    id_organizator: 1,
+    email: "info@elegantevents.si",
+    geslo: "orgpw1",
+    ime: "Maja",
+    priimek: "Kovač",
+  },
+  {
+    id_organizator: 2,
+    email: "kontakt@zabave.si",
+    geslo: "orgpw2",
+    ime: "Luka",
+    priimek: "Zupan",
+  },
+  {
+    id_organizator: 3,
+    email: "sara@konference.si",
+    geslo: "orgpw3",
+    ime: "Sara",
+    priimek: "Benko",
+  },
+  {
+    id_organizator: 4,
+    email: "rok@soundstage.si",
+    geslo: "orgpw4",
+    ime: "Rok",
+    priimek: "Petrovič",
+  },
+  {
+    id_organizator: 5,
+    email: "nina@festivali.si",
+    geslo: "orgpw5",
+    ime: "Nina",
+    priimek: "Leban",
+  },
+  {
+    id_organizator: 6,
+    email: "tadej@teamup.si",
+    geslo: "orgpw6",
+    ime: "Tadej",
+    priimek: "Zorko",
+  },
+  {
+    id_organizator: 7,
+    email: "eva@galaveceri.si",
+    geslo: "orgpw7",
+    ime: "Eva",
+    priimek: "Mohorič",
+  },
+  {
+    id_organizator: 8,
+    email: "gregor@corporate.si",
+    geslo: "orgpw8",
+    ime: "Gregor",
+    priimek: "Šuštar",
+  },
+  {
+    id_organizator: 9,
+    email: "katja@weddings.si",
+    geslo: "orgpw9",
+    ime: "Katja",
+    priimek: "Fišer",
+  },
+  {
+    id_organizator: 10,
+    email: "blaz@openair.si",
+    geslo: "orgpw10",
+    ime: "Blaž",
+    priimek: "Medved",
+  },
+  {
+    id_organizator: 11,
+    email: "urska@sladkisvet.si",
+    geslo: "orgpw11",
+    ime: "Urška",
+    priimek: "Tomažič",
+  },
+  {
+    id_organizator: 12,
+    email: "andrej@poslovni.si",
+    geslo: "orgpw12",
+    ime: "Andrej",
+    priimek: "Pregl",
+  },
 ];
 
 async function initSeedUsers() {
@@ -166,11 +249,16 @@ async function handleRegister() {
   clearError();
 
   const firstName = document.getElementById("first-name").value.trim();
-  const lastName  = document.getElementById("last-name").value.trim();
-  const email     = document.getElementById("email-address").value.trim().toLowerCase();
-  const password  = document.getElementById("password").value;
+  const lastName = document.getElementById("last-name").value.trim();
+  const email = document
+    .getElementById("email-address")
+    .value.trim()
+    .toLowerCase();
+  const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirm-password").value;
-  const userType  = document.querySelector('input[name="user-type"]:checked').value;
+  const userType = document.querySelector(
+    'input[name="user-type"]:checked',
+  ).value;
 
   if (!firstName || !lastName) {
     showError("Please enter your first and last name.");
@@ -199,16 +287,18 @@ async function handleRegister() {
     return;
   }
 
-  let location  = "";
+  let location = "";
   let telephone = "";
   let eventTypes = [];
 
   if (userType === "organizer") {
-    location  = document.getElementById("location").value.trim();
+    location = document.getElementById("location").value.trim();
     telephone = document.getElementById("telephone").value.trim();
 
     // Poberi vse označene checkboxe
-    const checkedBoxes = document.querySelectorAll('input[name="event-types"]:checked');
+    const checkedBoxes = document.querySelectorAll(
+      'input[name="event-types"]:checked',
+    );
     eventTypes = Array.from(checkedBoxes).map((cb) => cb.value);
 
     if (!location) {
@@ -232,12 +322,12 @@ async function handleRegister() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ime:        firstName,
-          priimek:    lastName,
-          email:      email,
-          geslo:      hashedPassword,
-          city:       location,
-          telefon:    telephone || null,
+          ime: firstName,
+          priimek: lastName,
+          email: email,
+          geslo: hashedPassword,
+          city: location,
+          telefon: telephone || null,
           tip_eventa: tipEventa,
         }),
       });
@@ -271,7 +361,6 @@ async function handleRegister() {
         createdAt: new Date().toISOString(),
       });
       localStorage.setItem("wo_users", JSON.stringify(existingUsers));
-
     } catch (err) {
       showError("Could not connect to server. Please try again.");
       return;
@@ -300,16 +389,19 @@ async function handleRegister() {
 // ============================================================
 
 async function handleResetPassword() {
-  const errorEl   = document.getElementById("form-error");
+  const errorEl = document.getElementById("form-error");
   const successEl = document.getElementById("form-success");
 
-  errorEl.style.display   = "none";
-  errorEl.textContent     = "";
+  errorEl.style.display = "none";
+  errorEl.textContent = "";
   successEl.style.display = "none";
-  successEl.textContent   = "";
+  successEl.textContent = "";
 
-  const email           = document.getElementById("email-address").value.trim().toLowerCase();
-  const newPassword     = document.getElementById("new-password").value;
+  const email = document
+    .getElementById("email-address")
+    .value.trim()
+    .toLowerCase();
+  const newPassword = document.getElementById("new-password").value;
   const confirmPassword = document.getElementById("confirm-password").value;
 
   if (!email) {
@@ -341,7 +433,8 @@ async function handleResetPassword() {
 
   const newHashedPassword = await hashPassword(newPassword);
   if (newHashedPassword === existingUsers[userIndex].passwordHash) {
-    errorEl.textContent = "New password cannot be the same as your current password.";
+    errorEl.textContent =
+      "New password cannot be the same as your current password.";
     errorEl.style.display = "block";
     return;
   }
@@ -349,9 +442,12 @@ async function handleResetPassword() {
   existingUsers[userIndex].passwordHash = newHashedPassword;
   localStorage.setItem("wo_users", JSON.stringify(existingUsers));
 
-  successEl.textContent   = "Password successfully updated! Redirecting to log in...";
+  successEl.textContent =
+    "Password successfully updated! Redirecting to log in...";
   successEl.style.display = "block";
-  setTimeout(() => { window.location.href = "login.html"; }, 2000);
+  setTimeout(() => {
+    window.location.href = "login.html";
+  }, 2000);
 }
 
 // ============================================================
@@ -362,17 +458,29 @@ async function handleLogin(event) {
   if (event) event.preventDefault();
   clearError();
 
-  const email      = document.getElementById("email-address").value.trim().toLowerCase();
-  const password   = document.getElementById("password").value;
+  const email = document
+    .getElementById("email-address")
+    .value.trim()
+    .toLowerCase();
+  const password = document.getElementById("password").value;
   const rememberMe = document.getElementById("remember-me")?.checked || false;
 
-  if (!email) { showError("Please enter your email address."); return; }
-  if (!password) { showError("Please enter your password."); return; }
+  if (!email) {
+    showError("Please enter your email address.");
+    return;
+  }
+  if (!password) {
+    showError("Please enter your password.");
+    return;
+  }
 
   const existingUsers = JSON.parse(localStorage.getItem("wo_users") || "[]");
   const user = existingUsers.find((u) => u.email === email);
 
-  if (!user) { showError("No account found with this email address."); return; }
+  if (!user) {
+    showError("No account found with this email address.");
+    return;
+  }
 
   const hashedInput = await hashPassword(password);
   if (hashedInput !== user.passwordHash) {
@@ -387,14 +495,14 @@ async function handleLogin(event) {
   }
 
   const session = {
-    token:       generateToken(),
-    userId:      user.id,
+    token: generateToken(),
+    userId: user.id,
     organizerId: user.organizerId || null,
-    email:       user.email,
-    firstName:   user.firstName,
-    lastName:    user.lastName,
-    userType:    user.userType,
-    loggedInAt:  new Date().toISOString(),
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    userType: user.userType,
+    loggedInAt: new Date().toISOString(),
   };
   localStorage.setItem("wo_session", JSON.stringify(session));
   window.location.href = "index.html";
@@ -415,13 +523,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (rememberCheckbox) rememberCheckbox.checked = true;
   }
 
-  const loginForm = document.getElementById("loginForm") || document.getElementById("login-form");
+  const loginForm =
+    document.getElementById("loginForm") ||
+    document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", handleLogin);
   }
 
   const typeOrganizer = document.getElementById("type-organizer");
-  const typeClient    = document.getElementById("type-client");
+  const typeClient = document.getElementById("type-client");
   if (typeOrganizer && typeClient) {
     typeOrganizer.addEventListener("change", toggleOrganizerFields);
     typeClient.addEventListener("change", toggleOrganizerFields);
@@ -436,6 +546,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (window.location.pathname.includes("profile-detail.html")) {
+    setupReviewActions();
     loadOrganizerProfile();
   }
 });
@@ -457,7 +568,8 @@ async function loadFeaturedOrganizers() {
     grid.innerHTML = "";
 
     topFour.forEach((org) => {
-      const img = org.image_content ||
+      const img =
+        org.image_content ||
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
       const category = org.tip_eventa ? org.tip_eventa.toUpperCase() : "EVENT";
       const stars =
@@ -483,12 +595,277 @@ async function loadFeaturedOrganizers() {
     });
   } catch (err) {
     console.error(err);
-    grid.innerHTML = '<p class="text-center text-navy/40 col-span-4">Error loading data.</p>';
+    grid.innerHTML =
+      '<p class="text-center text-navy/40 col-span-4">Error loading data.</p>';
+  }
+}
+
+function renderStars(rating) {
+  const safeRating = Math.max(
+    0,
+    Math.min(5, Math.round(parseFloat(rating) || 0)),
+  );
+  return "★".repeat(safeRating) + "☆".repeat(5 - safeRating);
+}
+
+function formatReviewDate(dateString) {
+  if (!dateString) return "Unknown date";
+
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return dateString;
+
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function loadOrganizerReviews(organizerId, organizerData = null) {
+  const listEl = document.getElementById("reviews-list");
+  const emptyEl = document.getElementById("reviews-empty");
+  const errorEl = document.getElementById("reviews-error");
+  const summaryStarsEl = document.getElementById("reviews-summary-stars");
+  const summaryTextEl = document.getElementById("reviews-summary-text");
+
+  if (!listEl || !summaryStarsEl || !summaryTextEl) return;
+
+  listEl.innerHTML = "";
+  if (emptyEl) emptyEl.style.display = "none";
+  if (errorEl) errorEl.style.display = "none";
+
+  try {
+    const response = await fetch(`/api/organizers/${organizerId}/reviews`);
+    if (!response.ok) throw new Error("Failed to fetch reviews");
+
+    const reviews = await response.json();
+    const reviewCount = reviews.length;
+    const avgRating = organizerData
+      ? parseFloat(organizerData.ocena) || 0
+      : reviewCount
+        ? reviews.reduce(
+            (sum, review) => sum + (parseFloat(review.rating) || 0),
+            0,
+          ) / reviewCount
+        : 0;
+
+    summaryStarsEl.textContent = renderStars(avgRating);
+    summaryTextEl.textContent = reviewCount
+      ? `(${avgRating.toFixed(1)} / 5.0) based on ${reviewCount} review${reviewCount !== 1 ? "s" : ""}`
+      : "No reviews yet";
+
+    if (reviewCount === 0) {
+      if (emptyEl) emptyEl.style.display = "block";
+      return;
+    }
+
+    listEl.innerHTML = reviews
+      .map(
+        (review) => `
+      <div>
+        <div class="flex items-center mb-2 gap-2 flex-wrap">
+          <span class="font-semibold text-navy mr-2">${escapeHtml(review.client_name || "Anonymous Client")}</span>
+          <div class="text-gold text-sm">${renderStars(review.rating)}</div>
+        </div>
+        <p class="text-navy/70 text-base leading-relaxed">"${escapeHtml(review.comment || "No written comment provided.")}"</p>
+        <p class="text-navy/50 text-xs mt-2">— Reviewed on ${escapeHtml(formatReviewDate(review.review_date))}</p>
+      </div>
+    `,
+      )
+      .join("");
+  } catch (err) {
+    console.error(err);
+    summaryStarsEl.textContent = "☆☆☆☆☆";
+    summaryTextEl.textContent = "Could not load reviews";
+    if (errorEl) {
+      errorEl.textContent = "Could not load reviews. Please try again.";
+      errorEl.style.display = "block";
+    }
+  }
+}
+
+function setupReviewActions() {
+  const btn = document.getElementById("btn-leave-review");
+  const hint = document.getElementById("reviews-login-hint");
+  const session = JSON.parse(localStorage.getItem("wo_session") || "null");
+
+  if (!btn || !hint) return;
+
+  if (!session) {
+    btn.disabled = true;
+    btn.classList.add("opacity-60", "cursor-not-allowed");
+    hint.textContent = "Log in as a client to leave a review.";
+    hint.style.display = "block";
+    return;
+  }
+
+  if (session.userType !== "client") {
+    btn.disabled = true;
+    btn.classList.add("opacity-60", "cursor-not-allowed");
+    hint.textContent = "Only logged-in clients can leave reviews.";
+    hint.style.display = "block";
+    return;
+  }
+
+  btn.disabled = false;
+  btn.classList.remove("opacity-60", "cursor-not-allowed");
+  hint.textContent = "Logged in as client — you can leave a review.";
+  hint.style.display = "block";
+}
+
+function openReviewModal() {
+  const session = JSON.parse(localStorage.getItem("wo_session") || "null");
+  if (!session || session.userType !== "client") return;
+
+  const errorEl = document.getElementById("review-error");
+  const successEl = document.getElementById("review-success");
+  if (errorEl) {
+    errorEl.textContent = "";
+    errorEl.style.display = "none";
+  }
+  if (successEl) {
+    successEl.textContent = "";
+    successEl.style.display = "none";
+  }
+
+  const modal = document.getElementById("review-modal");
+  if (modal) modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeReviewModal() {
+  const modal = document.getElementById("review-modal");
+  if (modal) modal.style.display = "none";
+  document.body.style.overflow = "";
+}
+
+async function submitReview() {
+  const session = JSON.parse(localStorage.getItem("wo_session") || "null");
+  const errorEl = document.getElementById("review-error");
+  const successEl = document.getElementById("review-success");
+  const submitBtn = document.getElementById("review-submit-btn");
+  const urlParams = new URLSearchParams(window.location.search);
+  const organizerId = urlParams.get("id");
+  const rating = parseInt(
+    document.getElementById("review-rating")?.value || "0",
+  );
+  const comment = document.getElementById("review-comment")?.value.trim() || "";
+
+  if (errorEl) {
+    errorEl.textContent = "";
+    errorEl.style.display = "none";
+  }
+  if (successEl) {
+    successEl.textContent = "";
+    successEl.style.display = "none";
+  }
+
+  if (!session || session.userType !== "client") {
+    if (errorEl) {
+      errorEl.textContent =
+        "You must be logged in as a client to leave a review.";
+      errorEl.style.display = "block";
+    }
+    return;
+  }
+
+  if (!organizerId) {
+    if (errorEl) {
+      errorEl.textContent = "Organizer not found.";
+      errorEl.style.display = "block";
+    }
+    return;
+  }
+
+  if (!rating || rating < 1 || rating > 5) {
+    if (errorEl) {
+      errorEl.textContent = "Please select a rating between 1 and 5.";
+      errorEl.style.display = "block";
+    }
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+  }
+
+  try {
+    const response = await fetch(`/api/organizers/${organizerId}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rating,
+        comment,
+        client_id: session.clientId || null,
+        client_email: session.email,
+        client_first_name: session.firstName,
+        client_last_name: session.lastName,
+      }),
+    });
+
+    const rawResponse = await response.text();
+    let data = null;
+
+    try {
+      data = rawResponse ? JSON.parse(rawResponse) : {};
+    } catch {
+      if (!response.ok) {
+        throw new Error(
+          rawResponse || "Server returned a non-JSON error response.",
+        );
+      }
+      throw new Error("Server returned an invalid JSON response.");
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || rawResponse || "Could not submit review.");
+    }
+
+    if (data.client_id) {
+      const updatedSession = { ...session, clientId: data.client_id };
+      localStorage.setItem("wo_session", JSON.stringify(updatedSession));
+    }
+
+    if (successEl) {
+      successEl.textContent = "Review submitted successfully!";
+      successEl.style.display = "block";
+    }
+
+    const reviewComment = document.getElementById("review-comment");
+    if (reviewComment) reviewComment.value = "";
+    const reviewRating = document.getElementById("review-rating");
+    if (reviewRating) reviewRating.value = "5";
+
+    await loadOrganizerProfile();
+
+    setTimeout(() => {
+      closeReviewModal();
+    }, 1000);
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = err.message || "Could not submit review.";
+      errorEl.style.display = "block";
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Review";
+    }
   }
 }
 
 async function loadOrganizerProfile() {
-  const urlParams   = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(window.location.search);
   const organizerId = urlParams.get("id");
 
   if (!organizerId) {
@@ -501,16 +878,23 @@ async function loadOrganizerProfile() {
     if (!response.ok) throw new Error("Failed to fetch profile");
     const data = await response.json();
 
-    document.getElementById("profile-name").textContent        = `${data.ime} ${data.priimek}`;
-    document.getElementById("profile-location").textContent    = data.city || "Location not specified";
-    document.getElementById("profile-specialty").textContent   = data.tip_eventa ? data.tip_eventa.toUpperCase() : "GENERAL";
-    document.getElementById("profile-event-count").textContent = data.stevilo_eventov || "0";
-    document.getElementById("profile-price").textContent       = data.cena_od ? `${data.cena_od} EUR` : "On Request";
-    document.getElementById("profile-email-btn").href          = `mailto:${data.email}`;
+    document.getElementById("profile-name").textContent =
+      `${data.ime} ${data.priimek}`;
+    document.getElementById("profile-location").textContent =
+      data.city || "Location not specified";
+    document.getElementById("profile-specialty").textContent = data.tip_eventa
+      ? data.tip_eventa.toUpperCase()
+      : "GENERAL";
+    document.getElementById("profile-event-count").textContent =
+      data.stevilo_eventov || "0";
+    document.getElementById("profile-price").textContent = data.cena_od
+      ? `${data.cena_od} EUR`
+      : "On Request";
+    document.getElementById("profile-email-btn").href = `mailto:${data.email}`;
 
-    const ratingNum = parseFloat(data.ocena) || 5;
+    const ratingNum = parseFloat(data.ocena) || 0;
     document.getElementById("profile-rating").textContent =
-      "★".repeat(Math.round(ratingNum)) + "☆".repeat(5 - Math.round(ratingNum));
+      renderStars(ratingNum);
 
     document.getElementById("profile-about").textContent =
       `Welcome to the portfolio of ${data.ime} ${data.priimek}. We host high-end ${data.tip_eventa || "events"} across ${data.city || "Slovenia"}, focusing on absolute premium execution and elite customer satisfaction.`;
@@ -521,14 +905,17 @@ async function loadOrganizerProfile() {
 
     const portfolioEl = document.getElementById("profile-portfolio");
     if (data.portfolio) {
-      portfolioEl.href        = data.portfolio;
+      portfolioEl.href = data.portfolio;
       portfolioEl.textContent = data.portfolio;
     } else {
       portfolioEl.textContent = "Not available";
       portfolioEl.removeAttribute("href");
     }
+
+    loadOrganizerReviews(organizerId, data);
   } catch (err) {
     console.error(err);
-    document.getElementById("profile-name").textContent = "Error loading profile details";
+    document.getElementById("profile-name").textContent =
+      "Error loading profile details";
   }
 }
