@@ -99,7 +99,6 @@ function updateNav() {
       </div>
     `;
 
-    // Toggle dropdown ob kliku na avatar
     document.getElementById("nav-avatar-btn").addEventListener("click", (e) => {
       e.stopPropagation();
       const dropdown = document.getElementById("nav-dropdown");
@@ -107,13 +106,11 @@ function updateNav() {
         dropdown.style.display === "none" ? "block" : "none";
     });
 
-    // Zapri dropdown ob kliku kjerkoli drugje
     document.addEventListener("click", () => {
       const dropdown = document.getElementById("nav-dropdown");
       if (dropdown) dropdown.style.display = "none";
     });
   }
-  // Neprijavljen — pusti Login/Register gumba kot sta
 }
 
 // ============================================================
@@ -121,97 +118,23 @@ function updateNav() {
 // ============================================================
 
 const SEED_ORGANIZERS = [
-  {
-    id_organizator: 1,
-    email: "info@elegantevents.si",
-    geslo: "orgpw1",
-    ime: "Maja",
-    priimek: "Kovač",
-  },
-  {
-    id_organizator: 2,
-    email: "kontakt@zabave.si",
-    geslo: "orgpw2",
-    ime: "Luka",
-    priimek: "Zupan",
-  },
-  {
-    id_organizator: 3,
-    email: "sara@konference.si",
-    geslo: "orgpw3",
-    ime: "Sara",
-    priimek: "Benko",
-  },
-  {
-    id_organizator: 4,
-    email: "rok@soundstage.si",
-    geslo: "orgpw4",
-    ime: "Rok",
-    priimek: "Petrovič",
-  },
-  {
-    id_organizator: 5,
-    email: "nina@festivali.si",
-    geslo: "orgpw5",
-    ime: "Nina",
-    priimek: "Leban",
-  },
-  {
-    id_organizator: 6,
-    email: "tadej@teamup.si",
-    geslo: "orgpw6",
-    ime: "Tadej",
-    priimek: "Zorko",
-  },
-  {
-    id_organizator: 7,
-    email: "eva@galaveceri.si",
-    geslo: "orgpw7",
-    ime: "Eva",
-    priimek: "Mohorič",
-  },
-  {
-    id_organizator: 8,
-    email: "gregor@corporate.si",
-    geslo: "orgpw8",
-    ime: "Gregor",
-    priimek: "Šuštar",
-  },
-  {
-    id_organizator: 9,
-    email: "katja@weddings.si",
-    geslo: "orgpw9",
-    ime: "Katja",
-    priimek: "Fišer",
-  },
-  {
-    id_organizator: 10,
-    email: "blaz@openair.si",
-    geslo: "orgpw10",
-    ime: "Blaž",
-    priimek: "Medved",
-  },
-  {
-    id_organizator: 11,
-    email: "urska@sladkisvet.si",
-    geslo: "orgpw11",
-    ime: "Urška",
-    priimek: "Tomažič",
-  },
-  {
-    id_organizator: 12,
-    email: "andrej@poslovni.si",
-    geslo: "orgpw12",
-    ime: "Andrej",
-    priimek: "Pregl",
-  },
+  { id_organizator: 1, email: "info@elegantevents.si", geslo: "orgpw1", ime: "Maja", priimek: "Kovač" },
+  { id_organizator: 2, email: "kontakt@zabave.si", geslo: "orgpw2", ime: "Luka", priimek: "Zupan" },
+  { id_organizator: 3, email: "sara@konference.si", geslo: "orgpw3", ime: "Sara", priimek: "Benko" },
+  { id_organizator: 4, email: "rok@soundstage.si", geslo: "orgpw4", ime: "Rok", priimek: "Petrovič" },
+  { id_organizator: 5, email: "nina@festivali.si", geslo: "orgpw5", ime: "Nina", priimek: "Leban" },
+  { id_organizator: 6, email: "tadej@teamup.si", geslo: "orgpw6", ime: "Tadej", priimek: "Zorko" },
+  { id_organizator: 7, email: "eva@galaveceri.si", geslo: "orgpw7", ime: "Eva", priimek: "Mohorič" },
+  { id_organizator: 8, email: "gregor@corporate.si", geslo: "orgpw8", ime: "Gregor", priimek: "Šuštar" },
+  { id_organizator: 9, email: "katja@weddings.si", geslo: "orgpw9", ime: "Katja", priimek: "Fišer" },
+  { id_organizator: 10, email: "blaz@openair.si", geslo: "orgpw10", ime: "Blaž", priimek: "Medved" },
+  { id_organizator: 11, email: "urska@sladkisvet.si", geslo: "orgpw11", ime: "Urška", priimek: "Tomažič" },
+  { id_organizator: 12, email: "andrej@poslovni.si", geslo: "orgpw12", ime: "Andrej", priimek: "Pregl" },
 ];
 
 async function initSeedUsers() {
   if (localStorage.getItem("wo_seed_done")) return;
-
   const existing = JSON.parse(localStorage.getItem("wo_users") || "[]");
-
   for (const org of SEED_ORGANIZERS) {
     const alreadyExists = existing.some((u) => u.email === org.email);
     if (!alreadyExists) {
@@ -228,7 +151,6 @@ async function initSeedUsers() {
       });
     }
   }
-
   localStorage.setItem("wo_users", JSON.stringify(existing));
   localStorage.setItem("wo_seed_done", "true");
 }
@@ -250,37 +172,28 @@ async function handleRegister() {
 
   const firstName = document.getElementById("first-name").value.trim();
   const lastName = document.getElementById("last-name").value.trim();
-  const email = document
-    .getElementById("email-address")
-    .value.trim()
-    .toLowerCase();
+  const email = document.getElementById("email-address").value.trim().toLowerCase();
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirm-password").value;
-  const userType = document.querySelector(
-    'input[name="user-type"]:checked',
-  ).value;
+  const userType = document.querySelector('input[name="user-type"]:checked').value;
 
   if (!firstName || !lastName) {
     showError("Please enter your first and last name.");
     return;
   }
-
   if (!email) {
     showError("Please enter your email address.");
     return;
   }
-
   if (password.length < 8) {
     showError("Password must be at least 8 characters long.");
     return;
   }
-
   if (password !== confirmPassword) {
     showError("Passwords do not match. Please try again.");
     return;
   }
 
-  // Check if email already in localStorage
   const existingUsers = JSON.parse(localStorage.getItem("wo_users") || "[]");
   if (existingUsers.some((u) => u.email === email)) {
     showError("An account with this email address already exists.");
@@ -294,13 +207,8 @@ async function handleRegister() {
   if (userType === "organizer") {
     location = document.getElementById("location").value.trim();
     telephone = document.getElementById("telephone").value.trim();
-
-    // Poberi vse označene checkboxe
-    const checkedBoxes = document.querySelectorAll(
-      'input[name="event-types"]:checked',
-    );
+    const checkedBoxes = document.querySelectorAll('input[name="event-types"]:checked');
     eventTypes = Array.from(checkedBoxes).map((cb) => cb.value);
-
     if (!location) {
       showError("Please enter your location.");
       return;
@@ -312,10 +220,8 @@ async function handleRegister() {
   }
 
   const hashedPassword = await hashPassword(password);
-  // tip_eventa v bazi je VARCHAR — shranimo jih kot vejico ločen niz
   const tipEventa = eventTypes.join(", ");
 
-  // --- Shrani v bazo (POST /api/organizers) ---
   if (userType === "organizer") {
     try {
       const response = await fetch("/api/organizers", {
@@ -336,7 +242,6 @@ async function handleRegister() {
         showError("An account with this email address already exists.");
         return;
       }
-
       if (!response.ok) {
         const err = await response.json();
         showError("Registration failed: " + (err.error || "Unknown error"));
@@ -346,7 +251,6 @@ async function handleRegister() {
       const data = await response.json();
       const newOrganizerId = data.id_organizator;
 
-      // Shrani tudi v localStorage za login
       existingUsers.push({
         id: String(newOrganizerId),
         organizerId: newOrganizerId,
@@ -366,18 +270,49 @@ async function handleRegister() {
       return;
     }
   } else {
-    // Client — samo localStorage
-    existingUsers.push({
-      id: generateToken(),
-      organizerId: null,
-      firstName,
-      lastName,
-      email,
-      passwordHash: hashedPassword,
-      userType: "client",
-      createdAt: new Date().toISOString(),
-    });
-    localStorage.setItem("wo_users", JSON.stringify(existingUsers));
+    // CLIENT - Popravljen endpoint: /api/client (ne /api/clients)
+    let clientDbId = null;
+    try {
+      const response = await fetch("/api/client", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ime: firstName,
+          priimek: lastName,
+          email: email,
+          geslo: hashedPassword,
+        }),
+      });
+
+      if (response.status === 409) {
+        showError("An account with this email address already exists.");
+        return;
+      }
+      if (!response.ok) {
+        const err = await response.json();
+        showError("Registration failed: " + (err.error || "Unknown error"));
+        return;
+      }
+
+      const data = await response.json();
+      clientDbId = data.id_client;
+
+      existingUsers.push({
+        id: generateToken(),
+        organizerId: null,
+        clientDbId: clientDbId,
+        firstName,
+        lastName,
+        email,
+        passwordHash: hashedPassword,
+        userType: "client",
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem("wo_users", JSON.stringify(existingUsers));
+    } catch (err) {
+      showError("Could not connect to server. Please try again.");
+      return;
+    }
   }
 
   alert("Account successfully created! You can now log in.");
@@ -397,10 +332,7 @@ async function handleResetPassword() {
   successEl.style.display = "none";
   successEl.textContent = "";
 
-  const email = document
-    .getElementById("email-address")
-    .value.trim()
-    .toLowerCase();
+  const email = document.getElementById("email-address").value.trim().toLowerCase();
   const newPassword = document.getElementById("new-password").value;
   const confirmPassword = document.getElementById("confirm-password").value;
 
@@ -409,13 +341,11 @@ async function handleResetPassword() {
     errorEl.style.display = "block";
     return;
   }
-
   if (newPassword.length < 8) {
     errorEl.textContent = "New password must be at least 8 characters long.";
     errorEl.style.display = "block";
     return;
   }
-
   if (newPassword !== confirmPassword) {
     errorEl.textContent = "Passwords do not match. Please try again.";
     errorEl.style.display = "block";
@@ -433,8 +363,7 @@ async function handleResetPassword() {
 
   const newHashedPassword = await hashPassword(newPassword);
   if (newHashedPassword === existingUsers[userIndex].passwordHash) {
-    errorEl.textContent =
-      "New password cannot be the same as your current password.";
+    errorEl.textContent = "New password cannot be the same as your current password.";
     errorEl.style.display = "block";
     return;
   }
@@ -442,8 +371,7 @@ async function handleResetPassword() {
   existingUsers[userIndex].passwordHash = newHashedPassword;
   localStorage.setItem("wo_users", JSON.stringify(existingUsers));
 
-  successEl.textContent =
-    "Password successfully updated! Redirecting to log in...";
+  successEl.textContent = "Password successfully updated! Redirecting to log in...";
   successEl.style.display = "block";
   setTimeout(() => {
     window.location.href = "login.html";
@@ -458,10 +386,7 @@ async function handleLogin(event) {
   if (event) event.preventDefault();
   clearError();
 
-  const email = document
-    .getElementById("email-address")
-    .value.trim()
-    .toLowerCase();
+  const email = document.getElementById("email-address").value.trim().toLowerCase();
   const password = document.getElementById("password").value;
   const rememberMe = document.getElementById("remember-me")?.checked || false;
 
@@ -474,18 +399,55 @@ async function handleLogin(event) {
     return;
   }
 
-  const existingUsers = JSON.parse(localStorage.getItem("wo_users") || "[]");
-  const user = existingUsers.find((u) => u.email === email);
+  const hashedInput = await hashPassword(password);
 
-  if (!user) {
-    showError("No account found with this email address.");
-    return;
+  let userFromDb = null;
+  try {
+    const resp = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        passwordHash: hashedInput,
+        plainPassword: password,
+      }),
+    });
+
+    if (resp.ok) {
+      userFromDb = await resp.json();
+    } else if (resp.status === 401) {
+      showError("Incorrect password. Please try again.");
+      return;
+    } else if (resp.status === 404) {
+      userFromDb = null;
+    } else {
+      showError("Server error. Please try again.");
+      return;
+    }
+  } catch {
+    userFromDb = null;
   }
 
-  const hashedInput = await hashPassword(password);
-  if (hashedInput !== user.passwordHash) {
-    showError("Incorrect password. Please try again.");
-    return;
+  if (!userFromDb) {
+    const existingUsers = JSON.parse(localStorage.getItem("wo_users") || "[]");
+    const user = existingUsers.find((u) => u.email === email);
+    if (!user) {
+      showError("No account found with this email address.");
+      return;
+    }
+    if (hashedInput !== user.passwordHash) {
+      showError("Incorrect password. Please try again.");
+      return;
+    }
+    userFromDb = {
+      userType: user.userType,
+      id: user.id,
+      organizerId: user.organizerId || null,
+      clientDbId: user.clientDbId || null,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
   }
 
   if (rememberMe) {
@@ -496,12 +458,13 @@ async function handleLogin(event) {
 
   const session = {
     token: generateToken(),
-    userId: user.id,
-    organizerId: user.organizerId || null,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    userType: user.userType,
+    userId: userFromDb.id,
+    organizerId: userFromDb.organizerId || null,
+    clientDbId: userFromDb.clientDbId || null,
+    email: userFromDb.email,
+    firstName: userFromDb.firstName,
+    lastName: userFromDb.lastName,
+    userType: userFromDb.userType,
     loggedInAt: new Date().toISOString(),
   };
   localStorage.setItem("wo_session", JSON.stringify(session));
@@ -523,9 +486,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (rememberCheckbox) rememberCheckbox.checked = true;
   }
 
-  const loginForm =
-    document.getElementById("loginForm") ||
-    document.getElementById("login-form");
+  const loginForm = document.getElementById("loginForm") || document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", handleLogin);
   }
@@ -537,11 +498,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     typeClient.addEventListener("change", toggleOrganizerFields);
   }
 
-  if (
-    window.location.pathname.endsWith("index.html") ||
-    window.location.pathname === "/" ||
-    window.location.pathname === ""
-  ) {
+  if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/" || window.location.pathname === "") {
     loadFeaturedOrganizers();
   }
 
@@ -552,7 +509,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 });
 
 // ============================================================
-//  SOSOLČEVE FUNKCIJE — ne spreminjaj
+//  OSTALE FUNKCIJE (loadFeaturedOrganizers, renderStars, reviews, etc.)
 // ============================================================
 
 async function loadFeaturedOrganizers() {
@@ -568,13 +525,9 @@ async function loadFeaturedOrganizers() {
     grid.innerHTML = "";
 
     topFour.forEach((org) => {
-      const img =
-        org.image_content ||
-        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
+      const img = org.image_content || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
       const category = org.tip_eventa ? org.tip_eventa.toUpperCase() : "EVENT";
-      const stars =
-        "★".repeat(Math.round(parseFloat(org.ocena) || 5)) +
-        "☆".repeat(5 - Math.round(parseFloat(org.ocena) || 5));
+      const stars = "★".repeat(Math.round(parseFloat(org.ocena) || 5)) + "☆".repeat(5 - Math.round(parseFloat(org.ocena) || 5));
 
       grid.innerHTML += `
         <article class="organizer-card group">
@@ -595,39 +548,24 @@ async function loadFeaturedOrganizers() {
     });
   } catch (err) {
     console.error(err);
-    grid.innerHTML =
-      '<p class="text-center text-navy/40 col-span-4">Error loading data.</p>';
+    grid.innerHTML = '<p class="text-center text-navy/40 col-span-4">Error loading data.</p>';
   }
 }
 
 function renderStars(rating) {
-  const safeRating = Math.max(
-    0,
-    Math.min(5, Math.round(parseFloat(rating) || 0)),
-  );
+  const safeRating = Math.max(0, Math.min(5, Math.round(parseFloat(rating) || 0)));
   return "★".repeat(safeRating) + "☆".repeat(5 - safeRating);
 }
 
 function formatReviewDate(dateString) {
   if (!dateString) return "Unknown date";
-
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
-
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
 function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 async function loadOrganizerReviews(organizerId, organizerData = null) {
@@ -649,28 +587,17 @@ async function loadOrganizerReviews(organizerId, organizerData = null) {
 
     const reviews = await response.json();
     const reviewCount = reviews.length;
-    const avgRating = organizerData
-      ? parseFloat(organizerData.ocena) || 0
-      : reviewCount
-        ? reviews.reduce(
-            (sum, review) => sum + (parseFloat(review.rating) || 0),
-            0,
-          ) / reviewCount
-        : 0;
+    const avgRating = organizerData ? parseFloat(organizerData.ocena) || 0 : reviewCount ? reviews.reduce((sum, review) => sum + (parseFloat(review.rating) || 0), 0) / reviewCount : 0;
 
     summaryStarsEl.textContent = renderStars(avgRating);
-    summaryTextEl.textContent = reviewCount
-      ? `(${avgRating.toFixed(1)} / 5.0) based on ${reviewCount} review${reviewCount !== 1 ? "s" : ""}`
-      : "No reviews yet";
+    summaryTextEl.textContent = reviewCount ? `(${avgRating.toFixed(1)} / 5.0) based on ${reviewCount} review${reviewCount !== 1 ? "s" : ""}` : "No reviews yet";
 
     if (reviewCount === 0) {
       if (emptyEl) emptyEl.style.display = "block";
       return;
     }
 
-    listEl.innerHTML = reviews
-      .map(
-        (review) => `
+    listEl.innerHTML = reviews.map(review => `
       <div>
         <div class="flex items-center mb-2 gap-2 flex-wrap">
           <span class="font-semibold text-navy mr-2">${escapeHtml(review.client_name || "Anonymous Client")}</span>
@@ -679,9 +606,7 @@ async function loadOrganizerReviews(organizerId, organizerData = null) {
         <p class="text-navy/70 text-base leading-relaxed">"${escapeHtml(review.comment || "No written comment provided.")}"</p>
         <p class="text-navy/50 text-xs mt-2">— Reviewed on ${escapeHtml(formatReviewDate(review.review_date))}</p>
       </div>
-    `,
-      )
-      .join("");
+    `).join("");
   } catch (err) {
     console.error(err);
     summaryStarsEl.textContent = "☆☆☆☆☆";
@@ -755,9 +680,7 @@ async function submitReview() {
   const submitBtn = document.getElementById("review-submit-btn");
   const urlParams = new URLSearchParams(window.location.search);
   const organizerId = urlParams.get("id");
-  const rating = parseInt(
-    document.getElementById("review-rating")?.value || "0",
-  );
+  const rating = parseInt(document.getElementById("review-rating")?.value || "0");
   const comment = document.getElementById("review-comment")?.value.trim() || "";
 
   if (errorEl) {
@@ -771,8 +694,7 @@ async function submitReview() {
 
   if (!session || session.userType !== "client") {
     if (errorEl) {
-      errorEl.textContent =
-        "You must be logged in as a client to leave a review.";
+      errorEl.textContent = "You must be logged in as a client to leave a review.";
       errorEl.style.display = "block";
     }
     return;
@@ -806,7 +728,7 @@ async function submitReview() {
       body: JSON.stringify({
         rating,
         comment,
-        client_id: session.clientId || null,
+        client_id: session.clientDbId || null,
         client_email: session.email,
         client_first_name: session.firstName,
         client_last_name: session.lastName,
@@ -820,9 +742,7 @@ async function submitReview() {
       data = rawResponse ? JSON.parse(rawResponse) : {};
     } catch {
       if (!response.ok) {
-        throw new Error(
-          rawResponse || "Server returned a non-JSON error response.",
-        );
+        throw new Error(rawResponse || "Server returned a non-JSON error response.");
       }
       throw new Error("Server returned an invalid JSON response.");
     }
@@ -832,7 +752,7 @@ async function submitReview() {
     }
 
     if (data.client_id) {
-      const updatedSession = { ...session, clientId: data.client_id };
+      const updatedSession = { ...session, clientDbId: data.client_id };
       localStorage.setItem("wo_session", JSON.stringify(updatedSession));
     }
 
@@ -879,27 +799,17 @@ async function loadOrganizerProfile() {
     const data = await response.json();
     window.currentOrganizerProfile = data;
 
-    document.getElementById("profile-name").textContent =
-      `${data.ime} ${data.priimek}`;
-    document.getElementById("profile-location").textContent =
-      data.city || "Location not specified";
-    document.getElementById("profile-specialty").textContent = data.tip_eventa
-      ? data.tip_eventa.toUpperCase()
-      : "GENERAL";
-    document.getElementById("profile-event-count").textContent =
-      data.stevilo_eventov || "0";
-    document.getElementById("profile-price").textContent = data.cena_od
-      ? `${data.cena_od} EUR`
-      : "On Request";
+    document.getElementById("profile-name").textContent = `${data.ime} ${data.priimek}`;
+    document.getElementById("profile-location").textContent = data.city || "Location not specified";
+    document.getElementById("profile-specialty").textContent = data.tip_eventa ? data.tip_eventa.toUpperCase() : "GENERAL";
+    document.getElementById("profile-event-count").textContent = data.stevilo_eventov || "0";
+    document.getElementById("profile-price").textContent = data.cena_od ? `${data.cena_od} EUR` : "On Request";
     document.getElementById("profile-email-btn").href = `mailto:${data.email}`;
 
     const ratingNum = parseFloat(data.ocena) || 0;
-    document.getElementById("profile-rating").textContent =
-      renderStars(ratingNum);
+    document.getElementById("profile-rating").textContent = renderStars(ratingNum);
 
-    document.getElementById("profile-about").innerHTML =
-      data.portfolio_description ||
-      `Welcome to the portfolio of ${data.ime} ${data.priimek}. We host high-end ${data.tip_eventa || "events"} across ${data.city || "Slovenia"}, focusing on absolute premium execution and elite customer satisfaction.`;
+    document.getElementById("profile-about").innerHTML = data.portfolio_description || `Welcome to the portfolio of ${data.ime} ${data.priimek}. We host high-end ${data.tip_eventa || "events"} across ${data.city || "Slovenia"}, focusing on absolute premium execution and elite customer satisfaction.`;
 
     if (data.image_content) {
       document.getElementById("profile-img").src = data.image_content;
@@ -917,7 +827,6 @@ async function loadOrganizerProfile() {
     loadOrganizerReviews(organizerId, data);
   } catch (err) {
     console.error(err);
-    document.getElementById("profile-name").textContent =
-      "Error loading profile details";
+    document.getElementById("profile-name").textContent = "Error loading profile details";
   }
 }

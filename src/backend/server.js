@@ -582,6 +582,114 @@ app.post("/api/events", async (req, res) => {
   }
 });
 
+
+// ── POST /api/login ───────────────────────────────────────
+// Preveri organizatorja ali clienta v bazi po emailu in geslu
+app.post("/api/login", async (req, res) => {
+  const { email, passwordHash } = req.body;
+  if (!email || !passwordHash) {
+    return res.status(400).json({ error: "email and passwordHash required" });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    // Preveri organizatorje
+    const orgResult = await pool.query(
+      "SELECT id_organizator, ime, priimek, email, geslo FROM organizator WHERE LOWER(email) = $1",
+      [normalizedEmail]
+    );
+
+    if (orgResult.rows.length > 0) {
+      const org = orgResult.rows[0];
+      // Sprejmi SHA-256 hash (novi profili) ALI plain text (seed profili)
+      if (org.geslo === passwordHash || org.geslo === req.body.plainPassword) {
+        return res.json({
+          found: true,
+          userType: "organizer",
+          id: String(org.id_organizator),
+          organizerId: org.id_organizator,
+          clientDbId: null,
+          firstName: org.ime,
+          lastName: org.priimek,
+          email: org.email,
+        });
+      } else {
+        return res.status(401).json({ error: "Incorrect password" });
+      }
+    }
+
+    // Preveri cliente
+    const clientResult = await pool.query(
+      "SELECT id_client, ime, priimek, email, geslo FROM client WHERE LOWER(email) = $1",
+      [normalizedEmail]
+    );
+
+    if (clientResult.rows.length > 0) {
+      const cli = clientResult.rows[0];
+      if (cli.geslo === passwordHash || cli.geslo === req.body.plainPassword) {
+        return res.json({
+          found: true,
+          userType: "client",
+          id: String(cli.id_client),
+          organizerId: null,
+          clientDbId: cli.id_client,
+          firstName: cli.ime,
+          lastName: cli.priimek,
+          email: cli.email,
+        });
+      } else {
+        return res.status(401).json({ error: "Incorrect password" });
+      }
+    }
+
+    return res.status(404).json({ error: "No account found with this email address" });
+
+  } catch (err) {
+    console.error("SQL greška (POST login):", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/client ──────────────────────────────────────
+app.post("/api/client", async (req, res) => {
+  const { ime, priimek, email, geslo } = req.body;
+  if (!ime || !priimek || !email || !geslo)
+    return res.status(400).json({ error: "Missing required fields" });
+  try {
+    const check = await pool.query(
+      "SELECT id_client FROM client WHERE LOWER(email) = $1 LIMIT 1",
+      [email.trim().toLowerCase()]
+    );
+    if (check.rows.length > 0)
+      return res.status(409).json({ error: "Email already exists" });
+    const result = await pool.query(
+      "INSERT INTO client (ime, priimek, email, geslo) VALUES ($1, $2, $3, $4) RETURNING id_client",
+      [ime, priimek, email.trim().toLowerCase(), geslo]
+    );
+    res.status(201).json({ id_client: result.rows[0].id_client });
+  } catch (err) {
+    console.error("POST /api/client error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/client/by-email ──────────────────────────────
+app.get("/api/client/by-email", async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ error: "email required" });
+  try {
+    const result = await pool.query(
+      "SELECT id_client, ime, priimek, email FROM client WHERE LOWER(email) = $1 LIMIT 1",
+      [email.trim().toLowerCase()]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Client not found" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Start ─────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
