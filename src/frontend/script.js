@@ -67,6 +67,38 @@ function updateNav() {
         : "profile-detail.html";
 
     navAuth.style.position = "relative";
+    
+    // Dodaj link za My Requests (client) ali My Orders (organizer)
+    let extraLink = "";
+    let myProfileLink = "";
+    
+    if (session.userType === "client") {
+      extraLink = `
+        <a href="my-requests.html"
+          style="display:block;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);text-decoration:none;border-bottom:1px solid rgba(13,27,42,0.07);"
+          onmouseover="this.style.background='#FAFAF7'"
+          onmouseout="this.style.background='white'">
+          My Requests
+        </a>`;
+      // Client nima My Profile linka
+      myProfileLink = "";
+    } else if (session.userType === "organizer") {
+      extraLink = `
+        <a href="my-orders.html"
+          style="display:block;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);text-decoration:none;border-bottom:1px solid rgba(13,27,42,0.07);"
+          onmouseover="this.style.background='#FAFAF7'"
+          onmouseout="this.style.background='white'">
+          My Orders
+        </a>`;
+      myProfileLink = `
+        <a href="${profileUrl}"
+          style="display:block;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);text-decoration:none;border-bottom:1px solid rgba(13,27,42,0.07);"
+          onmouseover="this.style.background='#FAFAF7'"
+          onmouseout="this.style.background='white'">
+          My Profile
+        </a>`;
+    }
+    
     navAuth.innerHTML = `
       <div style="position:relative;">
         <button id="nav-avatar-btn"
@@ -78,17 +110,8 @@ function updateNav() {
         </button>
         <div id="nav-dropdown"
           style="display:none;position:absolute;right:0;top:48px;background:white;border:1px solid rgba(13,27,42,0.1);box-shadow:0 8px 24px rgba(13,27,42,0.12);min-width:160px;z-index:100;">
-          ${
-            session.userType === "organizer" && session.organizerId
-              ? `
-          <a href="${profileUrl}"
-            style="display:block;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);text-decoration:none;border-bottom:1px solid rgba(13,27,42,0.07);"
-            onmouseover="this.style.background='#FAFAF7'"
-            onmouseout="this.style.background='white'">
-            My Profile
-          </a>`
-              : ""
-          }
+          ${extraLink}
+          ${myProfileLink}
           <button onclick="handleLogout()"
             style="display:block;width:100%;text-align:left;padding:0.75rem 1rem;font-family:'Jost',sans-serif;font-size:0.82rem;color:var(--navy);background:none;border:none;cursor:pointer;"
             onmouseover="this.style.background='#FAFAF7'"
@@ -270,7 +293,6 @@ async function handleRegister() {
       return;
     }
   } else {
-    // CLIENT - Popravljen endpoint: /api/client (ne /api/clients)
     let clientDbId = null;
     try {
       const response = await fetch("/api/client", {
@@ -504,9 +526,85 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   if (window.location.pathname.includes("profile-detail.html")) {
     setupReviewActions();
+    setupGetInTouchButton();
     loadOrganizerProfile();
   }
 });
+
+// ============================================================
+//  GET IN TOUCH BUTTON - za cliente (samo za prijavljene cliente, pošlje na request form)
+// ============================================================
+
+function setupGetInTouchButton() {
+  const getInTouchBtn = document.getElementById("profile-email-btn");
+  const session = JSON.parse(localStorage.getItem("wo_session") || "null");
+  const urlParams = new URLSearchParams(window.location.search);
+  const profileId = urlParams.get("id");
+  const isOwner = session && session.userType === "organizer" && String(session.organizerId) === String(profileId);
+
+  if (!getInTouchBtn) return;
+
+  // Če je organizator na svojem profilu - spremeni gumb v "See My Orders"
+  if (isOwner) {
+    getInTouchBtn.textContent = "See My Orders";
+    getInTouchBtn.href = "#";
+    getInTouchBtn.onclick = (e) => {
+      e.preventDefault();
+      window.location.href = "my-orders.html";
+    };
+    return;
+  }
+
+  // Ni lastnik - normalen Get in Touch (samo za prijavljene cliente)
+  if (!session) {
+    getInTouchBtn.disabled = true;
+    getInTouchBtn.classList.add("opacity-60", "cursor-not-allowed");
+    getInTouchBtn.textContent = "Log in to Contact";
+    getInTouchBtn.onclick = (e) => {
+      e.preventDefault();
+      alert("Please log in as a client to contact organizers.");
+      window.location.href = "login.html";
+    };
+    return;
+  }
+
+  if (session.userType !== "client") {
+    getInTouchBtn.disabled = true;
+    getInTouchBtn.classList.add("opacity-60", "cursor-not-allowed");
+    getInTouchBtn.textContent = "Only clients can contact";
+    getInTouchBtn.onclick = (e) => {
+      e.preventDefault();
+      alert("Only logged-in clients can send requests to organizers.");
+    };
+    return;
+  }
+
+  // Client je prijavljen - omogoči klik in pošlji na request form
+  getInTouchBtn.disabled = false;
+  getInTouchBtn.classList.remove("opacity-60", "cursor-not-allowed");
+  getInTouchBtn.textContent = "Get in Touch";
+  getInTouchBtn.href = "#";
+  getInTouchBtn.onclick = (e) => {
+    e.preventDefault();
+    openRequestForm();
+  };
+}
+
+function openRequestForm() {
+  const session = JSON.parse(localStorage.getItem("wo_session") || "null");
+  const urlParams = new URLSearchParams(window.location.search);
+  const organizerId = urlParams.get("id");
+  const organizerName = document.getElementById("profile-name")?.textContent || "Organizer";
+
+  if (!session || session.userType !== "client") {
+    alert("Please log in as a client to send a request.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Preusmeri na request-form.html s parametri
+  window.location.href = `request-form.html?org_id=${organizerId}&org_name=${encodeURIComponent(organizerName)}`;
+}
 
 // ============================================================
 //  OSTALE FUNKCIJE (loadFeaturedOrganizers, renderStars, reviews, etc.)
@@ -825,6 +923,9 @@ async function loadOrganizerProfile() {
     }
 
     loadOrganizerReviews(organizerId, data);
+    
+    // Počakamo, da se profile naloži, potem nastavimo Get in Touch gumb
+    setupGetInTouchButton();
   } catch (err) {
     console.error(err);
     document.getElementById("profile-name").textContent = "Error loading profile details";
