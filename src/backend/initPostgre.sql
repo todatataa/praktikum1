@@ -211,7 +211,9 @@ INSERT INTO review (client_id, organizator_id, rating, comment, review_date) VAL
     (3, 12, 5, 'The teambuilding event was engaging, well paced, and very professional.', '2024-03-26'),
     (4, 12, 4, 'Good planning, strong communication, and a smooth overall experience.', '2024-06-19');
 
-    ALTER TABLE organizator ADD COLUMN IF NOT EXISTS portfolio_description TEXT
+    ALTER TABLE organizator ADD COLUMN IF NOT EXISTS portfolio_description TEXT;
+    ALTER TABLE client ALTER COLUMN geslo TYPE VARCHAR(255);
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS tip_eventa VARCHAR(255);
 -- ── Preveri podatke ─────────────────────────────────────────
 SELECT * FROM client;
 SELECT * FROM organizator ORDER BY id_organizator;
