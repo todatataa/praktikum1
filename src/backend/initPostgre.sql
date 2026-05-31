@@ -30,7 +30,7 @@ CREATE TABLE organizator (
     portfolio       VARCHAR(255),
     telefon         INTEGER,
     geslo           VARCHAR(255)   NOT NULL,
-    image_content   VARCHAR(255),
+    image_content   VARCHAR(999755),
     city            VARCHAR(255),
     tip_eventa      VARCHAR(255),
     portfolio_description TEXT,
@@ -92,7 +92,7 @@ CREATE TABLE invitation (
 CREATE TABLE image (
     id_image        SERIAL PRIMARY KEY,
     cover_image     BOOLEAN,
-    image_content   VARCHAR(255),
+    image_content   VARCHAR(755),
     eventid_event   INTEGER REFERENCES event(id_event)
 );
 
