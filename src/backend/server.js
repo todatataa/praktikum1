@@ -23,9 +23,30 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || "superVarnoGeslo",
 });
 
+async function ensureReviewSchema() {
+  try {
+    await pool.query(`
+      ALTER TABLE review
+      ADD COLUMN IF NOT EXISTS event_id INTEGER REFERENCES event(id_event)
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS review_unique_client_event_idx
+      ON review (client_id, event_id)
+      WHERE event_id IS NOT NULL
+    `);
+  } catch (err) {
+    console.error("❌  Greška pri migraciji review sheme:", err.message);
+  }
+}
+
 pool
   .connect()
-  .then(() => console.log("✅  Spojen na PostgreSQL bazu"))
+  .then(async (client) => {
+    client.release();
+    console.log("✅  Spojen na PostgreSQL bazu");
+    await ensureReviewSchema();
+  })
   .catch((err) =>
     console.error("❌  Greška pri spajanju na bazu:", err.message),
   );
@@ -165,6 +186,42 @@ app.get("/api/organizers/:id", async (req, res) => {
   }
 });
 
+app.get("/api/organizers/:id/reviewable-events", async (req, res) => {
+  const organizerId = parseInt(req.params.id);
+  const clientId = parseInt(req.query.client_id);
+
+  if (!Number.isInteger(organizerId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid organizer id and client_id are required" });
+  }
+
+  const sql = `
+        SELECT
+            e.id_event,
+            e.naziv,
+            e.datum_eventa,
+            e.venue_name,
+            e.venue_lokacija
+        FROM event e
+        INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
+        LEFT JOIN review r ON r.event_id = e.id_event AND r.client_id = $2
+        WHERE e.TK_organizatorid_organizator = $1
+          AND z.TK_clientid_client = $2
+          AND z.TK_organizatorid_organizator = $1
+          AND r.review_id IS NULL
+        ORDER BY e.datum_eventa DESC, e.id_event DESC
+    `;
+
+  try {
+    const result = await pool.query(sql, [organizerId, clientId]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("SQL greška (GET reviewable events):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/api/organizers/:id/reviews", async (req, res) => {
   const { id } = req.params;
 
@@ -173,14 +230,18 @@ app.get("/api/organizers/:id/reviews", async (req, res) => {
             r.review_id,
             r.client_id,
             r.organizator_id,
+            r.event_id,
             r.rating,
             r.comment,
             r.review_date,
             c.ime,
             c.priimek,
+            e.naziv AS event_name,
+            e.datum_eventa,
             CONCAT(c.ime, ' ', c.priimek) AS client_name
         FROM review r
         INNER JOIN client c ON c.id_client = r.client_id
+        LEFT JOIN event e ON e.id_event = r.event_id
         WHERE r.organizator_id = $1
         ORDER BY r.review_date DESC, r.review_id DESC
     `;
@@ -197,37 +258,28 @@ app.get("/api/organizers/:id/reviews", async (req, res) => {
 });
 
 app.post("/api/organizers/:id/reviews", async (req, res) => {
-  const { id } = req.params;
-  const {
-    rating,
-    comment,
-    client_id,
-    client_email,
-    client_first_name,
-    client_last_name,
-  } = req.body;
-
-  const organizerId = parseInt(id);
-  const parsedRating = parseInt(rating);
-  const safeEmail = String(client_email || "")
-    .trim()
-    .toLowerCase();
-  const firstName = String(client_first_name || "").trim() || "Client";
-  const lastName = String(client_last_name || "").trim() || "User";
-  const safeComment = String(comment || "").trim() || null;
+  const organizerId = parseInt(req.params.id);
+  const parsedRating = parseInt(req.body.rating);
+  const clientId = parseInt(req.body.client_id);
+  const eventId = parseInt(req.body.event_id);
+  const safeComment = String(req.body.comment || "").trim() || null;
 
   if (!Number.isInteger(organizerId)) {
     return res.status(400).json({ error: "Invalid organizer id" });
+  }
+
+  if (!Number.isInteger(clientId)) {
+    return res.status(400).json({ error: "Valid client_id is required" });
+  }
+
+  if (!Number.isInteger(eventId)) {
+    return res.status(400).json({ error: "Valid event_id is required" });
   }
 
   if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
     return res
       .status(400)
       .json({ error: "Rating must be an integer between 1 and 5" });
-  }
-
-  if (!safeEmail) {
-    return res.status(400).json({ error: "Client email is required" });
   }
 
   const db = await pool.connect();
@@ -245,59 +297,72 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
       return res.status(404).json({ error: "Organizator nije pronađen" });
     }
 
-    let resolvedClientId = null;
+    const clientCheck = await db.query(
+      `SELECT id_client, CONCAT(ime, ' ', priimek) AS client_name
+       FROM client
+       WHERE id_client = $1`,
+      [clientId],
+    );
 
-    if (client_id && Number.isInteger(parseInt(client_id))) {
-      const existingClientById = await db.query(
-        "SELECT id_client FROM client WHERE id_client = $1",
-        [parseInt(client_id)],
-      );
-      if (existingClientById.rows.length > 0) {
-        resolvedClientId = existingClientById.rows[0].id_client;
-      }
+    if (clientCheck.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({ error: "Client nije pronađen" });
     }
 
-    if (!resolvedClientId) {
-      const existingClientByEmail = await db.query(
-        "SELECT id_client FROM client WHERE LOWER(email) = $1 ORDER BY id_client ASC LIMIT 1",
-        [safeEmail],
-      );
+    const eligibleEvent = await db.query(
+      `SELECT
+          e.id_event,
+          e.naziv
+       FROM event e
+       INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
+       WHERE e.id_event = $1
+         AND e.TK_organizatorid_organizator = $2
+         AND z.TK_clientid_client = $3
+         AND z.TK_organizatorid_organizator = $2
+       LIMIT 1`,
+      [eventId, organizerId, clientId],
+    );
 
-      if (existingClientByEmail.rows.length > 0) {
-        resolvedClientId = existingClientByEmail.rows[0].id_client;
-        await db.query(
-          `UPDATE client
-           SET ime = $1,
-               priimek = $2
-           WHERE id_client = $3`,
-          [firstName, lastName, resolvedClientId],
-        );
-      } else {
-        const insertedClient = await db.query(
-          `INSERT INTO client (ime, priimek, email, geslo)
-           VALUES ($1, $2, $3, $4)
-           RETURNING id_client`,
-          [firstName, lastName, safeEmail, "review-placeholder"],
-        );
-        resolvedClientId = insertedClient.rows[0].id_client;
-      }
+    if (eligibleEvent.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(403).json({
+        error:
+          "You can only review this organizer for an event that you booked with them.",
+      });
+    }
+
+    const existingReview = await db.query(
+      `SELECT review_id
+       FROM review
+       WHERE client_id = $1
+         AND event_id = $2
+       LIMIT 1`,
+      [clientId, eventId],
+    );
+
+    if (existingReview.rows.length > 0) {
+      await db.query("ROLLBACK");
+      return res.status(409).json({
+        error: "You have already submitted a review for this event.",
+      });
     }
 
     const insertReview = await db.query(
-      `INSERT INTO review (client_id, organizator_id, rating, comment, review_date)
-       VALUES ($1, $2, $3, $4, CURRENT_DATE)
-       RETURNING review_id, client_id, organizator_id, rating, comment, review_date`,
-      [resolvedClientId, organizerId, parsedRating, safeComment],
+      `INSERT INTO review (client_id, organizator_id, event_id, rating, comment, review_date)
+       VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)
+       RETURNING review_id, client_id, organizator_id, event_id, rating, comment, review_date`,
+      [clientId, organizerId, eventId, parsedRating, safeComment],
     );
 
     await db.query("COMMIT");
 
     res.status(201).json({
       success: true,
-      client_id: resolvedClientId,
+      client_id: clientId,
       review: {
         ...insertReview.rows[0],
-        client_name: `${firstName} ${lastName}`,
+        client_name: clientCheck.rows[0].client_name,
+        event_name: eligibleEvent.rows[0].naziv,
       },
     });
   } catch (err) {

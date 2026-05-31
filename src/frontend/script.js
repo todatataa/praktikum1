@@ -651,7 +651,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (window.location.pathname.includes("profile-detail.html")) {
-    setupReviewActions();
+    await setupReviewActions();
     setupGetInTouchButton();
     loadOrganizerProfile();
   }
@@ -813,6 +813,30 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+window.reviewableEvents = [];
+
+function formatReviewEventLabel(event) {
+  if (!event) return "";
+  const eventName = event.naziv || event.event_name || "Unnamed event";
+  const eventDate = event.datum_eventa
+    ? formatReviewDate(event.datum_eventa)
+    : null;
+  return eventDate ? `${eventName} · ${eventDate}` : eventName;
+}
+
+async function loadReviewableEvents(organizerId, clientId) {
+  const response = await fetch(
+    `/api/organizers/${organizerId}/reviewable-events?client_id=${encodeURIComponent(clientId)}`,
+  );
+
+  if (!response.ok) {
+    const raw = await response.text();
+    throw new Error(raw || "Could not load your booked events.");
+  }
+
+  return response.json();
+}
+
 async function loadOrganizerReviews(organizerId, organizerData = null) {
   const listEl = document.getElementById("reviews-list");
   const emptyEl = document.getElementById("reviews-empty");
@@ -854,13 +878,16 @@ async function loadOrganizerReviews(organizerId, organizerData = null) {
     listEl.innerHTML = reviews
       .map(
         (review) => `
-      <div>
-        <div class="flex items-center mb-2 gap-2 flex-wrap">
-          <span class="font-semibold text-navy mr-2">${escapeHtml(review.client_name || "Anonymous Client")}</span>
+      <div class="border border-navy/10 rounded-lg p-5 bg-cream/50">
+        <div class="flex items-center justify-between mb-3 gap-3 flex-wrap">
+          <div>
+            <p class="text-navy/45 text-xs tracking-widest uppercase">${escapeHtml(formatReviewDate(review.review_date))}</p>
+            <p class="font-semibold text-navy">${escapeHtml(review.client_name || "Anonymous Client")}</p>
+          </div>
           <div class="text-gold text-sm">${renderStars(review.rating)}</div>
         </div>
+        <p class="text-navy/55 text-sm mb-2"><span class="font-medium text-navy">Event:</span> ${escapeHtml(review.event_name || "Event not specified")}</p>
         <p class="text-navy/70 text-base leading-relaxed">"${escapeHtml(review.comment || "No written comment provided.")}"</p>
-        <p class="text-navy/50 text-xs mt-2">— Reviewed on ${escapeHtml(formatReviewDate(review.review_date))}</p>
       </div>
     `,
       )
@@ -876,33 +903,59 @@ async function loadOrganizerReviews(organizerId, organizerData = null) {
   }
 }
 
-function setupReviewActions() {
+async function setupReviewActions() {
   const btn = document.getElementById("btn-leave-review");
   const hint = document.getElementById("reviews-login-hint");
   const session = JSON.parse(localStorage.getItem("wo_session") || "null");
+  const urlParams = new URLSearchParams(window.location.search);
+  const organizerId = urlParams.get("id");
 
   if (!btn || !hint) return;
 
+  window.reviewableEvents = [];
+  btn.disabled = true;
+  btn.classList.add("opacity-60", "cursor-not-allowed");
+
   if (!session) {
-    btn.disabled = true;
-    btn.classList.add("opacity-60", "cursor-not-allowed");
     hint.textContent = "Log in as a client to leave a review.";
     hint.style.display = "block";
     return;
   }
 
   if (session.userType !== "client") {
-    btn.disabled = true;
-    btn.classList.add("opacity-60", "cursor-not-allowed");
     hint.textContent = "Only logged-in clients can leave reviews.";
     hint.style.display = "block";
     return;
   }
 
-  btn.disabled = false;
-  btn.classList.remove("opacity-60", "cursor-not-allowed");
-  hint.textContent = "Logged in as client — you can leave a review.";
-  hint.style.display = "block";
+  if (!session.clientDbId || !organizerId) {
+    hint.textContent =
+      "Your account could not be matched to a reviewable booking.";
+    hint.style.display = "block";
+    return;
+  }
+
+  try {
+    const events = await loadReviewableEvents(organizerId, session.clientDbId);
+    window.reviewableEvents = Array.isArray(events) ? events : [];
+
+    if (!window.reviewableEvents.length) {
+      hint.textContent =
+        "You can leave a review only for events you booked with this organizer.";
+      hint.style.display = "block";
+      return;
+    }
+
+    btn.disabled = false;
+    btn.classList.remove("opacity-60", "cursor-not-allowed");
+    hint.textContent =
+      "Logged in as client — choose one of your booked events to leave a review.";
+    hint.style.display = "block";
+  } catch (err) {
+    console.error(err);
+    hint.textContent = "Could not verify your booked events right now.";
+    hint.style.display = "block";
+  }
 }
 
 function openReviewModal() {
@@ -911,6 +964,7 @@ function openReviewModal() {
 
   const errorEl = document.getElementById("review-error");
   const successEl = document.getElementById("review-success");
+  const eventSelect = document.getElementById("review-event");
   if (errorEl) {
     errorEl.textContent = "";
     errorEl.style.display = "none";
@@ -918,6 +972,18 @@ function openReviewModal() {
   if (successEl) {
     successEl.textContent = "";
     successEl.style.display = "none";
+  }
+
+  if (eventSelect) {
+    const options = (window.reviewableEvents || [])
+      .map(
+        (event) =>
+          `<option value="${escapeHtml(event.id_event)}">${escapeHtml(formatReviewEventLabel(event))}</option>`,
+      )
+      .join("");
+
+    eventSelect.innerHTML =
+      options || '<option value="">No eligible events found</option>';
   }
 
   const modal = document.getElementById("review-modal");
@@ -936,11 +1002,13 @@ async function submitReview() {
   const errorEl = document.getElementById("review-error");
   const successEl = document.getElementById("review-success");
   const submitBtn = document.getElementById("review-submit-btn");
+  const reviewEvent = document.getElementById("review-event");
   const urlParams = new URLSearchParams(window.location.search);
   const organizerId = urlParams.get("id");
   const rating = parseInt(
     document.getElementById("review-rating")?.value || "0",
   );
+  const eventId = parseInt(reviewEvent?.value || "0");
   const comment = document.getElementById("review-comment")?.value.trim() || "";
 
   if (errorEl) {
@@ -952,7 +1020,7 @@ async function submitReview() {
     successEl.style.display = "none";
   }
 
-  if (!session || session.userType !== "client") {
+  if (!session || session.userType !== "client" || !session.clientDbId) {
     if (errorEl) {
       errorEl.textContent =
         "You must be logged in as a client to leave a review.";
@@ -964,6 +1032,14 @@ async function submitReview() {
   if (!organizerId) {
     if (errorEl) {
       errorEl.textContent = "Organizer not found.";
+      errorEl.style.display = "block";
+    }
+    return;
+  }
+
+  if (!eventId) {
+    if (errorEl) {
+      errorEl.textContent = "Please choose the event this review is for.";
       errorEl.style.display = "block";
     }
     return;
@@ -989,10 +1065,8 @@ async function submitReview() {
       body: JSON.stringify({
         rating,
         comment,
-        client_id: session.clientDbId || null,
-        client_email: session.email,
-        client_first_name: session.firstName,
-        client_last_name: session.lastName,
+        client_id: session.clientDbId,
+        event_id: eventId,
       }),
     });
 
@@ -1014,11 +1088,6 @@ async function submitReview() {
       throw new Error(data.error || rawResponse || "Could not submit review.");
     }
 
-    if (data.client_id) {
-      const updatedSession = { ...session, clientDbId: data.client_id };
-      localStorage.setItem("wo_session", JSON.stringify(updatedSession));
-    }
-
     if (successEl) {
       successEl.textContent = "Review submitted successfully!";
       successEl.style.display = "block";
@@ -1029,6 +1098,7 @@ async function submitReview() {
     const reviewRating = document.getElementById("review-rating");
     if (reviewRating) reviewRating.value = "5";
 
+    await setupReviewActions();
     await loadOrganizerProfile();
 
     setTimeout(() => {
