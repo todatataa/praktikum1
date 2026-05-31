@@ -1,133 +1,515 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>White Orchid Events — My Orders</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>White Orchid Events — My Orders</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        navy: { DEFAULT: "#0D1B2A", light: "#162536", dark: "#08111A" },
-                        gold: { DEFAULT: "#C9A84C", light: "#E2C06B", dark: "#A8883A" },
-                        cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
-                    },
-                    fontFamily: {
-                        display: ['"Playfair Display"', "Georgia", "serif"],
-                        sans: ["Jost", "system-ui", "sans-serif"],
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: {
+                                DEFAULT: "#0D1B2A",
+                                light: "#162536",
+                                dark: "#08111A",
+                            },
+                            gold: {
+                                DEFAULT: "#C9A84C",
+                                light: "#E2C06B",
+                                dark: "#A8883A",
+                            },
+                            cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
+                        },
+                        fontFamily: {
+                            display: ['"Playfair Display"', "Georgia", "serif"],
+                            sans: ["Jost", "system-ui", "sans-serif"],
+                        },
                     },
                 },
-            },
-        };
-    </script>
-    <link rel="stylesheet" href="css/style.css" />
-</head>
-<body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
-
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
-        <a href="index.html" class="no-underline">
-            <div class="font-display text-2xl font-semibold text-navy tracking-wide">White Orchid</div>
-            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">Event Organizers</div>
-        </a>
-        <div class="hidden md:flex space-x-8 text-sm">
-            <a href="index.html#how-it-works" class="nav-link-luxury">How It Works</a>
-            <a href="pricing.html" class="nav-link-luxury">Pricing</a>
-        </div>
-        <div id="nav-auth" class="flex items-center space-x-6">
-            <a href="login.html" class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log In</a>
-            <a href="register.html" class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium">Sign Up</a>
-        </div>
-    </nav>
-
-    <section class="py-20 px-10 max-w-7xl mx-auto flex-grow">
-        <div class="text-center mb-12">
-            <p class="text-gold tracking-widest uppercase text-xs font-light mb-3">Organizer Dashboard</p>
-            <h1 class="font-display text-5xl font-semibold text-navy mb-4">My Orders</h1>
-            <p class="text-navy/60 text-base font-light max-w-xl mx-auto">View all client requests and orders for your services.</p>
-        </div>
-
-        <div id="access-denied" style="display:none;" class="text-center py-24">
-            <div class="text-5xl mb-4 opacity-30">🔒</div>
-            <h2 class="font-display text-2xl text-navy mb-3">Access Restricted</h2>
-            <p class="text-navy/50 text-sm mb-6">You must be logged in as an organizer to view your orders.</p>
-            <a href="login.html" class="btn-gold px-8 py-3 text-sm tracking-widest uppercase font-medium">Log In</a>
-        </div>
-
-        <div id="orders-section" style="display:none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="orders-grid">
-                <div class="skeleton h-48 rounded"></div>
-                <div class="skeleton h-48 rounded"></div>
-                <div class="skeleton h-48 rounded"></div>
-            </div>
-            <div id="orders-empty" style="display:none;" class="empty-state">
-                <div class="empty-icon">📦</div>
-                <p class="font-display text-2xl text-navy/40 mb-2">No orders yet</p>
-                <p class="text-sm text-navy/30">When clients send requests, they will appear here.</p>
-            </div>
-        </div>
-    </section>
-
-    <footer class="bg-navy-dark py-16 px-10">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
-                <div class="md:col-span-2">
-                    <div class="font-display text-2xl text-white mb-1">White Orchid</div>
-                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">Event Organizers</p>
-                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">The premier platform for discovering and connecting with elite event organizers across Slovenia and beyond.</p>
+            };
+        </script>
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+        <nav
+            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
+        >
+            <a href="index.html" class="no-underline">
+                <div
+                    class="font-display text-2xl font-semibold text-navy tracking-wide"
+                >
+                    White Orchid
                 </div>
-                <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
-                    <ul class="space-y-4">
-                        <li><a href="org-search.html" class="footer-link">Browse Organizers</a></li>
-                        <li><a href="index.html#how-it-works" class="footer-link">How It Works</a></li>
-                        <li><a href="pricing.html" class="footer-link">Pricing</a></li>
-                    </ul>
+                <div
+                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
+                >
+                    Event Organizers
                 </div>
-                <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="footer-link">About Us</a></li>
-                        <li><a href="#" class="footer-link">Contact</a></li>
-                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
-                    </ul>
-                </div>
+            </a>
+            <div class="hidden md:flex space-x-8 text-sm">
+                <a href="index.html#how-it-works" class="nav-link-luxury"
+                    >How It Works</a
+                >
+                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
             </div>
-            <div class="h-px bg-white/[0.07] mb-8"></div>
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-white/25 text-xs font-light">© 2026 White Orchid Events. Built for Praktikum 1, FERI IPT 1st Year.</p>
-                <div class="flex space-x-6">
-                    <a href="#" class="footer-link text-xs">Terms</a>
-                    <a href="#" class="footer-link text-xs">Privacy</a>
-                </div>
+            <div id="nav-auth" class="flex items-center space-x-6">
+                <a
+                    href="login.html"
+                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
+                    >Log In</a
+                >
+                <a
+                    href="register.html"
+                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
+                    >Sign Up</a
+                >
             </div>
-        </div>
-    </footer>
+        </nav>
 
-    <script src="script.js"></script>
-    <script>
-        (function() {
-            const session = JSON.parse(localStorage.getItem("wo_session") || "null");
-            if (!session || session.userType !== "organizer") {
-                document.getElementById("access-denied").style.display = "block";
-                return;
-            }
-            document.getElementById("orders-section").style.display = "block";
-            
-            // TODO: Load orders from backend
-            const grid = document.getElementById("orders-grid");
-            const empty = document.getElementById("orders-empty");
-            
-            // Za zdaj prikaži empty state (ko bo backend pripravljen, boš dodala API klic)
-            grid.style.display = "none";
-            empty.style.display = "block";
-        })();
-    </script>
-</body>
+        <section class="py-20 px-10 max-w-7xl mx-auto flex-grow">
+            <div class="text-center mb-12">
+                <p
+                    class="text-gold tracking-widest uppercase text-xs font-light mb-3"
+                >
+                    Organizer Dashboard
+                </p>
+                <h1 class="font-display text-5xl font-semibold text-navy mb-4">
+                    My Orders
+                </h1>
+                <p class="text-navy/60 text-base font-light max-w-xl mx-auto">
+                    View all client requests and orders for your services.
+                </p>
+            </div>
+
+            <div
+                id="access-denied"
+                style="display: none"
+                class="text-center py-24"
+            >
+                <div class="text-5xl mb-4 opacity-30">🔒</div>
+                <h2 class="font-display text-2xl text-navy mb-3">
+                    Access Restricted
+                </h2>
+                <p class="text-navy/50 text-sm mb-6">
+                    You must be logged in as an organizer to view your orders.
+                </p>
+                <a
+                    href="login.html"
+                    class="btn-gold px-8 py-3 text-sm tracking-widest uppercase font-medium"
+                    >Log In</a
+                >
+            </div>
+
+            <div id="orders-section" style="display: none">
+                <div
+                    id="orders-feedback"
+                    style="display: none"
+                    class="mb-6 text-center text-sm font-light"
+                ></div>
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    id="orders-grid"
+                >
+                    <div class="skeleton h-48 rounded"></div>
+                    <div class="skeleton h-48 rounded"></div>
+                    <div class="skeleton h-48 rounded"></div>
+                </div>
+                <div
+                    id="orders-empty"
+                    style="display: none"
+                    class="empty-state"
+                >
+                    <div class="empty-icon">📦</div>
+                    <p class="font-display text-2xl text-navy/40 mb-2">
+                        No orders yet
+                    </p>
+                    <p class="text-sm text-navy/30">
+                        When clients send requests, they will appear here.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-navy-dark py-16 px-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                    <div class="md:col-span-2">
+                        <div class="font-display text-2xl text-white mb-1">
+                            White Orchid
+                        </div>
+                        <p
+                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
+                        >
+                            Event Organizers
+                        </p>
+                        <p
+                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
+                        >
+                            The premier platform for discovering and connecting
+                            with elite event organizers across Slovenia and
+                            beyond.
+                        </p>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Platform
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="org-search.html" class="footer-link"
+                                    >Browse Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
+                                    >How It Works</a
+                                >
+                            </li>
+                            <li>
+                                <a href="pricing.html" class="footer-link"
+                                    >Pricing</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Company
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="#" class="footer-link">About Us</a>
+                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Privacy Policy</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="h-px bg-white/[0.07] mb-8"></div>
+                <div
+                    class="flex flex-col md:flex-row justify-between items-center gap-4"
+                >
+                    <p class="text-white/25 text-xs font-light">
+                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                        IPT 1st Year.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="footer-link text-xs">Terms</a>
+                        <a href="#" class="footer-link text-xs">Privacy</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="script.js"></script>
+        <script>
+            (function () {
+                const session = JSON.parse(
+                    localStorage.getItem("wo_session") || "null",
+                );
+                const accessDenied = document.getElementById("access-denied");
+                const section = document.getElementById("orders-section");
+                const grid = document.getElementById("orders-grid");
+                const empty = document.getElementById("orders-empty");
+                const feedback = document.getElementById("orders-feedback");
+
+                if (!session || session.userType !== "organizer") {
+                    accessDenied.style.display = "block";
+                    return;
+                }
+
+                section.style.display = "block";
+
+                const statusClasses = {
+                    pending: "bg-amber-100 text-amber-700",
+                    accepted: "bg-blue-100 text-blue-700",
+                    declined: "bg-red-100 text-red-700",
+                    done: "bg-green-100 text-green-700",
+                };
+
+                const actionLabels = {
+                    edit_date: "Edit date",
+                    edit_venue: "Edit venue",
+                    edit_budget: "Edit budget",
+                    edit_guests: "Edit guests",
+                    cancel: "Cancel request",
+                };
+
+                function escapeHtml(value) {
+                    return String(value || "")
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/\"/g, "&quot;")
+                        .replace(/'/g, "&#39;");
+                }
+
+                function formatDate(value) {
+                    if (!value) return "Not set";
+                    const date = new Date(value);
+                    return date.toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                    });
+                }
+
+                function showFeedback(message, isError = false) {
+                    feedback.textContent = message;
+                    feedback.className = `mb-6 text-center text-sm font-light ${isError ? "text-red-600" : "text-green-600"}`;
+                    feedback.style.display = "block";
+                }
+
+                function renderOrders(orders) {
+                    if (!orders.length) {
+                        grid.style.display = "none";
+                        empty.style.display = "block";
+                        return;
+                    }
+
+                    empty.style.display = "none";
+                    grid.style.display = "grid";
+                    grid.innerHTML = orders
+                        .map((order) => {
+                            const clientActions = String(
+                                order.client_change_request || "",
+                            )
+                                .split(",")
+                                .map((value) => value.trim())
+                                .filter(Boolean)
+                                .map((action) => actionLabels[action] || action)
+                                .join(", ");
+
+                            return `
+                        <article class="bg-white border border-gold/10 rounded-lg shadow-lg p-6 flex flex-col gap-4">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <p class="text-xs tracking-[0.2em] uppercase text-gold mb-2">Order #${order.id_zahtev}</p>
+                                    <h3 class="font-display text-2xl text-navy">${escapeHtml(order.tip_eventa || "Event order")}</h3>
+                                    <p class="text-sm text-navy/50 mt-1">Client: ${escapeHtml(`${order.client_ime || ""} ${order.client_priimek || ""}`.trim() || "Unknown")}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs uppercase tracking-widest font-medium ${statusClasses[order.status] || "bg-gray-100 text-gray-700"}">${escapeHtml(order.status || "pending")}</span>
+                            </div>
+
+                            <div class="space-y-2 text-sm text-navy/70">
+                                <p><span class="font-medium text-navy">Date:</span> ${formatDate(order.datum)}</p>
+                                <p><span class="font-medium text-navy">Venue:</span> ${escapeHtml(order.venue || "Not specified")}</p>
+                                <p><span class="font-medium text-navy">Guests:</span> ${order.gosti || "Not specified"}</p>
+                                <p><span class="font-medium text-navy">Budget:</span> ${order.cena ? `${order.cena} EUR` : "Not specified"}</p>
+                                <p><span class="font-medium text-navy">Client message:</span> ${escapeHtml(order.opis || "-")}</p>
+                                <p><span class="font-medium text-navy">Client email:</span> ${escapeHtml(order.client_email || "-")}</p>
+                                ${clientActions ? `<p><span class="font-medium text-navy">Client action request:</span> ${escapeHtml(clientActions)}</p>` : ""}
+                                ${order.proposed_datum ? `<p><span class="font-medium text-navy">Proposed date:</span> ${formatDate(order.proposed_datum)}</p>` : ""}
+                                ${order.proposed_venue ? `<p><span class="font-medium text-navy">Proposed venue:</span> ${escapeHtml(order.proposed_venue)}</p>` : ""}
+                                ${order.proposed_cena ? `<p><span class="font-medium text-navy">Proposed budget:</span> ${escapeHtml(order.proposed_cena)} EUR</p>` : ""}
+                                ${order.proposed_gosti ? `<p><span class="font-medium text-navy">Proposed guests:</span> ${escapeHtml(order.proposed_gosti)}</p>` : ""}
+                                ${order.client_change_details ? `<p><span class="font-medium text-navy">Action details:</span> ${escapeHtml(order.client_change_details)}</p>` : ""}
+                                ${order.komentar ? `<p><span class="font-medium text-navy">Your note:</span> ${escapeHtml(order.komentar)}</p>` : ""}
+                            </div>
+
+                            <form class="order-status-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${order.id_zahtev}" data-event-type="${escapeHtml(order.tip_eventa || "Event")}" data-event-date="${escapeHtml(String(order.proposed_datum || order.datum || "").slice(0, 10))}" data-event-guests="${escapeHtml(String(order.proposed_gosti || order.gosti || ""))}" data-event-venue="${escapeHtml(order.proposed_venue || order.venue || "")}" data-event-description="${escapeHtml(order.opis || "")}">
+                                <label class="block text-xs uppercase tracking-[0.18em] text-navy/50">Update order status</label>
+                                <select name="status" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream">
+                                    <option value="pending" ${order.status === "pending" ? "selected" : ""}>Pending</option>
+                                    <option value="accepted" ${order.status === "accepted" ? "selected" : ""}>Accepted</option>
+                                    <option value="declined" ${order.status === "declined" ? "selected" : ""}>Declined</option>
+                                    <option value="done" ${order.status === "done" ? "selected" : ""}>Done</option>
+                                </select>
+                                <textarea name="komentar" rows="3" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Optional message for the client...">${escapeHtml(order.komentar || "")}</textarea>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button type="button" class="quick-status-btn border border-green-200 text-green-700 hover:bg-green-50 transition-colors py-3 text-xs tracking-widest uppercase font-medium" data-status="accepted">Accept</button>
+                                    <button type="button" class="quick-status-btn border border-red-200 text-red-600 hover:bg-red-50 transition-colors py-3 text-xs tracking-widest uppercase font-medium" data-status="declined">Decline</button>
+                                </div>
+                                <button type="submit" class="btn-gold w-full py-3 text-xs tracking-widest uppercase font-medium">Save Status</button>
+                                <button type="button" class="create-event-btn w-full py-3 text-xs tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors">Create Event</button>
+                            </form>
+                        </article>
+                    `;
+                        })
+                        .join("");
+
+                    bindForms();
+                }
+
+                async function loadOrders() {
+                    try {
+                        const response = await fetch(
+                            `/api/requests?organizer_id=${encodeURIComponent(session.organizerId)}`,
+                        );
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(
+                                data.error || "Could not load orders.",
+                            );
+                        }
+                        renderOrders(data);
+                    } catch (err) {
+                        grid.innerHTML = "";
+                        grid.style.display = "none";
+                        empty.style.display = "block";
+                        showFeedback(
+                            err.message || "Could not load orders.",
+                            true,
+                        );
+                    }
+                }
+
+                async function updateOrderStatus(requestId, status, komentar) {
+                    const response = await fetch(
+                        `/api/requests/${requestId}/status`,
+                        {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                organizer_id: session.organizerId,
+                                status,
+                                komentar,
+                            }),
+                        },
+                    );
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error || "Could not update order.",
+                        );
+                    }
+                    return data;
+                }
+
+                function bindForms() {
+                    document
+                        .querySelectorAll(".order-status-form")
+                        .forEach((form) => {
+                            form.addEventListener("submit", async (event) => {
+                                event.preventDefault();
+                                const requestId = form.dataset.requestId;
+                                const status = form.querySelector(
+                                    'select[name="status"]',
+                                ).value;
+                                const komentar = form
+                                    .querySelector('textarea[name="komentar"]')
+                                    .value.trim();
+                                const submitBtn = form.querySelector(
+                                    'button[type="submit"]',
+                                );
+                                submitBtn.disabled = true;
+                                submitBtn.textContent = "Saving...";
+
+                                try {
+                                    await updateOrderStatus(
+                                        requestId,
+                                        status,
+                                        komentar,
+                                    );
+                                    showFeedback(
+                                        "Order status updated successfully.",
+                                    );
+                                    await loadOrders();
+                                } catch (err) {
+                                    showFeedback(
+                                        err.message ||
+                                            "Could not update order.",
+                                        true,
+                                    );
+                                    submitBtn.disabled = false;
+                                    submitBtn.textContent = "Save Status";
+                                }
+                            });
+
+                            form.querySelectorAll(".quick-status-btn").forEach(
+                                (button) => {
+                                    button.addEventListener(
+                                        "click",
+                                        async () => {
+                                            const requestId =
+                                                form.dataset.requestId;
+                                            const komentar = form
+                                                .querySelector(
+                                                    'textarea[name="komentar"]',
+                                                )
+                                                .value.trim();
+                                            const nextStatus =
+                                                button.dataset.status;
+                                            button.disabled = true;
+                                            const previousText =
+                                                button.textContent;
+                                            button.textContent = "Saving...";
+
+                                            try {
+                                                await updateOrderStatus(
+                                                    requestId,
+                                                    nextStatus,
+                                                    komentar,
+                                                );
+                                                showFeedback(
+                                                    `Order ${nextStatus} successfully.`,
+                                                );
+                                                await loadOrders();
+                                            } catch (err) {
+                                                showFeedback(
+                                                    err.message ||
+                                                        "Could not update order.",
+                                                    true,
+                                                );
+                                                button.disabled = false;
+                                                button.textContent =
+                                                    previousText;
+                                            }
+                                        },
+                                    );
+                                },
+                            );
+
+                            const createEventBtn =
+                                form.querySelector(".create-event-btn");
+                            if (createEventBtn) {
+                                createEventBtn.addEventListener("click", () => {
+                                    const requestId = form.dataset.requestId;
+                                    const params = new URLSearchParams({
+                                        org_id: String(session.organizerId),
+                                        request_id: String(requestId),
+                                        naziv: `${form.dataset.eventType} Event`,
+                                        datum_eventa:
+                                            form.dataset.eventDate || "",
+                                        stevilo_gostov:
+                                            form.dataset.eventGuests || "",
+                                        venue_name:
+                                            form.dataset.eventVenue || "",
+                                        venue_lokacija:
+                                            form.dataset.eventVenue || "",
+                                        opis:
+                                            form.dataset.eventDescription || "",
+                                    });
+
+                                    window.location.href = `create-event.html?${params.toString()}`;
+                                });
+                            }
+                        });
+                }
+
+                loadOrders();
+            })();
+        </script>
+    </body>
 </html>

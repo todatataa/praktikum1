@@ -409,7 +409,7 @@ app.post("/api/organizers/:id/image", async (req, res) => {
   try {
     const result = await pool.query(
       "UPDATE organizator SET image_content = $1 WHERE id_organizator = $2 RETURNING id_organizator",
-      [image_base64, id]
+      [image_base64, id],
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Organizator nije pronađen" });
@@ -437,7 +437,10 @@ app.post("/api/events/:id/image", async (req, res) => {
 
   try {
     // Provjeri da event postoji
-    const eventCheck = await pool.query("SELECT id_event FROM event WHERE id_event = $1", [id]);
+    const eventCheck = await pool.query(
+      "SELECT id_event FROM event WHERE id_event = $1",
+      [id],
+    );
     if (eventCheck.rows.length === 0) {
       return res.status(404).json({ error: "Event nije pronađen" });
     }
@@ -446,13 +449,13 @@ app.post("/api/events/:id/image", async (req, res) => {
     if (cover_image) {
       await pool.query(
         "UPDATE image SET cover_image = false WHERE eventid_event = $1 AND cover_image = true",
-        [id]
+        [id],
       );
     }
 
     const result = await pool.query(
       "INSERT INTO image (cover_image, image_content, eventid_event) VALUES ($1, $2, $3) RETURNING id_image",
-      [cover_image, image_base64, id]
+      [cover_image, image_base64, id],
     );
     res.status(201).json({ success: true, id_image: result.rows[0].id_image });
   } catch (err) {
@@ -468,7 +471,7 @@ app.get("/api/events/:id/image", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT image_content FROM image WHERE eventid_event = $1 AND cover_image = true LIMIT 1",
-      [id]
+      [id],
     );
     if (result.rows.length === 0 || !result.rows[0].image_content) {
       return res.status(404).json({ error: "No image found" });
@@ -478,7 +481,6 @@ app.get("/api/events/:id/image", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 app.delete("/api/events/:id", async (req, res) => {
   const { id } = req.params;
@@ -634,6 +636,7 @@ app.post("/api/events", async (req, res) => {
     rsvp_due_date,
     e_mail_notification,
     TK_organizatorid_organizator,
+    TK_zahtevid_zahtev,
   } = req.body;
 
   if (!naziv || !datum_eventa || !TK_organizatorid_organizator) {
@@ -646,8 +649,8 @@ app.post("/api/events", async (req, res) => {
   const sql = `
         INSERT INTO event
             (naziv, datum_eventa, opis, stevilo_gostov, venue_name, venue_lokacija,
-             rsvp_due_date, e_mail_notification, TK_organizatorid_organizator)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             rsvp_due_date, e_mail_notification, TK_organizatorid_organizator, TK_zahtevid_zahtev)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id_event
     `;
 
@@ -662,14 +665,27 @@ app.post("/api/events", async (req, res) => {
       rsvp_due_date || null,
       e_mail_notification || null,
       parseInt(TK_organizatorid_organizator),
+      TK_zahtevid_zahtev ? parseInt(TK_zahtevid_zahtev) : null,
     ]);
+
+    if (TK_zahtevid_zahtev) {
+      await pool.query(
+        `UPDATE zahtev
+         SET status = 'accepted',
+             organizator_notified_change = FALSE,
+             komentar = COALESCE(komentar, 'Event created by organizer.')
+         WHERE id_zahtev = $1
+           AND TK_organizatorid_organizator = $2`,
+        [parseInt(TK_zahtevid_zahtev), parseInt(TK_organizatorid_organizator)],
+      );
+    }
+
     res.status(201).json({ id_event: result.rows[0].id_event });
   } catch (err) {
     console.error("SQL greška (POST event):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // ── POST /api/login ───────────────────────────────────────
 // Preveri organizatorja ali clienta v bazi po emailu in geslu
@@ -685,7 +701,7 @@ app.post("/api/login", async (req, res) => {
     // Preveri organizatorje
     const orgResult = await pool.query(
       "SELECT id_organizator, ime, priimek, email, geslo FROM organizator WHERE LOWER(email) = $1",
-      [normalizedEmail]
+      [normalizedEmail],
     );
 
     if (orgResult.rows.length > 0) {
@@ -710,7 +726,7 @@ app.post("/api/login", async (req, res) => {
     // Preveri cliente
     const clientResult = await pool.query(
       "SELECT id_client, ime, priimek, email, geslo FROM client WHERE LOWER(email) = $1",
-      [normalizedEmail]
+      [normalizedEmail],
     );
 
     if (clientResult.rows.length > 0) {
@@ -731,8 +747,9 @@ app.post("/api/login", async (req, res) => {
       }
     }
 
-    return res.status(404).json({ error: "No account found with this email address" });
-
+    return res
+      .status(404)
+      .json({ error: "No account found with this email address" });
   } catch (err) {
     console.error("SQL greška (POST login):", err.message);
     return res.status(500).json({ error: err.message });
@@ -747,13 +764,13 @@ app.post("/api/client", async (req, res) => {
   try {
     const check = await pool.query(
       "SELECT id_client FROM client WHERE LOWER(email) = $1 LIMIT 1",
-      [email.trim().toLowerCase()]
+      [email.trim().toLowerCase()],
     );
     if (check.rows.length > 0)
       return res.status(409).json({ error: "Email already exists" });
     const result = await pool.query(
       "INSERT INTO client (ime, priimek, email, geslo) VALUES ($1, $2, $3, $4) RETURNING id_client",
-      [ime, priimek, email.trim().toLowerCase(), geslo]
+      [ime, priimek, email.trim().toLowerCase(), geslo],
     );
     res.status(201).json({ id_client: result.rows[0].id_client });
   } catch (err) {
@@ -769,12 +786,472 @@ app.get("/api/client/by-email", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT id_client, ime, priimek, email FROM client WHERE LOWER(email) = $1 LIMIT 1",
-      [email.trim().toLowerCase()]
+      [email.trim().toLowerCase()],
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: "Client not found" });
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "Client not found" });
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/requests ─────────────────────────────────────
+app.post("/api/requests", async (req, res) => {
+  const {
+    organizer_id,
+    client_id,
+    event_type,
+    event_date,
+    guest_count,
+    budget,
+    venue,
+    message,
+  } = req.body;
+
+  const organizerId = parseInt(organizer_id);
+  const clientId = parseInt(client_id);
+  const guests = guest_count ? parseInt(guest_count) : null;
+  const price = budget ? parseInt(budget) : null;
+  const safeVenue = String(venue || "").trim() || null;
+  const safeMessage = String(message || "").trim();
+  const safeEventType = String(event_type || "").trim();
+  const safeDate = String(event_date || "").trim();
+
+  if (!Number.isInteger(organizerId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid organizer_id and client_id are required" });
+  }
+  if (!safeEventType || !safeDate || !safeMessage) {
+    return res
+      .status(400)
+      .json({ error: "event_type, event_date and message are required" });
+  }
+
+  try {
+    const organizerCheck = await pool.query(
+      "SELECT id_organizator FROM organizator WHERE id_organizator = $1",
+      [organizerId],
+    );
+    if (organizerCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Organizer not found" });
+    }
+
+    const clientCheck = await pool.query(
+      "SELECT id_client FROM client WHERE id_client = $1",
+      [clientId],
+    );
+    if (clientCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO zahtev (
+        datum,
+        opis,
+        status,
+        tip_eventa,
+        venue,
+        TK_clientid_client,
+        TK_organizatorid_organizator,
+        cena,
+        gosti
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING id_zahtev, status`,
+      [
+        safeDate,
+        safeMessage,
+        "pending",
+        safeEventType,
+        safeVenue,
+        clientId,
+        organizerId,
+        price,
+        guests,
+      ],
+    );
+
+    res.status(201).json({
+      success: true,
+      request: result.rows[0],
+    });
+  } catch (err) {
+    console.error("POST /api/requests error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/requests ──────────────────────────────────────
+app.get("/api/requests", async (req, res) => {
+  const { client_id, organizer_id } = req.query;
+
+  const conditions = [];
+  const params = [];
+  let idx = 1;
+
+  if (client_id) {
+    conditions.push(`z.TK_clientid_client = $${idx}`);
+    params.push(parseInt(client_id));
+    idx++;
+  }
+
+  if (organizer_id) {
+    conditions.push(`z.TK_organizatorid_organizator = $${idx}`);
+    params.push(parseInt(organizer_id));
+    idx++;
+  }
+
+  if (conditions.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "client_id or organizer_id is required" });
+  }
+
+  const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
+  const sql = `
+    SELECT
+      z.id_zahtev,
+      z.datum,
+      z.opis,
+      z.status,
+      z.tip_eventa,
+      z.venue,
+      z.komentar,
+      z.client_change_request,
+      z.client_change_details,
+      z.proposed_datum,
+      z.proposed_venue,
+      z.proposed_cena,
+      z.proposed_gosti,
+      z.organizator_notified_change,
+      z.ocena,
+      z.cena,
+      z.gosti,
+      z.TK_clientid_client,
+      z.TK_organizatorid_organizator,
+      c.ime AS client_ime,
+      c.priimek AS client_priimek,
+      c.email AS client_email,
+      o.ime AS organizer_ime,
+      o.priimek AS organizer_priimek,
+      o.email AS organizer_email
+    FROM zahtev z
+    INNER JOIN client c ON c.id_client = z.TK_clientid_client
+    LEFT JOIN organizator o ON o.id_organizator = z.TK_organizatorid_organizator
+    ${whereClause}
+    ORDER BY z.datum DESC, z.id_zahtev DESC
+  `;
+
+  try {
+    const result = await pool.query(sql, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("GET /api/requests error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PATCH /api/requests/:id/status ─────────────────────────
+app.patch("/api/requests/:id/status", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const { status, organizer_id, komentar } = req.body;
+  const organizerId = parseInt(organizer_id);
+  const safeStatus = String(status || "")
+    .trim()
+    .toLowerCase();
+  const safeComment = String(komentar || "").trim() || null;
+  const allowedStatuses = ["pending", "accepted", "declined", "done"];
+
+  if (!Number.isInteger(requestId) || !Number.isInteger(organizerId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid request id and organizer_id are required" });
+  }
+  if (!allowedStatuses.includes(safeStatus)) {
+    return res.status(400).json({ error: "Invalid status value" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE zahtev
+       SET status = $1,
+           komentar = COALESCE($2, komentar),
+           organizator_notified_change = FALSE
+       WHERE id_zahtev = $3
+         AND TK_organizatorid_organizator = $4
+       RETURNING id_zahtev, status, komentar`,
+      [safeStatus, safeComment, requestId, organizerId],
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Request not found for this organizer" });
+    }
+
+    res.json({ success: true, request: result.rows[0] });
+  } catch (err) {
+    console.error("PATCH /api/requests/:id/status error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PATCH /api/requests/:id/client-action ──────────────────
+app.patch("/api/requests/:id/client-action", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const {
+    client_id,
+    details,
+    proposed_date,
+    proposed_venue,
+    proposed_budget,
+    proposed_guests,
+    cancel_request,
+  } = req.body;
+
+  const clientId = parseInt(client_id);
+  const safeDetails = String(details || "").trim() || null;
+  const safeProposedDate = String(proposed_date || "").trim() || null;
+  const safeProposedVenue = String(proposed_venue || "").trim() || null;
+  const proposedBudget =
+    proposed_budget !== undefined &&
+    proposed_budget !== null &&
+    proposed_budget !== ""
+      ? parseInt(proposed_budget)
+      : null;
+  const proposedGuests =
+    proposed_guests !== undefined &&
+    proposed_guests !== null &&
+    proposed_guests !== ""
+      ? parseInt(proposed_guests)
+      : null;
+  const wantsCancel = Boolean(cancel_request);
+
+  const selectedActions = [];
+  if (safeProposedDate) selectedActions.push("edit_date");
+  if (safeProposedVenue) selectedActions.push("edit_venue");
+  if (Number.isInteger(proposedBudget)) selectedActions.push("edit_budget");
+  if (Number.isInteger(proposedGuests)) selectedActions.push("edit_guests");
+  if (wantsCancel) selectedActions.push("cancel");
+
+  if (!Number.isInteger(requestId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid request id and client_id are required" });
+  }
+  if (selectedActions.length === 0 && !safeDetails) {
+    return res.status(400).json({
+      error: "Provide at least one change value or cancellation request",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE zahtev
+       SET client_change_request = $1,
+           client_change_details = $2,
+           proposed_datum = $3,
+           proposed_venue = $4,
+           proposed_cena = $5,
+           proposed_gosti = $6,
+           organizator_notified_change = TRUE
+       WHERE id_zahtev = $7
+         AND TK_clientid_client = $8
+       RETURNING id_zahtev, status, client_change_request, client_change_details, proposed_datum, proposed_venue, proposed_cena, proposed_gosti`,
+      [
+        selectedActions.join(",") || null,
+        safeDetails,
+        safeProposedDate,
+        safeProposedVenue,
+        proposedBudget,
+        proposedGuests,
+        requestId,
+        clientId,
+      ],
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Request not found for this client" });
+    }
+
+    res.json({ success: true, request: result.rows[0] });
+  } catch (err) {
+    console.error("PATCH /api/requests/:id/client-action error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/requests/:id ───────────────────────────────
+app.delete("/api/requests/:id", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const { client_id } = req.query;
+  const clientId = parseInt(client_id);
+
+  if (!Number.isInteger(requestId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid request id and client_id are required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM zahtev
+       WHERE id_zahtev = $1
+         AND TK_clientid_client = $2
+         AND id_zahtev NOT IN (
+           SELECT COALESCE(TK_zahtevid_zahtev, -1) FROM event WHERE TK_zahtevid_zahtev IS NOT NULL
+         )
+       RETURNING id_zahtev`,
+      [requestId, clientId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Request not found, or it is already linked to an event",
+      });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("DELETE /api/requests/:id error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/organizers/:id/notifications ──────────────────
+app.get("/api/organizers/:id/notifications", async (req, res) => {
+  const organizerId = parseInt(req.params.id);
+
+  if (!Number.isInteger(organizerId)) {
+    return res.status(400).json({ error: "Invalid organizer id" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*)::int AS unread_count
+       FROM zahtev
+       WHERE TK_organizatorid_organizator = $1
+         AND organizator_notified_change = TRUE`,
+      [organizerId],
+    );
+
+    res.json({ unread_count: result.rows[0].unread_count });
+  } catch (err) {
+    console.error("GET /api/organizers/:id/notifications error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/requests/:id/create-event ────────────────────
+app.post("/api/requests/:id/create-event", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const {
+    organizer_id,
+    naziv,
+    opis,
+    datum_eventa,
+    stevilo_gostov,
+    venue_name,
+    venue_lokacija,
+    rsvp_due_date,
+    e_mail_notification,
+  } = req.body;
+
+  const organizerId = parseInt(organizer_id);
+
+  if (
+    !Number.isInteger(requestId) ||
+    !Number.isInteger(organizerId) ||
+    !naziv ||
+    !datum_eventa
+  ) {
+    return res.status(400).json({
+      error: "request id, organizer_id, naziv and datum_eventa are required",
+    });
+  }
+
+  const db = await pool.connect();
+  try {
+    await db.query("BEGIN");
+
+    const requestResult = await db.query(
+      `SELECT * FROM zahtev
+       WHERE id_zahtev = $1 AND TK_organizatorid_organizator = $2`,
+      [requestId, organizerId],
+    );
+
+    if (requestResult.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res
+        .status(404)
+        .json({ error: "Request not found for this organizer" });
+    }
+
+    const existingEvent = await db.query(
+      `SELECT id_event FROM event WHERE TK_zahtevid_zahtev = $1 LIMIT 1`,
+      [requestId],
+    );
+
+    if (existingEvent.rows.length > 0) {
+      await db.query("ROLLBACK");
+      return res
+        .status(409)
+        .json({ error: "An event already exists for this request" });
+    }
+
+    const createdEvent = await db.query(
+      `INSERT INTO event (
+        naziv,
+        datum_eventa,
+        opis,
+        stevilo_gostov,
+        venue_name,
+        venue_lokacija,
+        rsvp_due_date,
+        e_mail_notification,
+        TK_organizatorid_organizator,
+        TK_zahtevid_zahtev
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      RETURNING id_event`,
+      [
+        naziv,
+        datum_eventa,
+        opis || null,
+        stevilo_gostov ? parseInt(stevilo_gostov) : null,
+        venue_name || null,
+        venue_lokacija || null,
+        rsvp_due_date || null,
+        e_mail_notification || null,
+        organizerId,
+        requestId,
+      ],
+    );
+
+    await db.query(
+      `UPDATE zahtev
+       SET status = 'accepted',
+           komentar = COALESCE(komentar, 'Event created by organizer.'),
+           organizator_notified_change = FALSE
+       WHERE id_zahtev = $1`,
+      [requestId],
+    );
+
+    await db.query("COMMIT");
+    res
+      .status(201)
+      .json({ success: true, id_event: createdEvent.rows[0].id_event });
+  } catch (err) {
+    await db.query("ROLLBACK");
+    console.error("POST /api/requests/:id/create-event error:", err.message);
+    res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
   }
 });
 

@@ -43,10 +43,19 @@ CREATE TABLE zahtev (
     id_zahtev                       SERIAL PRIMARY KEY,
     datum                           DATE         NOT NULL,
     opis                            VARCHAR(255),
-    status                          VARCHAR(255),
+    status                          VARCHAR(255) DEFAULT 'pending',
+    tip_eventa                      VARCHAR(255),
+    venue                           VARCHAR(255),
     TK_clientid_client              INTEGER      NOT NULL REFERENCES client(id_client),
     TK_organizatorid_organizator    INTEGER      REFERENCES organizator(id_organizator),
     komentar                        VARCHAR(255),
+    client_change_request           VARCHAR(255),
+    client_change_details           TEXT,
+    proposed_datum                  DATE,
+    proposed_venue                  VARCHAR(255),
+    proposed_cena                   INTEGER,
+    proposed_gosti                  INTEGER,
+    organizator_notified_change     BOOLEAN      DEFAULT FALSE,
     ocena                           INTEGER,
     cena                            INTEGER,
     gosti                           INTEGER
@@ -138,14 +147,14 @@ INSERT INTO organizator (ime, priimek, email, portfolio, telefon, geslo, city, t
     ('Andrej',  'Pregl',     'andrej@poslovni.si',     'https://poslovni.si',       40333222, 'orgpw12', 'Celje',      'teambuilding', 900,   4.6);
 
 -- Zahtevi (vzorci za prvih 4 organizatorje)
-INSERT INTO zahtev (datum, opis, status, TK_clientid_client, TK_organizatorid_organizator, cena, gosti) VALUES
-    ('2025-06-01', 'Poroka za 100 oseb',             'zaključeno', 1, 1,  5000,  100),
-    ('2025-07-15', 'Rojstni dan – 30 gostov',        'zaključeno', 2, 2,  1200,   30),
-    ('2025-08-10', 'Tehnološka konferenca',           'v obravnavi',3, 3,  8000,  200),
-    ('2025-09-05', 'Jazzovski večer v parku',         'potrjeno',   4, 4,  3000,  150),
-    ('2025-10-20', 'Poletni festival na obali',       'potrjeno',   1, 5, 12000,  500),
-    ('2025-11-01', 'Teambuilding – 50 zaposlenih',    'zaključeno', 2, 6,  2500,   50),
-    ('2025-12-15', 'Gala večer – dobrodelna prireditev','v obravnavi',3,7,15000, 300);
+INSERT INTO zahtev (datum, opis, status, tip_eventa, venue, TK_clientid_client, TK_organizatorid_organizator, cena, gosti, client_change_request, client_change_details, proposed_datum, proposed_venue, proposed_cena, proposed_gosti, organizator_notified_change) VALUES
+    ('2025-06-01', 'Poroka za 100 oseb',               'done',     'poroka',       'Grand Hotel Union',      1, 1,  5000,  100, NULL, NULL, NULL, NULL, NULL, NULL, FALSE),
+    ('2025-07-15', 'Rojstni dan – 30 gostov',          'done',     'rojstni dan',  'Restavracija Lipa',      2, 2,  1200,   30, NULL, NULL, NULL, NULL, NULL, NULL, FALSE),
+    ('2025-08-10', 'Tehnološka konferenca',            'pending',  'konferenca',   'Cankarjev dom',          3, 3,  8000,  200, 'edit_date,edit_venue', 'Client asked to move the conference one week later and suggested a new venue.', '2025-08-17', 'Gospodarsko razstavišče', NULL, NULL, TRUE),
+    ('2025-09-05', 'Jazzovski večer v parku',          'accepted', 'koncert',      'Mestni park',            4, 4,  3000,  150, NULL, NULL, NULL, NULL, NULL, NULL, FALSE),
+    ('2025-10-20', 'Poletni festival na obali',        'accepted', 'festival',     'Amfiteater Koper',       1, 5, 12000,  500, NULL, NULL, NULL, NULL, NULL, NULL, FALSE),
+    ('2025-11-01', 'Teambuilding – 50 zaposlenih',     'done',     'teambuilding', 'Outdoor Center Celje',   2, 6,  2500,   50, NULL, NULL, NULL, NULL, NULL, NULL, FALSE),
+    ('2025-12-15', 'Gala večer – dobrodelna prireditev','pending', 'gala večer',   'Kongresni center Atlas', 3, 7, 15000,  300, 'cancel', 'Client is considering cancellation due to sponsor availability.', NULL, NULL, NULL, NULL, TRUE);
 
 -- Eventi
 INSERT INTO event (naziv, datum_eventa, TK_organizatorid_organizator, venue_name, venue_lokacija, TK_zahtevid_zahtev, rsvp_due_date) VALUES
@@ -213,7 +222,14 @@ INSERT INTO review (client_id, organizator_id, rating, comment, review_date) VAL
 
     ALTER TABLE organizator ADD COLUMN IF NOT EXISTS portfolio_description TEXT;
     ALTER TABLE client ALTER COLUMN geslo TYPE VARCHAR(255);
-    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS tip_eventa VARCHAR(255);
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS venue VARCHAR(255);
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS client_change_request VARCHAR(255);
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS client_change_details TEXT;
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS proposed_datum DATE;
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS proposed_venue VARCHAR(255);
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS proposed_cena INTEGER;
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS proposed_gosti INTEGER;
+    ALTER TABLE zahtev ADD COLUMN IF NOT EXISTS organizator_notified_change BOOLEAN DEFAULT FALSE;
 -- ── Preveri podatke ─────────────────────────────────────────
 SELECT * FROM client;
 SELECT * FROM organizator ORDER BY id_organizator;

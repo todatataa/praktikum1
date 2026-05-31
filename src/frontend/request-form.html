@@ -1,258 +1,455 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>White Orchid Events — Send Request</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>White Orchid Events — Send Request</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        navy: { DEFAULT: "#0D1B2A", light: "#162536", dark: "#08111A" },
-                        gold: { DEFAULT: "#C9A84C", light: "#E2C06B", dark: "#A8883A" },
-                        cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
-                    },
-                    fontFamily: {
-                        display: ['"Playfair Display"', "Georgia", "serif"],
-                        sans: ["Jost", "system-ui", "sans-serif"],
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: {
+                                DEFAULT: "#0D1B2A",
+                                light: "#162536",
+                                dark: "#08111A",
+                            },
+                            gold: {
+                                DEFAULT: "#C9A84C",
+                                light: "#E2C06B",
+                                dark: "#A8883A",
+                            },
+                            cream: { DEFAULT: "#FAFAF7", dark: "#F0EFE8" },
+                        },
+                        fontFamily: {
+                            display: ['"Playfair Display"', "Georgia", "serif"],
+                            sans: ["Jost", "system-ui", "sans-serif"],
+                        },
                     },
                 },
-            },
-        };
-    </script>
-    <link rel="stylesheet" href="css/style.css" />
-    <style>
-        .form-input {
-            width: 100%;
-            padding: 0.7rem 0.9rem;
-            font-family: 'Jost', sans-serif;
-            font-size: 0.85rem;
-            color: #0D1B2A;
-            background: #FAFAF7;
-            border: 1px solid rgba(13,27,42,0.15);
-            outline: none;
-            transition: border-color 0.25s, box-shadow 0.25s;
-        }
-        .form-input:focus {
-            border-color: #C9A84C;
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
-        }
-        .form-input::placeholder { color: rgba(13,27,42,0.35); }
-        .form-label {
-            display: block;
-            font-family: 'Jost', sans-serif;
-            font-size: 0.65rem;
-            font-weight: 500;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: rgba(13,27,42,0.50);
-            margin-bottom: 0.4rem;
-        }
-        .form-label .required { color: #C9A84C; margin-left: 2px; }
-    </style>
-</head>
-<body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
-
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
-        <a href="index.html" class="no-underline">
-            <div class="font-display text-2xl font-semibold text-navy tracking-wide">White Orchid</div>
-            <div class="text-gold tracking-widest uppercase text-xs font-light -mt-1">Event Organizers</div>
-        </a>
-        <div class="hidden md:flex space-x-8 text-sm">
-            <a href="index.html#how-it-works" class="nav-link-luxury">How It Works</a>
-            <a href="pricing.html" class="nav-link-luxury">Pricing</a>
-        </div>
-        <div id="nav-auth" class="flex items-center space-x-6">
-            <a href="login.html" class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300">Log In</a>
-            <a href="register.html" class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium">Sign Up</a>
-        </div>
-    </nav>
-
-    <section class="flex-grow py-16 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-2xl mx-auto">
-            <div class="text-center mb-10">
-                <p class="text-gold tracking-widest uppercase text-xs font-light mb-3">Send Request</p>
-                <h1 class="font-display text-4xl font-semibold text-navy mb-3">Contact Organizer</h1>
-                <p class="text-navy/60 text-sm font-light" id="organizer-name-display">Loading...</p>
-            </div>
-
-            <div class="bg-white p-8 md:p-10 shadow-lg rounded-lg border border-gold/10">
-                <form id="request-form" class="space-y-6">
-                    <div>
-                        <label class="form-label">Event Type <span class="required">*</span></label>
-                        <select id="event-type" class="form-input" required>
-                            <option value="">Select event type</option>
-                            <option value="poroka">💒 Poroka / Wedding</option>
-                            <option value="rojstni dan">🎂 Rojstni dan / Birthday</option>
-                            <option value="konferenca">💼 Konferenca / Conference</option>
-                            <option value="koncert">🎵 Koncert / Concert</option>
-                            <option value="festival">🎪 Festival / Festival</option>
-                            <option value="teambuilding">🤝 Teambuilding / Team Building</option>
-                            <option value="gala večer">✨ Gala večer / Gala Evening</option>
-                            <option value="other">🌸 Other / Drugo</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="form-label">Event Date <span class="required">*</span></label>
-                        <input type="date" id="event-date" class="form-input" required />
-                    </div>
-
-                    <div>
-                        <label class="form-label">Number of Guests</label>
-                        <input type="number" id="guest-count" class="form-input" placeholder="e.g., 50" min="1" />
-                    </div>
-
-                    <div>
-                        <label class="form-label">Budget (EUR)</label>
-                        <input type="number" id="budget" class="form-input" placeholder="Estimated budget" min="0" />
-                    </div>
-
-                    <div>
-                        <label class="form-label">Message / Special Requirements <span class="required">*</span></label>
-                        <textarea id="message" rows="5" class="form-input resize-none" placeholder="Tell the organizer about your vision, preferences, and any special requests..." required></textarea>
-                    </div>
-
-                    <p id="form-error" style="display:none;" class="text-red-500 text-xs text-center"></p>
-                    <p id="form-success" style="display:none;" class="text-green-600 text-xs text-center"></p>
-
-                    <div class="flex gap-4 pt-4">
-                        <button type="button" onclick="window.history.back()" class="flex-1 py-3 text-sm tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" class="flex-1 btn-gold py-3 text-sm tracking-widest uppercase font-medium">
-                            Send Request
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <footer class="bg-navy-dark py-16 px-10">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
-                <div class="md:col-span-2">
-                    <div class="font-display text-2xl text-white mb-1">White Orchid</div>
-                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">Event Organizers</p>
-                    <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">The premier platform for discovering and connecting with elite event organizers across Slovenia and beyond.</p>
-                </div>
-                <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
-                    <ul class="space-y-4">
-                        <li><a href="org-search.html" class="footer-link">Browse Organizers</a></li>
-                        <li><a href="index.html#how-it-works" class="footer-link">How It Works</a></li>
-                        <li><a href="pricing.html" class="footer-link">Pricing</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="footer-link">About Us</a></li>
-                        <li><a href="#" class="footer-link">Contact</a></li>
-                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="h-px bg-white/[0.07] mb-8"></div>
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-white/25 text-xs font-light">© 2026 White Orchid Events. Built for Praktikum 1, FERI IPT 1st Year.</p>
-                <div class="flex space-x-6">
-                    <a href="#" class="footer-link text-xs">Terms</a>
-                    <a href="#" class="footer-link text-xs">Privacy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const organizerId = urlParams.get("org_id");
-        const organizerName = decodeURIComponent(urlParams.get("org_name") || "Organizer");
-
-        document.getElementById("organizer-name-display").innerHTML = `Sending request to <span class="font-semibold text-gold">${organizerName}</span>`;
-
-        // Preveri ali je client prijavljen
-        const session = JSON.parse(localStorage.getItem("wo_session") || "null");
-        if (!session || session.userType !== "client") {
-            document.getElementById("form-error").textContent = "You must be logged in as a client to send requests.";
-            document.getElementById("form-error").style.display = "block";
-            document.querySelector("button[type='submit']").disabled = true;
-            document.querySelector("button[type='submit']").classList.add("opacity-60", "cursor-not-allowed");
-        }
-
-        document.getElementById("request-form").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            
-            const errorEl = document.getElementById("form-error");
-            const successEl = document.getElementById("form-success");
-            errorEl.style.display = "none";
-            successEl.style.display = "none";
-
-            const eventType = document.getElementById("event-type").value;
-            const eventDate = document.getElementById("event-date").value;
-            const guestCount = document.getElementById("guest-count").value;
-            const budget = document.getElementById("budget").value;
-            const message = document.getElementById("message").value.trim();
-
-            if (!eventType) {
-                errorEl.textContent = "Please select an event type.";
-                errorEl.style.display = "block";
-                return;
+            };
+        </script>
+        <link rel="stylesheet" href="css/style.css" />
+        <style>
+            .form-input {
+                width: 100%;
+                padding: 0.7rem 0.9rem;
+                font-family: "Jost", sans-serif;
+                font-size: 0.85rem;
+                color: #0d1b2a;
+                background: #fafaf7;
+                border: 1px solid rgba(13, 27, 42, 0.15);
+                outline: none;
+                transition:
+                    border-color 0.25s,
+                    box-shadow 0.25s;
             }
-            if (!eventDate) {
-                errorEl.textContent = "Please select an event date.";
-                errorEl.style.display = "block";
-                return;
+            .form-input:focus {
+                border-color: #c9a84c;
+                box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
             }
-            if (!message) {
-                errorEl.textContent = "Please write a message for the organizer.";
-                errorEl.style.display = "block";
-                return;
+            .form-input::placeholder {
+                color: rgba(13, 27, 42, 0.35);
+            }
+            .form-label {
+                display: block;
+                font-family: "Jost", sans-serif;
+                font-size: 0.65rem;
+                font-weight: 500;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: rgba(13, 27, 42, 0.5);
+                margin-bottom: 0.4rem;
+            }
+            .form-label .required {
+                color: #c9a84c;
+                margin-left: 2px;
+            }
+        </style>
+    </head>
+    <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
+        <nav
+            class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
+        >
+            <a href="index.html" class="no-underline">
+                <div
+                    class="font-display text-2xl font-semibold text-navy tracking-wide"
+                >
+                    White Orchid
+                </div>
+                <div
+                    class="text-gold tracking-widest uppercase text-xs font-light -mt-1"
+                >
+                    Event Organizers
+                </div>
+            </a>
+            <div class="hidden md:flex space-x-8 text-sm">
+                <a href="index.html#how-it-works" class="nav-link-luxury"
+                    >How It Works</a
+                >
+                <a href="pricing.html" class="nav-link-luxury">Pricing</a>
+            </div>
+            <div id="nav-auth" class="flex items-center space-x-6">
+                <a
+                    href="login.html"
+                    class="text-sm font-light text-navy tracking-wide hover:text-gold transition-colors duration-300"
+                    >Log In</a
+                >
+                <a
+                    href="register.html"
+                    class="btn-gold text-sm px-6 py-2.5 tracking-widest uppercase font-medium"
+                    >Sign Up</a
+                >
+            </div>
+        </nav>
+
+        <section class="flex-grow py-16 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-10">
+                    <p
+                        class="text-gold tracking-widest uppercase text-xs font-light mb-3"
+                    >
+                        Send Request
+                    </p>
+                    <h1
+                        class="font-display text-4xl font-semibold text-navy mb-3"
+                    >
+                        Contact Organizer
+                    </h1>
+                    <p
+                        class="text-navy/60 text-sm font-light"
+                        id="organizer-name-display"
+                    >
+                        Loading...
+                    </p>
+                </div>
+
+                <div
+                    class="bg-white p-8 md:p-10 shadow-lg rounded-lg border border-gold/10"
+                >
+                    <form id="request-form" class="space-y-6">
+                        <div>
+                            <label class="form-label"
+                                >Event Type
+                                <span class="required">*</span></label
+                            >
+                            <select id="event-type" class="form-input" required>
+                                <option value="">Select event type</option>
+                                <option value="poroka">
+                                    💒 Poroka / Wedding
+                                </option>
+                                <option value="rojstni dan">
+                                    🎂 Rojstni dan / Birthday
+                                </option>
+                                <option value="konferenca">
+                                    💼 Konferenca / Conference
+                                </option>
+                                <option value="koncert">
+                                    🎵 Koncert / Concert
+                                </option>
+                                <option value="festival">
+                                    🎪 Festival / Festival
+                                </option>
+                                <option value="teambuilding">
+                                    🤝 Teambuilding / Team Building
+                                </option>
+                                <option value="gala večer">
+                                    ✨ Gala večer / Gala Evening
+                                </option>
+                                <option value="other">🌸 Other / Drugo</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="form-label"
+                                >Event Date
+                                <span class="required">*</span></label
+                            >
+                            <input
+                                type="date"
+                                id="event-date"
+                                class="form-input"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Number of Guests</label>
+                            <input
+                                type="number"
+                                id="guest-count"
+                                class="form-input"
+                                placeholder="e.g., 50"
+                                min="1"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Budget (EUR)</label>
+                            <input
+                                type="number"
+                                id="budget"
+                                class="form-input"
+                                placeholder="Estimated budget"
+                                min="0"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Preferred Venue</label>
+                            <input
+                                type="text"
+                                id="venue"
+                                class="form-input"
+                                placeholder="e.g., Grand Hotel Union"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="form-label"
+                                >Message / Special Requirements
+                                <span class="required">*</span></label
+                            >
+                            <textarea
+                                id="message"
+                                rows="5"
+                                class="form-input resize-none"
+                                placeholder="Tell the organizer about your vision, preferences, and any special requests..."
+                                required
+                            ></textarea>
+                        </div>
+
+                        <p
+                            id="form-error"
+                            style="display: none"
+                            class="text-red-500 text-xs text-center"
+                        ></p>
+                        <p
+                            id="form-success"
+                            style="display: none"
+                            class="text-green-600 text-xs text-center"
+                        ></p>
+
+                        <div class="flex gap-4 pt-4">
+                            <button
+                                type="button"
+                                onclick="window.history.back()"
+                                class="flex-1 py-3 text-sm tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="flex-1 btn-gold py-3 text-sm tracking-widest uppercase font-medium"
+                            >
+                                Send Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-navy-dark py-16 px-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                    <div class="md:col-span-2">
+                        <div class="font-display text-2xl text-white mb-1">
+                            White Orchid
+                        </div>
+                        <p
+                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
+                        >
+                            Event Organizers
+                        </p>
+                        <p
+                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
+                        >
+                            The premier platform for discovering and connecting
+                            with elite event organizers across Slovenia and
+                            beyond.
+                        </p>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Platform
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="org-search.html" class="footer-link"
+                                    >Browse Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
+                                    >How It Works</a
+                                >
+                            </li>
+                            <li>
+                                <a href="pricing.html" class="footer-link"
+                                    >Pricing</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Company
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="#" class="footer-link">About Us</a>
+                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Privacy Policy</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="h-px bg-white/[0.07] mb-8"></div>
+                <div
+                    class="flex flex-col md:flex-row justify-between items-center gap-4"
+                >
+                    <p class="text-white/25 text-xs font-light">
+                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                        IPT 1st Year.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="footer-link text-xs">Terms</a>
+                        <a href="#" class="footer-link text-xs">Privacy</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="script.js"></script>
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const organizerId = urlParams.get("org_id");
+            const organizerName = decodeURIComponent(
+                urlParams.get("org_name") || "Organizer",
+            );
+
+            document.getElementById("organizer-name-display").innerHTML =
+                `Sending request to <span class="font-semibold text-gold">${organizerName}</span>`;
+
+            // Preveri ali je client prijavljen
+            const session = JSON.parse(
+                localStorage.getItem("wo_session") || "null",
+            );
+            if (!session || session.userType !== "client") {
+                document.getElementById("form-error").textContent =
+                    "You must be logged in as a client to send requests.";
+                document.getElementById("form-error").style.display = "block";
+                document.querySelector("button[type='submit']").disabled = true;
+                document
+                    .querySelector("button[type='submit']")
+                    .classList.add("opacity-60", "cursor-not-allowed");
             }
 
-            const submitBtn = e.target.querySelector("button[type='submit']");
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Sending...";
+            document
+                .getElementById("request-form")
+                .addEventListener("submit", async (e) => {
+                    e.preventDefault();
 
-            try {
-                // TODO: Pošlji na backend endpoint za ustvarjanje zahtevka
-                // Za zdaj samo simulacija
-                console.log({
-                    organizer_id: organizerId,
-                    organizer_name: organizerName,
-                    client_id: session.clientDbId,
-                    client_email: session.email,
-                    client_name: `${session.firstName} ${session.lastName}`,
-                    event_type: eventType,
-                    event_date: eventDate,
-                    guest_count: guestCount,
-                    budget: budget,
-                    message: message,
-                    status: "pending"
+                    const errorEl = document.getElementById("form-error");
+                    const successEl = document.getElementById("form-success");
+                    errorEl.style.display = "none";
+                    successEl.style.display = "none";
+
+                    const eventType =
+                        document.getElementById("event-type").value;
+                    const eventDate =
+                        document.getElementById("event-date").value;
+                    const guestCount =
+                        document.getElementById("guest-count").value;
+                    const budget = document.getElementById("budget").value;
+                    const venue = document.getElementById("venue").value.trim();
+                    const message = document
+                        .getElementById("message")
+                        .value.trim();
+
+                    if (!eventType) {
+                        errorEl.textContent = "Please select an event type.";
+                        errorEl.style.display = "block";
+                        return;
+                    }
+                    if (!eventDate) {
+                        errorEl.textContent = "Please select an event date.";
+                        errorEl.style.display = "block";
+                        return;
+                    }
+                    if (!message) {
+                        errorEl.textContent =
+                            "Please write a message for the organizer.";
+                        errorEl.style.display = "block";
+                        return;
+                    }
+
+                    const submitBtn = e.target.querySelector(
+                        "button[type='submit']",
+                    );
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = "Sending...";
+
+                    try {
+                        const response = await fetch("/api/requests", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                organizer_id: organizerId,
+                                client_id: session.clientDbId,
+                                event_type: eventType,
+                                event_date: eventDate,
+                                guest_count: guestCount || null,
+                                budget: budget || null,
+                                venue: venue || null,
+                                message: message,
+                            }),
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(
+                                data.error || "Could not send request.",
+                            );
+                        }
+
+                        successEl.textContent =
+                            "Request sent successfully! The organizer will contact you soon.";
+                        successEl.style.display = "block";
+                        e.target.reset();
+
+                        setTimeout(() => {
+                            window.location.href = "my-requests.html";
+                        }, 1500);
+                    } catch (err) {
+                        errorEl.textContent =
+                            err.message ||
+                            "Could not send request. Please try again.";
+                        errorEl.style.display = "block";
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Send Request";
+                    }
                 });
-
-                successEl.textContent = "Request sent successfully! The organizer will contact you soon.";
-                successEl.style.display = "block";
-                
-                setTimeout(() => {
-                    window.location.href = "my-requests.html";
-                }, 2000);
-            } catch (err) {
-                errorEl.textContent = "Could not send request. Please try again.";
-                errorEl.style.display = "block";
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Send Request";
-            }
-        });
-    </script>
-</body>
+        </script>
+    </body>
 </html>
