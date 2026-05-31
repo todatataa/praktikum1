@@ -391,7 +391,95 @@ app.get("/api/events", async (req, res) => {
   }
 });
 
-// ── API: DELETE /api/events/:id ───────────────────────────────
+// ── API: POST /api/organizers/:id/image ──────────────────────
+// Upload profilne slike organizatora (base64)
+app.post("/api/organizers/:id/image", async (req, res) => {
+  const { id } = req.params;
+  const { image_base64 } = req.body;
+
+  if (!image_base64) {
+    return res.status(400).json({ error: "image_base64 is required" });
+  }
+
+  // Provjeri veličinu — max ~2MB base64
+  if (image_base64.length > 2_800_000) {
+    return res.status(400).json({ error: "Image too large. Max 2MB." });
+  }
+
+  try {
+    const result = await pool.query(
+      "UPDATE organizator SET image_content = $1 WHERE id_organizator = $2 RETURNING id_organizator",
+      [image_base64, id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Organizator nije pronađen" });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error("SQL greška (POST organizer image):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── API: POST /api/events/:id/image ──────────────────────────
+// Upload slike za event (base64) — čuva u image tabeli
+app.post("/api/events/:id/image", async (req, res) => {
+  const { id } = req.params;
+  const { image_base64, cover_image = true } = req.body;
+
+  if (!image_base64) {
+    return res.status(400).json({ error: "image_base64 is required" });
+  }
+
+  if (image_base64.length > 2_800_000) {
+    return res.status(400).json({ error: "Image too large. Max 2MB." });
+  }
+
+  try {
+    // Provjeri da event postoji
+    const eventCheck = await pool.query("SELECT id_event FROM event WHERE id_event = $1", [id]);
+    if (eventCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Event nije pronađen" });
+    }
+
+    // Ako je cover, ukloni stari cover
+    if (cover_image) {
+      await pool.query(
+        "UPDATE image SET cover_image = false WHERE eventid_event = $1 AND cover_image = true",
+        [id]
+      );
+    }
+
+    const result = await pool.query(
+      "INSERT INTO image (cover_image, image_content, eventid_event) VALUES ($1, $2, $3) RETURNING id_image",
+      [cover_image, image_base64, id]
+    );
+    res.status(201).json({ success: true, id_image: result.rows[0].id_image });
+  } catch (err) {
+    console.error("SQL greška (POST event image):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── API: GET /api/events/:id/image ───────────────────────────
+// Dohvati cover sliku za event
+app.get("/api/events/:id/image", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "SELECT image_content FROM image WHERE eventid_event = $1 AND cover_image = true LIMIT 1",
+      [id]
+    );
+    if (result.rows.length === 0 || !result.rows[0].image_content) {
+      return res.status(404).json({ error: "No image found" });
+    }
+    res.json({ image_content: result.rows[0].image_content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 app.delete("/api/events/:id", async (req, res) => {
   const { id } = req.params;
 

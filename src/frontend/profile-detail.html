@@ -36,7 +36,7 @@
                 },
             };
         </script>
-        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="css/style.css" />
     </head>
     <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
         <nav
@@ -79,11 +79,14 @@
                 <div
                     class="md:col-span-1 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-center"
                 >
-                    <img
-                        id="profile-img"
-                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
-                        class="w-40 h-40 rounded-full object-cover mx-auto mb-6 border-4 border-gold"
-                    />
+                    <div class="relative w-40 h-40 mx-auto mb-6">
+                        <img
+                            id="profile-img"
+                            src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&h=400&fit=crop&crop=face"
+                            class="w-40 h-40 rounded-full object-cover border-4 border-gold shadow-lg"
+                        />
+                        <div class="absolute bottom-1 right-1 w-5 h-5 bg-gold rounded-full border-2 border-white"></div>
+                    </div>
                     <h1
                         id="profile-name"
                         class="font-display text-3xl font-semibold text-navy mb-2"
@@ -121,12 +124,6 @@
                             >
                                 Your Profile
                             </p>
-                            <a
-                                id="btn-create-event"
-                                href="#"
-                                class="btn-gold block w-full py-3 text-sm tracking-widest uppercase font-medium text-center"
-                                >+ Create Event</a
-                            >
                             <button
                                 id="btn-edit-profile"
                                 onclick="openEditProfileModal()"
@@ -212,12 +209,20 @@
                         >
                             Events
                         </h2>
-                        <span
-                            id="events-count-badge"
-                            class="text-xs tracking-widest uppercase text-navy/40 font-light"
-                        >
-                            Loading...
-                        </span>
+                        <div class="flex items-center gap-4">
+                            <span
+                                id="events-count-badge"
+                                class="text-xs tracking-widest uppercase text-navy/40 font-light"
+                            >
+                                Loading...
+                            </span>
+                            <a
+                                id="btn-create-event"
+                                href="#"
+                                style="display:none"
+                                class="btn-gold px-5 py-2.5 text-xs tracking-widest uppercase font-medium"
+                            >+ Create Event</a>
+                        </div>
                     </div>
 
                     <div
@@ -306,9 +311,199 @@
             </div>
         </section>
 
-        <script src="script.js"></script>
+        <!-- ── Edit Event Modal ────────────────────────────────── -->
+        <div id="edit-event-modal" style="display:none"
+            class="fixed inset-0 z-[220] flex items-center justify-center px-4">
+            <div class="absolute inset-0 bg-navy/60 backdrop-blur-sm" onclick="closeEditEventModal()"></div>
+            <div class="relative z-10 bg-white w-full max-w-xl p-6 md:p-8 shadow-2xl rounded-lg border border-gold/15 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-display text-2xl font-semibold text-navy">Modify Event</h2>
+                    <button onclick="closeEditEventModal()" class="text-navy/30 hover:text-navy text-2xl leading-none">&times;</button>
+                </div>
+                <input type="hidden" id="edit-event-id" />
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Event Name *</label>
+                        <input id="ee-naziv" type="text" maxlength="255"
+                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                    </div>
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Description</label>
+                        <textarea id="ee-opis" rows="3" maxlength="255"
+                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream resize-none"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Event Date *</label>
+                            <input id="ee-datum_eventa" type="date"
+                                class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                        </div>
+                        <div>
+                            <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">RSVP Deadline</label>
+                            <input id="ee-rsvp_due_date" type="date"
+                                class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Number of Guests</label>
+                        <input id="ee-stevilo_gostov" type="number" min="1"
+                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                    </div>
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Venue Name</label>
+                        <input id="ee-venue_name" type="text" maxlength="255"
+                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                    </div>
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Venue Location</label>
+                        <input id="ee-venue_lokacija" type="text" maxlength="255"
+                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                    </div>
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Notification Email</label>
+                        <input id="ee-e_mail_notification" type="email"
+                            class="w-full px-3 py-2.5 border border-navy/20 text-navy text-sm focus:outline-none focus:border-gold bg-cream" />
+                    </div>
+                    <div>
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Event Cover Image</label>
+                        <div class="flex items-start gap-4">
+                            <img id="ee-img-preview" src="" alt="Preview"
+                                class="w-20 h-14 object-cover border border-gold/30 rounded"
+                                style="display:none" />
+                            <div class="flex-1">
+                                <input id="ee-image" type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    class="w-full px-3 py-2.5 border border-dashed border-gold/40 text-navy/60 text-sm bg-cream cursor-pointer hover:border-gold transition-colors"
+                                    onchange="previewEventImage(this)" />
+                                <p class="text-xs text-navy/35 mt-1">JPG, PNG or WEBP · max 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p id="edit-event-error" style="display:none" class="text-red-500 text-xs mt-4"></p>
+                <p id="edit-event-success" style="display:none" class="text-green-600 text-xs mt-4"></p>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeEditEventModal()"
+                        class="flex-1 py-3 text-sm tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors">
+                        Cancel
+                    </button>
+                    <button onclick="saveEditEvent()"
+                        class="flex-1 py-3 text-sm tracking-widest uppercase font-medium bg-gold text-navy hover:bg-[#A8883A] transition-colors">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        <!-- ── Leave Review Modal ───────────────────────────── -->
+        <script>
+        // ── Edit Event Modal ──────────────────────────────────────
+        let _editEventCache = {};
+
+        async function openEditEventModal(eventId) {
+            // Fetch current event data
+            try {
+                const resp = await fetch(`/api/events?org_id=${new URLSearchParams(window.location.search).get("id")}`);
+                const events = await resp.json();
+                const ev = events.find(e => e.id_event === eventId);
+                if (!ev) { alert("Event not found."); return; }
+                _editEventCache = ev;
+
+                document.getElementById("edit-event-id").value = eventId;
+                document.getElementById("ee-naziv").value = ev.naziv || "";
+                document.getElementById("ee-opis").value = ev.opis || "";
+                document.getElementById("ee-datum_eventa").value = ev.datum_eventa ? ev.datum_eventa.split("T")[0] : "";
+                document.getElementById("ee-rsvp_due_date").value = ev.rsvp_due_date ? ev.rsvp_due_date.split("T")[0] : "";
+                document.getElementById("ee-stevilo_gostov").value = ev.stevilo_gostov || "";
+                document.getElementById("ee-venue_name").value = ev.venue_name || "";
+                document.getElementById("ee-venue_lokacija").value = ev.venue_lokacija || "";
+                document.getElementById("ee-e_mail_notification").value = ev.e_mail_notification || "";
+
+                document.getElementById("edit-event-error").style.display = "none";
+                document.getElementById("edit-event-success").style.display = "none";
+                document.getElementById("edit-event-modal").style.display = "flex";
+                document.body.style.overflow = "hidden";
+            } catch(e) {
+                alert("Could not load event data.");
+            }
+        }
+
+        function closeEditEventModal() {
+            document.getElementById("edit-event-modal").style.display = "none";
+            document.body.style.overflow = "";
+        }
+
+        async function saveEditEvent() {
+            const errorEl = document.getElementById("edit-event-error");
+            const successEl = document.getElementById("edit-event-success");
+            errorEl.style.display = "none";
+            successEl.style.display = "none";
+
+            const eventId = document.getElementById("edit-event-id").value;
+            const naziv = document.getElementById("ee-naziv").value.trim();
+            const datum = document.getElementById("ee-datum_eventa").value;
+
+            if (!naziv) { errorEl.textContent = "Event name is required."; errorEl.style.display = "block"; return; }
+            if (!datum)  { errorEl.textContent = "Event date is required."; errorEl.style.display = "block"; return; }
+
+            const payload = {
+                naziv,
+                datum_eventa: datum,
+                opis: document.getElementById("ee-opis").value.trim() || null,
+                stevilo_gostov: parseInt(document.getElementById("ee-stevilo_gostov").value) || null,
+                venue_name: document.getElementById("ee-venue_name").value.trim() || null,
+                venue_lokacija: document.getElementById("ee-venue_lokacija").value.trim() || null,
+                rsvp_due_date: document.getElementById("ee-rsvp_due_date").value || null,
+                e_mail_notification: document.getElementById("ee-e_mail_notification").value.trim() || null,
+                TK_organizatorid_organizator: _editEventCache.TK_organizatorid_organizator,
+            };
+
+            try {
+                const resp = await fetch(`/api/events/${eventId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+                if (!resp.ok) {
+                    const err = await resp.json();
+                    errorEl.textContent = err.error || "Could not save changes.";
+                    errorEl.style.display = "block";
+                    return;
+                }
+
+                // Upload event slike ako je odabrana
+                const imgInput = document.getElementById("ee-image");
+                if (imgInput && imgInput.files && imgInput.files[0]) {
+                    const file = imgInput.files[0];
+                    if (file.size > 2 * 1024 * 1024) {
+                        errorEl.textContent = "Image too large. Max 2MB.";
+                        errorEl.style.display = "block";
+                        return;
+                    }
+                    successEl.textContent = "Uploading image...";
+                    successEl.style.display = "block";
+                    const base64 = await new Promise((res, rej) => {
+                        const r = new FileReader();
+                        r.onload = () => res(r.result);
+                        r.onerror = rej;
+                        r.readAsDataURL(file);
+                    });
+                    await fetch(`/api/events/${eventId}/image`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ image_base64: base64, cover_image: true }),
+                    });
+                }
+
+                successEl.textContent = "Event updated successfully!";
+                successEl.style.display = "block";
+                setTimeout(() => { closeEditEventModal(); location.reload(); }, 1200);
+            } catch(e) {
+                errorEl.textContent = "Server connection error.";
+                errorEl.style.display = "block";
+            }
+        }
+        </script>
+
         <div
             id="review-modal"
             style="display: none"
@@ -533,19 +728,21 @@
                     <div>
                         <label
                             class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5"
-                            >Profile Picture</label
-                        >
-                        <div class="flex items-center gap-3">
-                            <input
-                                id="edit-profile-image"
-                                type="file"
-                                accept="image/*"
-                                class="w-full px-3 py-2.5 border border-dashed border-navy/20 text-navy/60 text-sm bg-cream cursor-not-allowed"
-                                disabled
-                            />
-                            <span class="text-xs text-navy/40"
-                                >Coming soon</span
-                            >
+                        <label class="block text-xs tracking-widest uppercase text-navy/50 mb-1.5">Profile Picture</label>
+                        <div class="flex items-center gap-4">
+                            <img id="edit-profile-preview" src="" alt="Preview"
+                                class="w-16 h-16 rounded-full object-cover border-2 border-gold/30"
+                                style="display:none" />
+                            <div class="flex-1">
+                                <input
+                                    id="edit-profile-image"
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    class="w-full px-3 py-2.5 border border-dashed border-gold/40 text-navy/60 text-sm bg-cream cursor-pointer hover:border-gold transition-colors"
+                                    onchange="previewProfileImage(this)"
+                                />
+                                <p class="text-xs text-navy/35 mt-1">JPG, PNG or WEBP · max 2MB</p>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -751,14 +948,14 @@
                     session.organizerId &&
                     String(session.organizerId) === String(profileId)
                 ) {
-                    const ownerActions =
-                        document.getElementById("owner-actions");
+                    const ownerActions = document.getElementById("owner-actions");
                     if (ownerActions) ownerActions.style.display = "block";
 
-                    const createBtn =
-                        document.getElementById("btn-create-event");
-                    if (createBtn)
+                    const createBtn = document.getElementById("btn-create-event");
+                    if (createBtn) {
                         createBtn.href = `create-event.html?org_id=${profileId}`;
+                        createBtn.style.display = "inline-block";
+                    }
                 }
             })();
 
@@ -888,28 +1085,13 @@
 
                 const payload = {
                     ime: document.getElementById("edit-ime").value.trim(),
-                    priimek: document
-                        .getElementById("edit-priimek")
-                        .value.trim(),
+                    priimek: document.getElementById("edit-priimek").value.trim(),
                     city: document.getElementById("edit-city").value.trim(),
-                    telefon:
-                        document.getElementById("edit-telefon").value.trim() ||
-                        null,
-                    tip_eventa: document
-                        .getElementById("edit-tip_eventa")
-                        .value.trim(),
-                    portfolio:
-                        document
-                            .getElementById("edit-portfolio")
-                            .value.trim() || null,
-                    portfolio_description:
-                        document
-                            .getElementById("edit-portfolio-description")
-                            .innerHTML.trim() || null,
-                    cena_od:
-                        parseInt(
-                            document.getElementById("edit-cena_od").value,
-                        ) || 0,
+                    telefon: document.getElementById("edit-telefon").value.trim() || null,
+                    tip_eventa: document.getElementById("edit-tip_eventa").value.trim(),
+                    portfolio: document.getElementById("edit-portfolio").value.trim() || null,
+                    portfolio_description: document.getElementById("edit-portfolio-description").innerHTML.trim() || null,
+                    cena_od: parseInt(document.getElementById("edit-cena_od").value) || 0,
                 };
 
                 if (!payload.ime || !payload.priimek) {
@@ -919,6 +1101,7 @@
                 }
 
                 try {
+                    // 1. Spremi podatke profila
                     const resp = await fetch(`/api/organizers/${profileId}`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
@@ -927,47 +1110,87 @@
 
                     if (!resp.ok) {
                         const err = await resp.json();
-                        errorEl.textContent =
-                            err.error || "Could not save changes.";
+                        errorEl.textContent = err.error || "Could not save changes.";
                         errorEl.style.display = "block";
                         return;
+                    }
+
+                    // 2. Ako je odabrana slika — uploadaj je
+                    const fileInput = document.getElementById("edit-profile-image");
+                    if (fileInput.files && fileInput.files[0]) {
+                        const file = fileInput.files[0];
+                        if (file.size > 2 * 1024 * 1024) {
+                            errorEl.textContent = "Image too large. Max 2MB.";
+                            errorEl.style.display = "block";
+                            return;
+                        }
+                        successEl.textContent = "Uploading image...";
+                        successEl.style.display = "block";
+                        const base64 = await fileToBase64(file);
+                        const imgResp = await fetch(`/api/organizers/${profileId}/image`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ image_base64: base64 }),
+                        });
+                        if (imgResp.ok) {
+                            document.getElementById("profile-img").src = base64;
+                            if (window.currentOrganizerProfile) window.currentOrganizerProfile.image_content = base64;
+                        } else {
+                            const imgErr = await imgResp.json();
+                            errorEl.textContent = imgErr.error || "Image upload failed.";
+                            errorEl.style.display = "block";
+                        }
                     }
 
                     successEl.textContent = "Profile updated successfully!";
                     successEl.style.display = "block";
 
-                    // Osvježi DOM bez reload-a
-                    document.getElementById("profile-name").textContent =
-                        `${payload.ime} ${payload.priimek}`;
-                    document.getElementById("profile-location").textContent =
-                        payload.city || "—";
-                    document.getElementById("profile-specialty").textContent =
-                        payload.tip_eventa
-                            ? payload.tip_eventa.toUpperCase()
-                            : "GENERAL";
-                    document.getElementById("profile-price").textContent =
-                        `${payload.cena_od} EUR`;
-                    document.getElementById("profile-about").innerHTML =
-                        payload.portfolio_description ||
+                    // Osvježi DOM
+                    document.getElementById("profile-name").textContent = `${payload.ime} ${payload.priimek}`;
+                    document.getElementById("profile-location").textContent = payload.city || "—";
+                    document.getElementById("profile-specialty").textContent = payload.tip_eventa ? payload.tip_eventa.toUpperCase() : "GENERAL";
+                    document.getElementById("profile-price").textContent = `${payload.cena_od} EUR`;
+                    document.getElementById("profile-about").innerHTML = payload.portfolio_description ||
                         `Welcome to the portfolio of ${payload.ime} ${payload.priimek}. We host high-end ${payload.tip_eventa || "events"} across ${payload.city || "Slovenia"}, focusing on absolute premium execution and elite customer satisfaction.`;
                     if (payload.portfolio) {
                         const el = document.getElementById("profile-portfolio");
                         el.href = payload.portfolio;
                         el.textContent = payload.portfolio;
                     }
-
                     if (window.currentOrganizerProfile) {
-                        window.currentOrganizerProfile = {
-                            ...window.currentOrganizerProfile,
-                            ...payload,
-                        };
+                        window.currentOrganizerProfile = { ...window.currentOrganizerProfile, ...payload };
                     }
-
                     setTimeout(closeEditProfileModal, 1400);
                 } catch (e) {
                     errorEl.textContent = "Server connection error.";
                     errorEl.style.display = "block";
                 }
+            }
+
+            // Helper: File → base64 data URL
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function previewProfileImage(input) {
+                if (!input.files || !input.files[0]) return;
+                const preview = document.getElementById("edit-profile-preview");
+                const reader = new FileReader();
+                reader.onload = (e) => { preview.src = e.target.result; preview.style.display = "block"; };
+                reader.readAsDataURL(input.files[0]);
+            }
+
+            function previewEventImage(input) {
+                if (!input.files || !input.files[0]) return;
+                const preview = document.getElementById("ee-img-preview");
+                const reader = new FileReader();
+                reader.onload = (e) => { preview.src = e.target.result; preview.style.display = "block"; };
+                reader.readAsDataURL(input.files[0]);
             }
 
             async function deleteProfile() {
@@ -1065,25 +1288,26 @@
 
                     badge.textContent = `${events.length} event${events.length !== 1 ? "s" : ""}`;
 
+                    const FALLBACK_IMAGES = [
+                        "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&h=300&fit=crop",
+                        "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&h=300&fit=crop",
+                        "https://images.unsplash.com/photo-1478147427282-58a87a433d13?w=600&h=300&fit=crop",
+                        "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&h=300&fit=crop",
+                        "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=600&h=300&fit=crop",
+                        "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&h=300&fit=crop",
+                    ];
+
                     events.forEach((ev) => {
                         const date = ev.datum_eventa
                             ? new Date(ev.datum_eventa).toLocaleDateString(
                                   "en-GB",
-                                  {
-                                      day: "numeric",
-                                      month: "long",
-                                      year: "numeric",
-                                  },
+                                  { day: "numeric", month: "long", year: "numeric" },
                               )
                             : "—";
                         const rsvp = ev.rsvp_due_date
                             ? new Date(ev.rsvp_due_date).toLocaleDateString(
                                   "en-GB",
-                                  {
-                                      day: "numeric",
-                                      month: "short",
-                                      year: "numeric",
-                                  },
+                                  { day: "numeric", month: "short", year: "numeric" },
                               )
                             : null;
                         const venue =
@@ -1094,36 +1318,56 @@
                             ? `${ev.stevilo_gostov.toLocaleString()} guests`
                             : "";
 
-                        const deleteBtn = isOwner
-                            ? `
-                        <button onclick="deleteEvent(${ev.id_event}, this)"
-                            class="text-xs tracking-widest uppercase font-medium text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 px-3 py-1.5 transition-colors">
-                            Delete
-                        </button>`
+                        const fallbackSrc = FALLBACK_IMAGES[ev.id_event % FALLBACK_IMAGES.length];
+
+                        const ownerButtons = isOwner
+                            ? `<div class="flex gap-2 mt-3 pt-3 border-t border-navy/8">
+                                <button onclick="openEditEventModal(${ev.id_event})"
+                                    class="flex-1 text-xs tracking-widest uppercase font-medium text-navy border border-navy/20 hover:border-navy hover:bg-navy hover:text-white px-3 py-1.5 transition-colors">
+                                    Modify
+                                </button>
+                                <button onclick="deleteEvent(${ev.id_event}, this)"
+                                    class="flex-1 text-xs tracking-widest uppercase font-medium text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 hover:bg-red-50 px-3 py-1.5 transition-colors">
+                                    Delete
+                                </button>
+                               </div>`
                             : "";
 
                         const card = document.createElement("div");
                         card.id = `event-card-${ev.id_event}`;
-                        card.className =
-                            "border border-navy/8 bg-cream p-5 flex flex-col gap-3 relative";
+                        card.className = "border border-navy/8 bg-white overflow-hidden flex flex-col relative organizer-card";
                         card.innerHTML = `
-                        <div class="flex items-start justify-between gap-2">
-                            <h3 class="font-display text-lg font-semibold text-navy leading-tight">${ev.naziv}</h3>
-                            ${deleteBtn}
+                        <div class="relative overflow-hidden h-36">
+                            <img id="ev-img-${ev.id_event}" src="${fallbackSrc}" alt="${ev.naziv}"
+                                class="w-full h-full object-cover card-image transition-transform duration-500" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent"></div>
+                            <div class="absolute bottom-2 left-3 right-3">
+                                <h3 class="font-display text-base font-semibold text-white leading-tight">${ev.naziv}</h3>
+                            </div>
                         </div>
-                        ${ev.opis ? `<p class="text-navy/60 text-xs leading-relaxed line-clamp-2">${ev.opis}</p>` : ""}
-                        <div class="space-y-1 mt-auto">
-                            <p class="text-xs text-navy/70">
-                                <span class="text-gold mr-1">📅</span>${date}
-                            </p>
-                            <p class="text-xs text-navy/70">
-                                <span class="text-gold mr-1">📍</span>${venue}
-                            </p>
-                            ${guests ? `<p class="text-xs text-navy/70"><span class="text-gold mr-1">👥</span>${guests}</p>` : ""}
-                            ${rsvp ? `<p class="text-xs text-navy/50 mt-2">RSVP by ${rsvp}</p>` : ""}
+                        <div class="p-4 flex flex-col gap-2 flex-grow">
+                            ${ev.opis ? `<p class="text-navy/60 text-xs leading-relaxed line-clamp-2">${ev.opis}</p>` : ""}
+                            <div class="space-y-1 mt-auto">
+                                <p class="text-xs text-navy/70"><span class="text-gold mr-1">📅</span>${date}</p>
+                                <p class="text-xs text-navy/70"><span class="text-gold mr-1">📍</span>${venue}</p>
+                                ${guests ? `<p class="text-xs text-navy/70"><span class="text-gold mr-1">👥</span>${guests}</p>` : ""}
+                                ${rsvp ? `<p class="text-xs text-navy/50 mt-1">RSVP by ${rsvp}</p>` : ""}
+                            </div>
+                            ${ownerButtons}
                         </div>
                     `;
                         grid.appendChild(card);
+
+                        // Učitaj sliku iz baze asinhrono (ako postoji, zamijeni fallback)
+                        fetch(`/api/events/${ev.id_event}/image`)
+                            .then(r => r.ok ? r.json() : null)
+                            .then(data => {
+                                if (data && data.image_content) {
+                                    const imgEl = document.getElementById(`ev-img-${ev.id_event}`);
+                                    if (imgEl) imgEl.src = data.image_content;
+                                }
+                            })
+                            .catch(() => {}); // Tiho ignoriši ako nema slike
                     });
                 } catch (err) {
                     grid.innerHTML = "";
@@ -1174,5 +1418,6 @@
                 }
             }
         </script>
-    </body>
+    <script src="script.js"></script>
+</body>
 </html>

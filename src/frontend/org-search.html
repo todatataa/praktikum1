@@ -315,7 +315,7 @@
 
     // ── Render single card ──────────────────────────────────────
     function renderCard(org, index) {
-        const imgSrc = PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
+        const imgSrc = org.image_content || PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
         const fullName = `${org.ime} ${org.priimek}`;
         const eventEmoji = {
             'poroka': '💒', 'rojstni dan': '🎂', 'konferenca': '💼',
