@@ -404,7 +404,7 @@
             try {
                 const resp = await fetch(`/api/events?org_id=${new URLSearchParams(window.location.search).get("id")}`);
                 const events = await resp.json();
-                const ev = events.find(e => e.id_event === eventId);
+                const ev = events.find(e => String(e.id_event) === String(eventId));
                 if (!ev) { alert("Event not found."); return; }
                 _editEventCache = ev;
 
@@ -438,7 +438,7 @@
             errorEl.style.display = "none";
             successEl.style.display = "none";
 
-            const eventId = document.getElementById("edit-event-id").value;
+            const eventId = parseInt(document.getElementById("edit-event-id").value);
             const naziv = document.getElementById("ee-naziv").value.trim();
             const datum = document.getElementById("ee-datum_eventa").value;
 
