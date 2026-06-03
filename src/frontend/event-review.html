@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Leave Event Review</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: { DEFAULT: "#0D1B2A" },
+                            gold: { DEFAULT: "#C9A84C" },
+                            cream: { DEFAULT: "#FAFAF7" },
+                        },
+                        fontFamily: {
+                            display: ['"Playfair Display"', "Georgia", "serif"],
+                            sans: ["Jost", "system-ui", "sans-serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body class="bg-cream font-sans text-navy min-h-screen">
+        <section
+            class="min-h-screen flex items-center justify-center px-4 py-12"
+        >
+            <div
+                class="w-full max-w-2xl bg-white border border-black/5 shadow-xl rounded-xl p-6 md:p-10"
+            >
+                <div class="text-center mb-8">
+                    <p
+                        class="text-gold tracking-[0.3em] uppercase text-xs mb-3"
+                    >
+                        White Orchid Events
+                    </p>
+                    <h1 class="font-display text-4xl md:text-5xl mb-3">
+                        Leave a Review
+                    </h1>
+                    <p class="text-navy/65 text-sm md:text-base">
+                        Thank you for attending. Please share your experience.
+                    </p>
+                </div>
+
+                <div id="loading" class="text-center py-10 text-navy/60">
+                    Loading review form...
+                </div>
+
+                <div
+                    id="error-box"
+                    class="hidden mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3 text-sm"
+                ></div>
+
+                <div id="review-content" class="hidden">
+                    <div class="grid gap-4 md:grid-cols-2 mb-8">
+                        <div class="bg-cream rounded-lg p-4">
+                            <p
+                                class="text-xs uppercase tracking-[0.2em] text-navy/45 mb-1"
+                            >
+                                Guest
+                            </p>
+                            <p id="guest-name" class="font-medium">-</p>
+                            <p
+                                id="guest-email"
+                                class="text-sm text-navy/60 mt-1"
+                            >
+                                -
+                            </p>
+                        </div>
+                        <div class="bg-cream rounded-lg p-4">
+                            <p
+                                class="text-xs uppercase tracking-[0.2em] text-navy/45 mb-1"
+                            >
+                                Organizer
+                            </p>
+                            <p id="organizer-name" class="font-medium">-</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-cream rounded-lg p-5 mb-8">
+                        <p
+                            class="text-xs uppercase tracking-[0.2em] text-navy/45 mb-1"
+                        >
+                            Event
+                        </p>
+                        <h2 id="event-name" class="font-display text-2xl mb-2">
+                            -
+                        </h2>
+                        <p id="event-date" class="text-sm text-navy/65">-</p>
+                        <p
+                            id="event-location"
+                            class="text-sm text-navy/65 mt-1"
+                        >
+                            -
+                        </p>
+                    </div>
+
+                    <div
+                        id="already-submitted-box"
+                        class="hidden mb-6 rounded-lg border border-gold/30 bg-gold/10 text-navy px-4 py-3 text-sm"
+                    >
+                        This review link has already been used.
+                    </div>
+
+                    <form id="review-form" class="space-y-5">
+                        <div>
+                            <label
+                                for="rating"
+                                class="block text-sm font-medium mb-2"
+                                >Rating</label
+                            >
+                            <select
+                                id="rating"
+                                class="w-full border border-navy/15 bg-white rounded-lg px-4 py-3 focus:outline-none focus:border-gold"
+                            >
+                                <option value="">Select rating</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                for="comment"
+                                class="block text-sm font-medium mb-2"
+                                >Comment</label
+                            >
+                            <textarea
+                                id="comment"
+                                rows="5"
+                                placeholder="Tell us what you liked or what could be improved..."
+                                class="w-full border border-navy/15 bg-white rounded-lg px-4 py-3 focus:outline-none focus:border-gold resize-none"
+                            ></textarea>
+                        </div>
+
+                        <button
+                            type="submit"
+                            id="submit-btn"
+                            class="btn-gold w-full rounded-lg px-6 py-3 text-sm tracking-[0.2em] uppercase font-medium"
+                        >
+                            Submit Review
+                        </button>
+                    </form>
+
+                    <div
+                        id="success-box"
+                        class="hidden mt-6 rounded-lg border border-green-200 bg-green-50 text-green-700 px-4 py-4 text-sm"
+                    >
+                        Thank you. Your review was submitted successfully.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get("token");
+
+            const loadingEl = document.getElementById("loading");
+            const errorBox = document.getElementById("error-box");
+            const reviewContent = document.getElementById("review-content");
+            const alreadySubmittedBox = document.getElementById(
+                "already-submitted-box",
+            );
+            const form = document.getElementById("review-form");
+            const successBox = document.getElementById("success-box");
+            const submitBtn = document.getElementById("submit-btn");
+            const ratingEl = document.getElementById("rating");
+            const commentEl = document.getElementById("comment");
+
+            function showError(message) {
+                loadingEl.classList.add("hidden");
+                reviewContent.classList.add("hidden");
+                errorBox.textContent = message;
+                errorBox.classList.remove("hidden");
+            }
+
+            function setText(id, value) {
+                document.getElementById(id).textContent = value || "-";
+            }
+
+            async function loadReviewAccess() {
+                if (!token) {
+                    showError("Missing review token.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/api/event-review-access?token=${encodeURIComponent(token)}`,
+                    );
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error || "Unable to load review access.",
+                        );
+                    }
+
+                    setText("guest-name", data.guest_name || "Guest");
+                    setText("guest-email", data.guest_email || "No email");
+                    setText(
+                        "organizer-name",
+                        data.organizer && data.organizer.name
+                            ? data.organizer.name
+                            : "-",
+                    );
+                    setText(
+                        "event-name",
+                        data.event && data.event.naziv ? data.event.naziv : "-",
+                    );
+                    setText(
+                        "event-date",
+                        data.event && data.event.datum_eventa
+                            ? `Date: ${data.event.datum_eventa}`
+                            : "Date unavailable",
+                    );
+
+                    const location = [
+                        data.event && data.event.venue_name
+                            ? data.event.venue_name
+                            : null,
+                        data.event && data.event.venue_lokacija
+                            ? data.event.venue_lokacija
+                            : null,
+                    ]
+                        .filter(Boolean)
+                        .join(" — ");
+                    setText(
+                        "event-location",
+                        location || "Location unavailable",
+                    );
+
+                    loadingEl.classList.add("hidden");
+                    reviewContent.classList.remove("hidden");
+
+                    if (data.review_submitted) {
+                        alreadySubmittedBox.classList.remove("hidden");
+                        form.classList.add("hidden");
+                    }
+                } catch (err) {
+                    showError(err.message || "Something went wrong.");
+                }
+            }
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                errorBox.classList.add("hidden");
+
+                const rating = parseInt(ratingEl.value, 10);
+                const comment = commentEl.value.trim();
+
+                if (!Number.isInteger(rating)) {
+                    errorBox.textContent = "Please select a rating.";
+                    errorBox.classList.remove("hidden");
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Submitting...";
+
+                try {
+                    const response = await fetch("/api/event-reviews", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ token, rating, comment }),
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error || "Unable to submit review.",
+                        );
+                    }
+
+                    form.classList.add("hidden");
+                    alreadySubmittedBox.classList.add("hidden");
+                    successBox.classList.remove("hidden");
+                } catch (err) {
+                    errorBox.textContent =
+                        err.message || "Something went wrong.";
+                    errorBox.classList.remove("hidden");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit Review";
+                }
+            });
+
+            loadReviewAccess();
+        </script>
+    </body>
+</html>

@@ -29,7 +29,7 @@ function generateReviewToken() {
 }
 
 function buildGuestReviewLink(req, token) {
-  return `${req.protocol}://${req.get("host")}/api/event-review-access?token=${encodeURIComponent(token)}`;
+  return `${req.protocol}://${req.get("host")}/event-review.html?token=${encodeURIComponent(token)}`;
 }
 
 async function ensureReviewSchema() {
@@ -614,6 +614,106 @@ app.post("/api/events/:id/review-links/generate", async (req, res) => {
   } catch (err) {
     await db.query("ROLLBACK");
     console.error("SQL greška (POST generate review links):", err.message);
+    res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
+  }
+});
+
+app.get("/api/events/:id/review-links/generate", async (req, res) => {
+  const eventId = parseInt(req.params.id);
+  const clientId = parseInt(req.query.client_id);
+
+  if (!Number.isInteger(eventId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid event id and client_id are required" });
+  }
+
+  const db = await pool.connect();
+
+  try {
+    await db.query("BEGIN");
+
+    const eventCheck = await db.query(
+      `SELECT e.id_event, e.naziv
+       FROM event e
+       INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
+       WHERE e.id_event = $1
+         AND z.TK_clientid_client = $2
+       LIMIT 1`,
+      [eventId, clientId],
+    );
+
+    if (eventCheck.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({
+        error: "Event not found for this client",
+      });
+    }
+
+    const invitationsResult = await db.query(
+      `SELECT id_invitation, guest_name, e_mail, review_token, review_submitted
+       FROM invitation
+       WHERE TK_eventid_event = $1
+         AND TK_clientid_client = $2
+         AND e_mail IS NOT NULL
+       ORDER BY id_invitation ASC`,
+      [eventId, clientId],
+    );
+
+    if (invitationsResult.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({
+        error: "No guest invitations found for this event",
+      });
+    }
+
+    const generatedLinks = [];
+
+    for (const invitation of invitationsResult.rows) {
+      let token = invitation.review_token;
+
+      if (!token) {
+        token = generateReviewToken();
+        await db.query(
+          `UPDATE invitation
+           SET review_token = $1,
+               review_sent = TRUE,
+               review_sent_at = CURRENT_TIMESTAMP
+           WHERE id_invitation = $2`,
+          [token, invitation.id_invitation],
+        );
+      } else {
+        await db.query(
+          `UPDATE invitation
+           SET review_sent = TRUE,
+               review_sent_at = CURRENT_TIMESTAMP
+           WHERE id_invitation = $1`,
+          [invitation.id_invitation],
+        );
+      }
+
+      generatedLinks.push({
+        invitation_id: invitation.id_invitation,
+        guest_name: invitation.guest_name,
+        guest_email: invitation.e_mail,
+        review_submitted: Boolean(invitation.review_submitted),
+        review_link: buildGuestReviewLink(req, token),
+      });
+    }
+
+    await db.query("COMMIT");
+
+    res.json({
+      success: true,
+      event_id: eventId,
+      event_name: eventCheck.rows[0].naziv,
+      simulated_emails: generatedLinks,
+    });
+  } catch (err) {
+    await db.query("ROLLBACK");
+    console.error("SQL greška (GET generate review links):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
