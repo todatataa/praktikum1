@@ -41,6 +41,12 @@ async function ensureReviewSchema() {
       ADD COLUMN IF NOT EXISTS organizer_price INTEGER,
       ADD COLUMN IF NOT EXISTS price_offer_status VARCHAR(255) DEFAULT 'none'
     `);
+
+    // Fix: image_content mora biti TEXT, ne VARCHAR(755)
+    await pool.query(`
+      ALTER TABLE image
+      ALTER COLUMN image_content TYPE TEXT
+    `);
   } catch (err) {
     console.error("❌  Greška pri migraciji review sheme:", err.message);
   }
@@ -549,6 +555,64 @@ app.get("/api/events/:id/image", async (req, res) => {
     }
     res.json({ image_content: result.rows[0].image_content });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── API: PATCH /api/events/:id ────────────────────────────────
+// Ažuriranje postojećeg eventa — kliče Modify modal u profile-detail.html
+app.patch("/api/events/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    naziv,
+    datum_eventa,
+    opis,
+    stevilo_gostov,
+    venue_name,
+    venue_lokacija,
+    rsvp_due_date,
+    e_mail_notification,
+    TK_organizatorid_organizator,
+  } = req.body;
+
+  if (!naziv || !datum_eventa) {
+    return res.status(400).json({ error: "naziv and datum_eventa are required" });
+  }
+
+  const sql = `
+    UPDATE event
+    SET naziv                        = $1,
+        datum_eventa                 = $2,
+        opis                         = $3,
+        stevilo_gostov               = $4,
+        venue_name                   = $5,
+        venue_lokacija               = $6,
+        rsvp_due_date                = $7,
+        e_mail_notification          = $8
+    WHERE id_event = $9
+    RETURNING id_event
+  `;
+
+  try {
+    const result = await pool.query(sql, [
+      naziv,
+      datum_eventa,
+      opis || null,
+      stevilo_gostov ? parseInt(stevilo_gostov) : null,
+      venue_name || null,
+      venue_lokacija || null,
+      rsvp_due_date || null,
+      e_mail_notification || null,
+      parseInt(id),
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Event nije pronađen" });
+    }
+
+    res.json({ success: true, id_event: result.rows[0].id_event });
+  } catch (err) {
+    console.error("SQL greška (PATCH event):", err.message);
     res.status(500).json({ error: err.message });
   }
 });

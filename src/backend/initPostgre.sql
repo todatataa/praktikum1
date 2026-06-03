@@ -92,7 +92,7 @@ CREATE TABLE invitation (
 CREATE TABLE image (
     id_image        SERIAL PRIMARY KEY,
     cover_image     BOOLEAN,
-    image_content   VARCHAR(755),
+    image_content   TEXT,
     eventid_event   INTEGER REFERENCES event(id_event)
 );
 
