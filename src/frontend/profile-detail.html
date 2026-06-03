@@ -113,7 +113,6 @@
                             >Get in Touch</a
                         >
 
-                        <!-- Owner-only actions — shown by JS if session matches -->
                         <div
                             id="owner-actions"
                             style="display: none"
@@ -199,7 +198,6 @@
                     </div>
                 </div>
 
-                <!-- ── MY EVENTS SECTION ── -->
                 <div
                     class="md:col-span-3 bg-white p-8 shadow-lg rounded-lg border border-gold/10 text-left mt-12"
                 >
@@ -229,7 +227,6 @@
                         id="events-grid"
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
-                        <!-- JS rendered -->
                         <div class="skeleton h-40 rounded"></div>
                         <div class="skeleton h-40 rounded"></div>
                         <div
@@ -311,7 +308,6 @@
             </div>
         </section>
 
-        <!-- ── Edit Event Modal ────────────────────────────────── -->
         <div id="edit-event-modal" style="display:none"
             class="fixed inset-0 z-[220] flex items-center justify-center px-4">
             <div class="absolute inset-0 bg-navy/60 backdrop-blur-sm" onclick="closeEditEventModal()"></div>
@@ -396,11 +392,9 @@
         </div>
 
         <script>
-        // ── Edit Event Modal ──────────────────────────────────────
         let _editEventCache = {};
 
         async function openEditEventModal(eventId) {
-            // Fetch current event data
             try {
                 const resp = await fetch(`/api/events?org_id=${new URLSearchParams(window.location.search).get("id")}`);
                 const events = await resp.json();
@@ -470,7 +464,6 @@
                     return;
                 }
 
-                // Upload event slike ako je odabrana
                 const imgInput = document.getElementById("ee-image");
                 if (imgInput && imgInput.files && imgInput.files[0]) {
                     const file = imgInput.files[0];
@@ -601,19 +594,16 @@
             </div>
         </div>
 
-        <!-- ── Edit Profile Modal ─────────────────────────────── -->
         <div
             id="edit-profile-modal"
             style="display: none"
             class="fixed inset-0 z-[200] flex items-center justify-center px-4"
         >
-            <!-- Backdrop -->
             <div
                 class="absolute inset-0 bg-navy/60 backdrop-blur-sm"
                 onclick="closeEditProfileModal()"
             ></div>
 
-            <!-- Dialog -->
             <div
                 class="relative z-10 bg-white w-full max-w-2xl p-6 md:p-8 shadow-2xl rounded-lg border border-gold/15 animate-[fadeInUp_0.3s_ease_forwards] max-h-[90vh] overflow-y-auto"
             >
@@ -682,7 +672,7 @@
                             >Specialty / Event Types</label
                         >
                         <div
-                            id="edit-tip-eventa-options"
+                            id="edit-tip_eventa-options"
                             class="flex flex-wrap gap-2"
                         >
                             <button
@@ -946,7 +936,6 @@
         </div>
 
         <script>
-            // ── Owner check — prikaži akcije samo vlasniku profila ────
             (function checkOwner() {
                 const session = JSON.parse(
                     localStorage.getItem("wo_session") || "null",
@@ -971,7 +960,6 @@
                 }
             })();
 
-            // ── Edit Profile Modal ────────────────────────────────────
             function focusPortfolioEditor() {
                 const editor = document.getElementById(
                     "edit-portfolio-description",
@@ -1113,7 +1101,6 @@
                 }
 
                 try {
-                    // 1. Spremi podatke profila
                     const resp = await fetch(`/api/organizers/${profileId}`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
@@ -1127,7 +1114,6 @@
                         return;
                     }
 
-                    // 2. Ako je odabrana slika — uploadaj je
                     const fileInput = document.getElementById("edit-profile-image");
                     if (fileInput.files && fileInput.files[0]) {
                         const file = fileInput.files[0];
@@ -1157,7 +1143,6 @@
                     successEl.textContent = "Profile updated successfully!";
                     successEl.style.display = "block";
 
-                    // Osvježi DOM
                     document.getElementById("profile-name").textContent = `${payload.ime} ${payload.priimek}`;
                     document.getElementById("profile-location").textContent = payload.city || "—";
                     document.getElementById("profile-specialty").textContent = payload.tip_eventa ? payload.tip_eventa.toUpperCase() : "GENERAL";
@@ -1179,7 +1164,6 @@
                 }
             }
 
-            // Helper: File → base64 data URL
             function fileToBase64(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -1266,7 +1250,6 @@
                 }
             }
 
-            // ── Load Events ───────────────────────────────────────────
             (async function loadEvents() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const profileId = urlParams.get("id");
@@ -1370,7 +1353,6 @@
                     `;
                         grid.appendChild(card);
 
-                        // Učitaj sliku iz baze asinhrono (ako postoji, zamijeni fallback)
                         fetch(`/api/events/${ev.id_event}/image`)
                             .then(r => r.ok ? r.json() : null)
                             .then(data => {
@@ -1379,7 +1361,7 @@
                                     if (imgEl) imgEl.src = data.image_content;
                                 }
                             })
-                            .catch(() => {}); // Tiho ignoriši ako nema slike
+                            .catch(() => {});
                     });
                 } catch (err) {
                     grid.innerHTML = "";
@@ -1410,7 +1392,6 @@
                     card.style.opacity = "0";
                     setTimeout(() => {
                         card.remove();
-                        // Ažuriraj badge
                         const remaining = document.querySelectorAll(
                             "[id^='event-card-']",
                         ).length;
@@ -1430,6 +1411,92 @@
                 }
             }
         </script>
-    <script src="script.js"></script>
-</body>
+        <footer class="bg-navy-dark py-16 px-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
+                    <div class="md:col-span-2">
+                        <div class="font-display text-2xl text-white mb-1">
+                            White Orchid
+                        </div>
+                        <p
+                            class="text-gold tracking-widest uppercase text-xs font-light mb-5"
+                        >
+                            Event Organizers
+                        </p>
+                        <p
+                            class="text-white/40 text-sm font-light leading-relaxed max-w-xs"
+                        >
+                            The premier platform for discovering and connecting
+                            with elite event organizers across Slovenia and
+                            beyond.
+                        </p>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Platform
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="org-search.html" class="footer-link"
+                                    >Browse Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="index.html#featured" class="footer-link"
+                                    >Top Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="index.html#how-it-works" class="footer-link"
+                                    >How It Works</a
+                                >
+                            </li>
+                            <li>
+                                <a href="pricing.html" class="footer-link"
+                                    >Pricing</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-white text-xs tracking-widest uppercase mb-6 font-medium"
+                        >
+                            Company
+                        </h4>
+                        <ul class="space-y-4">
+                            <li>
+                                <a href="index.html#how-it-works" class="footer-link">About Us</a>
+                            </li>
+                            <li>
+                                <a href="pricing.html" class="footer-link">For Organizers</a>
+                            </li>
+                            <li>
+                                <a href="#" class="footer-link"
+                                    >Privacy Policy</a
+                                >
+                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="h-px bg-white/[0.07] mb-8"></div>
+                <div
+                    class="flex flex-col md:flex-row justify-between items-center gap-4"
+                >
+                    <p class="text-white/25 text-xs font-light">
+                        © 2026 White Orchid Events. Built for Praktikum 1, FERI
+                        IPT 1st Year.
+                    </p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="footer-link text-xs">Terms</a>
+                        <a href="#" class="footer-link text-xs">Privacy</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <script src="script.js"></script>
+    </body>
 </html>

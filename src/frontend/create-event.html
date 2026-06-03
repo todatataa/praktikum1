@@ -112,7 +112,6 @@
                 height: 1px;
                 background: rgba(13, 27, 42, 0.1);
             }
-            /* Step indicator */
             .step-dot {
                 width: 8px;
                 height: 8px;
@@ -123,14 +122,12 @@
             .step-dot.active {
                 background: #c9a84c;
             }
-            /* Character counter */
             .char-counter {
                 font-size: 0.68rem;
                 color: rgba(13, 27, 42, 0.35);
                 text-align: right;
                 margin-top: 0.25rem;
             }
-            /* Success overlay */
             #success-overlay {
                 display: none;
                 position: fixed;
@@ -147,7 +144,6 @@
     </head>
 
     <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
-        <!-- NAV -->
         <nav
             class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5"
         >
@@ -183,7 +179,6 @@
             </div>
         </nav>
 
-        <!-- PAGE HEADER -->
         <div class="bg-navy py-14 px-10 text-center relative overflow-hidden">
             <div
                 class="absolute inset-0 opacity-[0.04]"
@@ -219,7 +214,6 @@
             </div>
         </div>
 
-        <!-- GUARD: shown if not owner -->
         <div
             id="access-denied"
             style="display: none"
@@ -241,14 +235,12 @@
             </div>
         </div>
 
-        <!-- FORM WRAPPER -->
         <section
             id="form-section"
             style="display: none"
             class="flex-grow py-14 px-4 sm:px-6 lg:px-8"
         >
             <div class="max-w-2xl mx-auto">
-                <!-- Progress dots -->
                 <div class="flex justify-center gap-2 mb-10">
                     <div class="step-dot active" id="dot-1"></div>
                     <div class="step-dot" id="dot-2"></div>
@@ -258,7 +250,6 @@
                 <div
                     class="bg-white shadow-lg rounded-lg border border-gold/10 p-8 md:p-10"
                 >
-                    <!-- ── SECTION 1: Basic Info ── -->
                     <div id="step-1">
                         <h2 class="font-display text-2xl text-navy mb-1">
                             Event Details
@@ -349,7 +340,6 @@
                         </div>
                     </div>
 
-                    <!-- ── SECTION 2: Venue ── -->
                     <div id="step-2" style="display: none">
                         <h2 class="font-display text-2xl text-navy mb-1">
                             Venue Information
@@ -399,7 +389,6 @@
                         </div>
                     </div>
 
-                    <!-- ── SECTION 3: Notifications & Submit ── -->
                     <div id="step-3" style="display: none">
                         <h2 class="font-display text-2xl text-navy mb-1">
                             Notifications
@@ -455,7 +444,6 @@
                             </div>
                         </div>
 
-                        <!-- Summary card -->
                         <div
                             id="event-summary"
                             class="mt-8 p-5 bg-cream border border-gold/15 rounded space-y-2 text-sm"
@@ -528,11 +516,9 @@
                         </div>
                     </div>
                 </div>
-                <!-- /card -->
             </div>
         </section>
 
-        <!-- SUCCESS OVERLAY -->
         <div id="success-overlay">
             <div class="text-center px-6 animate-fadeInUp">
                 <div class="text-6xl mb-6">🌸</div>
@@ -552,7 +538,6 @@
             </div>
         </div>
 
-        <!-- FOOTER -->
         <footer class="bg-navy-dark py-16 px-10">
             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
@@ -581,14 +566,17 @@
                         </h4>
                         <ul class="space-y-4">
                             <li>
-                                <a href="#" class="footer-link"
+                                <a href="org-search.html" class="footer-link"
                                     >Browse Organizers</a
                                 >
                             </li>
                             <li>
-                                <a
-                                    href="index.html#how-it-works"
-                                    class="footer-link"
+                                <a href="index.html#featured" class="footer-link"
+                                    >Top Organizers</a
+                                >
+                            </li>
+                            <li>
+                                <a href="index.html#how-it-works" class="footer-link"
                                     >How It Works</a
                                 >
                             </li>
@@ -607,14 +595,17 @@
                         </h4>
                         <ul class="space-y-4">
                             <li>
-                                <a href="#" class="footer-link">About Us</a>
+                                <a href="index.html#how-it-works" class="footer-link">About Us</a>
                             </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
+                            <li>
+                                <a href="pricing.html" class="footer-link">For Organizers</a>
+                            </li>
                             <li>
                                 <a href="#" class="footer-link"
                                     >Privacy Policy</a
                                 >
                             </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
                         </ul>
                     </div>
                 </div>
@@ -636,7 +627,6 @@
 
         <script src="script.js"></script>
         <script>
-            // ── Auth guard ───────────────────────────────────────────
             (function authGuard() {
                 const session = JSON.parse(
                     localStorage.getItem("wo_session") || "null",
@@ -681,9 +671,7 @@
                 }
             })();
 
-            // ── Step navigation ──────────────────────────────────────
             function goStep(n) {
-                // Validate step 1 before advancing
                 if (n > 1) {
                     const naziv = document
                         .getElementById("f-naziv")
@@ -699,7 +687,6 @@
                         return;
                     }
 
-                    // RSVP must be before event date
                     const rsvp =
                         document.getElementById("f-rsvp_due_date").value;
                     if (rsvp && rsvp >= datum) {
@@ -708,7 +695,6 @@
                     }
                 }
 
-                // Populate summary on step 3
                 if (n === 3) {
                     document.getElementById("s-naziv").textContent =
                         document.getElementById("f-naziv").value.trim() || "—";
@@ -738,7 +724,6 @@
                 });
             }
 
-            // ── Character counters ───────────────────────────────────
             document
                 .getElementById("f-naziv")
                 .addEventListener("input", function () {
@@ -752,7 +737,6 @@
                         this.value.length;
                 });
 
-            // Helper: File → base64
             function fileToBase64(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -773,14 +757,12 @@
                 reader.readAsDataURL(input.files[0]);
             }
 
-            // ── Submit ───────────────────────────────────────────────
             async function handleCreateEvent() {
                 const errorEl = document.getElementById("form-error");
                 errorEl.style.display = "none";
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const orgId = urlParams.get("org_id");
-
                 const requestId = urlParams.get("request_id");
 
                 const payload = {
@@ -835,7 +817,6 @@
                     const created = await resp.json();
                     const newEventId = created.id_event;
 
-                    // Upload cover slike ako je odabrana
                     const imgInput = document.getElementById("f-cover-image");
                     if (imgInput && imgInput.files && imgInput.files[0]) {
                         const file = imgInput.files[0];
@@ -853,7 +834,6 @@
                         }
                     }
 
-                    // Show success overlay
                     document
                         .getElementById("success-overlay")
                         .classList.add("show");

@@ -34,7 +34,6 @@
 
 <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
 
-    <!-- ── NAVIGATION ──────────────────────────────────────── -->
     <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/95 border-b border-navy/[0.08] flex items-center justify-between px-10 py-5">
         <a href="index.html" class="no-underline">
             <div class="font-display text-2xl font-semibold text-navy tracking-wide">White Orchid</div>
@@ -50,28 +49,23 @@
         </div>
     </nav>
 
-    <!-- ── PAGE HEADER ─────────────────────────────────────── -->
     <section class="py-16 px-10 text-center border-b border-navy/[0.06]">
         <p class="text-gold tracking-widest uppercase text-xs font-light mb-3">Find Your Perfect Match</p>
         <h1 class="font-display text-5xl font-semibold leading-tight text-navy mb-4">Browse Our Elite Organizers</h1>
         <p class="text-navy/60 text-base font-light max-w-xl mx-auto">Filter by location, event type, price range and rating to find the organizer that fits your vision perfectly.</p>
     </section>
 
-    <!-- ── MAIN CONTENT ────────────────────────────────────── -->
     <main class="flex-grow py-12 px-10">
         <div class="max-w-7xl mx-auto">
 
-            <!-- ── FILTER PANEL ── -->
             <div class="filter-panel p-6 mb-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-5">
 
-                    <!-- Search -->
                     <div class="lg:col-span-2">
                         <label class="filter-label">Search Organizer</label>
                         <input id="f-search" type="text" class="filter-input" placeholder="Name, surname or event type…" />
                     </div>
 
-                    <!-- City -->
                     <div>
                         <label class="filter-label">City</label>
                         <div class="filter-select-wrap">
@@ -88,7 +82,6 @@
                         </div>
                     </div>
 
-                    <!-- Event type -->
                     <div>
                         <label class="filter-label">Event Type</label>
                         <div class="filter-select-wrap">
@@ -105,7 +98,6 @@
                         </div>
                     </div>
 
-                    <!-- Min rating -->
                     <div>
                         <label class="filter-label">Min. Rating</label>
                         <div class="star-select" id="f-ocena" data-value="0">
@@ -118,9 +110,7 @@
                     </div>
                 </div>
 
-                <!-- Second row: price + buttons -->
                 <div class="flex flex-col md:flex-row md:items-end gap-5">
-                    <!-- Price range -->
                     <div>
                         <label class="filter-label">Price Range (EUR)</label>
                         <div class="price-range-wrap">
@@ -130,7 +120,6 @@
                         </div>
                     </div>
 
-                    <!-- Action buttons -->
                     <div class="flex gap-3 md:ml-auto">
                         <button id="btn-reset" class="px-6 py-2.5 text-xs tracking-widest uppercase font-medium border border-navy/15 text-navy/60 hover:border-navy/40 hover:text-navy transition-colors duration-200">
                             Reset
@@ -142,7 +131,6 @@
                 </div>
             </div>
 
-            <!-- ── ACTIVE FILTERS + RESULTS META ── -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                 <div id="active-filters" class="flex flex-wrap gap-2"></div>
                 <p class="results-meta whitespace-nowrap">
@@ -150,15 +138,12 @@
                 </p>
             </div>
 
-            <!-- ── ORGANIZER GRID ── -->
             <div id="organizer-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                <!-- Populated by JS -->
             </div>
 
         </div>
     </main>
 
-    <!-- ── FOOTER ──────────────────────────────────────────── -->
     <footer class="bg-navy-dark py-16 px-10">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
@@ -171,7 +156,7 @@
                     <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
                     <ul class="space-y-4">
                         <li><a href="org-search.html" class="footer-link">Browse Organizers</a></li>
-                        <li><a href="#" class="footer-link">Top Organizers</a></li>
+                        <li><a href="index.html#featured" class="footer-link">Top Organizers</a></li>
                         <li><a href="index.html#how-it-works" class="footer-link">How It Works</a></li>
                         <li><a href="pricing.html" class="footer-link">Pricing</a></li>
                     </ul>
@@ -179,8 +164,8 @@
                 <div>
                     <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
                     <ul class="space-y-4">
-                        <li><a href="#" class="footer-link">About Us</a></li>
-                        <li><a href="#" class="footer-link">For Organizers</a></li>
+                        <li><a href="index.html#how-it-works" class="footer-link">About Us</a></li>
+                        <li><a href="pricing.html" class="footer-link">For Organizers</a></li>
                         <li><a href="#" class="footer-link">Privacy Policy</a></li>
                         <li><a href="#" class="footer-link">Contact</a></li>
                     </ul>
@@ -198,11 +183,8 @@
         </div>
     </footer>
 
-   
     <script>
-    
-    const API_URL = 'http://localhost:3000/api/organizers';
-
+    const API_URL = '/api/organizers';
 
     const PLACEHOLDER_IMAGES = [
         'https://images.unsplash.com/photo-1519671282429-b44b31bfd2df?w=400&h=300&fit=crop',
@@ -213,10 +195,8 @@
         'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=400&h=300&fit=crop',
     ];
 
-   
     let currentRating = 0;
 
-    
     const grid         = document.getElementById('organizer-grid');
     const resultCount  = document.getElementById('result-count');
     const activeFilters = document.getElementById('active-filters');
@@ -229,14 +209,12 @@
     const btnSearch    = document.getElementById('btn-search');
     const btnReset     = document.getElementById('btn-reset');
 
-    
     const starBtns = fOcena.querySelectorAll('.star-btn');
 
     starBtns.forEach(btn => {
         btn.addEventListener('mouseenter', () => highlightStars(+btn.dataset.val));
         btn.addEventListener('mouseleave', () => highlightStars(currentRating));
         btn.addEventListener('click', () => {
-            // Click on same rating deselects
             currentRating = currentRating === +btn.dataset.val ? 0 : +btn.dataset.val;
             fOcena.dataset.value = currentRating;
             highlightStars(currentRating);
@@ -247,7 +225,6 @@
         starBtns.forEach(b => b.classList.toggle('active', +b.dataset.val <= val));
     }
 
-    // ── Build filter params ─────────────────────────────────────
     function buildParams() {
         const p = new URLSearchParams();
         if (fSearch.value.trim())   p.set('search',     fSearch.value.trim());
@@ -259,7 +236,6 @@
         return p;
     }
 
-    // ── Active filter tags ──────────────────────────────────────
     function renderActiveFilters(params) {
         activeFilters.innerHTML = '';
         const labels = {
@@ -290,7 +266,6 @@
         fetchOrganizers();
     }
 
-    // ── Skeleton loaders ────────────────────────────────────────
     function showSkeletons(n = 8) {
         grid.innerHTML = Array.from({ length: n }, (_, i) => `
             <div class="organizer-card">
@@ -305,7 +280,6 @@
         `).join('');
     }
 
-    // ── Render stars ────────────────────────────────────────────
     function renderStars(rating) {
         const full  = Math.floor(rating);
         const half  = rating - full >= 0.5 ? 1 : 0;
@@ -313,7 +287,6 @@
         return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
     }
 
-    // ── Render single card ──────────────────────────────────────
     function renderCard(org, index) {
         const imgSrc = org.image_content || PLACEHOLDER_IMAGES[index % PLACEHOLDER_IMAGES.length];
         const fullName = `${org.ime} ${org.priimek}`;
@@ -347,7 +320,6 @@
         </article>`;
     }
 
-    
     async function fetchOrganizers() {
         const params = buildParams();
         renderActiveFilters(params);
@@ -356,11 +328,8 @@
 
         try {
             const res  = await fetch(`${API_URL}?${params.toString()}`);
-
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
             const data = await res.json();
-
             if (data.error) throw new Error(data.error);
 
             resultCount.textContent = data.length;
@@ -381,31 +350,26 @@
             resultCount.textContent = '0';
             grid.innerHTML = `
             <div class="error-state col-span-full xl:col-span-4">
-                <strong>Napaka pri nalaganju podatkov.</strong><br>
-                Preveri, da PHP strežnik teče in da je baza dostopna.<br>
+                <strong>Error loading data.</strong><br>
+                Please check your server connection.<br>
                 <code style="font-size:0.75rem;opacity:0.7">${err.message}</code>
             </div>`;
         }
     }
 
-
     function capitalise(s) {
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
-
     btnSearch.addEventListener('click', fetchOrganizers);
-
 
     [fSearch, fMinPrice, fMaxPrice].forEach(el => {
         el.addEventListener('keydown', e => { if (e.key === 'Enter') fetchOrganizers(); });
     });
 
-
     [fCity, fTip].forEach(el => {
         el.addEventListener('change', fetchOrganizers);
     });
-
 
     btnReset.addEventListener('click', () => {
         fSearch.value = '';
@@ -419,8 +383,6 @@
         fetchOrganizers();
     });
 
-    
-    
     fetchOrganizers();
     </script>
 
