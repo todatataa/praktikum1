@@ -63,7 +63,9 @@
             </a>
 
             <div class="hidden md:flex space-x-8 text-sm">
-                <a href="index.html#how-it-works" class="nav-link-luxury">How It Works</a>
+                <a href="index.html#how-it-works" class="nav-link-luxury"
+                    >How It Works</a
+                >
                 <a href="pricing.html" class="nav-link-luxury">Pricing</a>
             </div>
 
@@ -157,15 +159,37 @@
                 <h2 class="font-display text-3xl text-center text-navy mb-10">
                     Event Categories
                 </h2>
-                <div id="category-pills" class="flex flex-wrap justify-center gap-3">
-                    <a href="#" class="category-pill category-pill--active" data-category="all">All</a>
-                    <a href="#" class="category-pill" data-category="music">🎵 Music</a>
-                    <a href="#" class="category-pill" data-category="technology">💻 Technology</a>
-                    <a href="#" class="category-pill" data-category="arts">🎨 Arts & Culture</a>
-                    <a href="#" class="category-pill" data-category="food">🍽️ Food & Wine</a>
-                    <a href="#" class="category-pill" data-category="business">💼 Business</a>
-                    <a href="#" class="category-pill" data-category="weddings">💒 Weddings</a>
-                    <a href="#" class="category-pill" data-category="sports">🏃 Sports</a>
+                <div
+                    id="category-pills"
+                    class="flex flex-wrap justify-center gap-3"
+                >
+                    <a
+                        href="#"
+                        class="category-pill category-pill--active"
+                        data-category="all"
+                        >All</a
+                    >
+                    <a href="#" class="category-pill" data-category="music"
+                        >🎵 Music</a
+                    >
+                    <a href="#" class="category-pill" data-category="technology"
+                        >💻 Technology</a
+                    >
+                    <a href="#" class="category-pill" data-category="arts"
+                        >🎨 Arts & Culture</a
+                    >
+                    <a href="#" class="category-pill" data-category="food"
+                        >🍽️ Food & Wine</a
+                    >
+                    <a href="#" class="category-pill" data-category="business"
+                        >💼 Business</a
+                    >
+                    <a href="#" class="category-pill" data-category="weddings"
+                        >💒 Weddings</a
+                    >
+                    <a href="#" class="category-pill" data-category="sports"
+                        >🏃 Sports</a
+                    >
                 </div>
             </div>
         </section>
@@ -316,12 +340,18 @@
                                 >
                             </li>
                             <li>
-                                <a href="index.html#featured" class="footer-link"
+                                <a
+                                    href="index.html#featured"
+                                    class="footer-link"
                                     >Top Organizers</a
                                 >
                             </li>
                             <li>
-                                <a href="index.html#how-it-works" class="footer-link">How It Works</a>
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
+                                    >How It Works</a
+                                >
                             </li>
                             <li>
                                 <a href="pricing.html" class="footer-link"
@@ -338,17 +368,27 @@
                         </h4>
                         <ul class="space-y-4">
                             <li>
-                                <a href="index.html#how-it-works" class="footer-link">About Us</a>
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
+                                    >About Us</a
+                                >
                             </li>
                             <li>
-                                <a href="pricing.html" class="footer-link">For Organizers</a>
+                                <a href="pricing.html" class="footer-link"
+                                    >For Organizers</a
+                                >
                             </li>
                             <li>
-                                <a href="#" class="footer-link"
+                                <a href="privacy.html" class="footer-link"
                                     >Privacy Policy</a
                                 >
                             </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
+                            <li>
+                                <a href="contact.html" class="footer-link"
+                                    >Contact</a
+                                >
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -364,7 +404,9 @@
                     </p>
                     <div class="flex space-x-6">
                         <a href="#" class="footer-link text-xs">Terms</a>
-                        <a href="#" class="footer-link text-xs">Privacy</a>
+                        <a href="privacy.html" class="footer-link text-xs"
+                            >Privacy</a
+                        >
                         <a href="#" class="footer-link text-xs">Cookies</a>
                     </div>
                 </div>
@@ -377,37 +419,49 @@
             let allOrganizers = [];
 
             async function loadFeaturedOrganizers() {
-                const grid = document.getElementById("featured-organizers-grid");
+                const grid = document.getElementById(
+                    "featured-organizers-grid",
+                );
                 if (!grid) return;
                 try {
                     const response = await fetch("/api/organizers");
                     if (!response.ok) throw new Error("Failed to fetch");
                     allOrganizers = await response.json();
                     const topFourByRating = [...allOrganizers]
-                        .sort((a, b) => parseFloat(b.ocena) - parseFloat(a.ocena))
+                        .sort(
+                            (a, b) => parseFloat(b.ocena) - parseFloat(a.ocena),
+                        )
                         .slice(0, 4);
                     renderFeatured(topFourByRating);
                 } catch (err) {
                     console.error(err);
-                    grid.innerHTML = '<p class="text-center text-navy/40 col-span-4">Error loading data.</p>';
+                    grid.innerHTML =
+                        '<p class="text-center text-navy/40 col-span-4">Error loading data.</p>';
                 }
             }
 
             function renderFeatured(organizers) {
-                const grid = document.getElementById("featured-organizers-grid");
+                const grid = document.getElementById(
+                    "featured-organizers-grid",
+                );
                 if (!grid) return;
 
                 if (organizers.length === 0) {
-                    grid.innerHTML = '<p class="text-center text-navy/40 col-span-4 py-8">No organizers found in this category.</p>';
+                    grid.innerHTML =
+                        '<p class="text-center text-navy/40 col-span-4 py-8">No organizers found in this category.</p>';
                     return;
                 }
 
                 grid.innerHTML = "";
                 organizers.forEach((org) => {
-                    const img = org.image_content ||
+                    const img =
+                        org.image_content ||
                         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png";
-                    const category = org.tip_eventa ? org.tip_eventa.toUpperCase() : "EVENT";
-                    const stars = "★".repeat(Math.round(parseFloat(org.ocena) || 5)) +
+                    const category = org.tip_eventa
+                        ? org.tip_eventa.toUpperCase()
+                        : "EVENT";
+                    const stars =
+                        "★".repeat(Math.round(parseFloat(org.ocena) || 5)) +
                         "☆".repeat(5 - Math.round(parseFloat(org.ocena) || 5));
 
                     grid.innerHTML += `
@@ -433,21 +487,25 @@
                 if (!allOrganizers.length) return;
 
                 let filtered;
-                if (category === 'all') {
+                if (category === "all") {
                     filtered = allOrganizers;
                 } else {
                     const categoryMap = {
-                        'music': 'koncert',
-                        'technology': 'konferenca',
-                        'arts': 'gala večer',
-                        'food': 'rojstni dan',
-                        'business': 'konferenca',
-                        'weddings': 'poroka',
-                        'sports': 'teambuilding'
+                        music: "koncert",
+                        technology: "konferenca",
+                        arts: "gala večer",
+                        food: "rojstni dan",
+                        business: "konferenca",
+                        weddings: "poroka",
+                        sports: "teambuilding",
                     };
                     const tipValue = categoryMap[category];
                     if (tipValue) {
-                        filtered = allOrganizers.filter(o => o.tip_eventa && o.tip_eventa.toLowerCase() === tipValue);
+                        filtered = allOrganizers.filter(
+                            (o) =>
+                                o.tip_eventa &&
+                                o.tip_eventa.toLowerCase() === tipValue,
+                        );
                     } else {
                         filtered = allOrganizers;
                     }
@@ -460,19 +518,23 @@
                 renderFeatured(topFour);
             }
 
-            document.querySelectorAll('#category-pills .category-pill').forEach(pill => {
-                pill.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const category = pill.dataset.category;
+            document
+                .querySelectorAll("#category-pills .category-pill")
+                .forEach((pill) => {
+                    pill.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        const category = pill.dataset.category;
 
-                    document.querySelectorAll('#category-pills .category-pill').forEach(p => {
-                        p.classList.remove('category-pill--active');
+                        document
+                            .querySelectorAll("#category-pills .category-pill")
+                            .forEach((p) => {
+                                p.classList.remove("category-pill--active");
+                            });
+                        pill.classList.add("category-pill--active");
+
+                        filterByCategory(category);
                     });
-                    pill.classList.add('category-pill--active');
-
-                    filterByCategory(category);
                 });
-            });
 
             loadFeaturedOrganizers();
         </script>
