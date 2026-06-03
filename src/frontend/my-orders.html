@@ -173,12 +173,9 @@
                                 >
                             </li>
                             <li>
-                                <a href="index.html#featured" class="footer-link"
-                                    >Top Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="index.html#how-it-works" class="footer-link"
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
                                     >How It Works</a
                                 >
                             </li>
@@ -197,17 +194,14 @@
                         </h4>
                         <ul class="space-y-4">
                             <li>
-                                <a href="index.html#how-it-works" class="footer-link">About Us</a>
+                                <a href="#" class="footer-link">About Us</a>
                             </li>
-                            <li>
-                                <a href="pricing.html" class="footer-link">For Organizers</a>
-                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
                             <li>
                                 <a href="#" class="footer-link"
                                     >Privacy Policy</a
                                 >
                             </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
                         </ul>
                     </div>
                 </div>
@@ -331,6 +325,34 @@
                                 ${order.proposed_gosti ? `<p><span class="font-medium text-navy">Proposed guests:</span> ${escapeHtml(order.proposed_gosti)}</p>` : ""}
                                 ${order.client_change_details ? `<p><span class="font-medium text-navy">Action details:</span> ${escapeHtml(order.client_change_details)}</p>` : ""}
                                 ${order.komentar ? `<p><span class="font-medium text-navy">Your note:</span> ${escapeHtml(order.komentar)}</p>` : ""}
+                                ${
+                                    order.organizer_price
+                                        ? `
+                                <div class="border-t border-navy/10 pt-2">
+                                    <p><span class="font-medium text-navy">Price Offer:</span> <span class="font-semibold text-gold">${order.organizer_price} EUR</span></p>
+                                    <p><span class="font-medium text-navy">Price Offer Status:</span>
+                                        <span class="px-2 py-0.5 rounded text-xs uppercase font-medium ${
+                                            order.price_offer_status ===
+                                            "approved"
+                                                ? "bg-green-100 text-green-700"
+                                                : order.price_offer_status ===
+                                                    "declined"
+                                                  ? "bg-red-100 text-red-700"
+                                                  : "bg-amber-100 text-amber-700"
+                                        }">${escapeHtml(order.price_offer_status || "pending")}</span>
+                                    </p>
+                                </div>
+                                `
+                                        : ""
+                                }
+                            </div>
+
+                            <div class="border-t border-navy/10 pt-4 space-y-2">
+                                <label class="block text-xs uppercase tracking-[0.18em] text-navy/50">Send/Update Price Offer</label>
+                                <div class="flex gap-2">
+                                    <input type="number" name="organizer-price" min="0" class="flex-grow border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Price (EUR)" value="${order.organizer_price || ""}">
+                                    <button type="button" class="send-price-offer-btn btn-gold px-4 py-2 text-xs tracking-widest uppercase font-medium" data-request-id="${order.id_zahtev}">Send</button>
+                                </div>
                             </div>
 
                             <form class="order-status-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${order.id_zahtev}" data-event-type="${escapeHtml(order.tip_eventa || "Event")}" data-event-date="${escapeHtml(String(order.proposed_datum || order.datum || "").slice(0, 10))}" data-event-guests="${escapeHtml(String(order.proposed_gosti || order.gosti || ""))}" data-event-venue="${escapeHtml(order.proposed_venue || order.venue || "")}" data-event-description="${escapeHtml(order.opis || "")}">
@@ -511,6 +533,71 @@
                                     window.location.href = `create-event.html?${params.toString()}`;
                                 });
                             }
+                        });
+
+                    document
+                        .querySelectorAll(".send-price-offer-btn")
+                        .forEach((button) => {
+                            button.addEventListener("click", async () => {
+                                const requestId = button.dataset.requestId;
+                                const input = button.previousElementSibling;
+                                const price = input.value.trim();
+
+                                if (
+                                    !price ||
+                                    isNaN(price) ||
+                                    parseInt(price) < 0
+                                ) {
+                                    showFeedback(
+                                        "Please enter a valid price.",
+                                        true,
+                                    );
+                                    return;
+                                }
+
+                                button.disabled = true;
+                                const previousText = button.textContent;
+                                button.textContent = "Sending...";
+
+                                try {
+                                    const response = await fetch(
+                                        `/api/requests/${requestId}/price-offer`,
+                                        {
+                                            method: "PATCH",
+                                            headers: {
+                                                "Content-Type":
+                                                    "application/json",
+                                            },
+                                            body: JSON.stringify({
+                                                organizer_id:
+                                                    session.organizerId,
+                                                price: parseInt(price),
+                                            }),
+                                        },
+                                    );
+
+                                    const data = await response.json();
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            data.error ||
+                                                "Could not send price offer.",
+                                        );
+                                    }
+
+                                    showFeedback(
+                                        "Price offer sent successfully.",
+                                    );
+                                    await loadOrders();
+                                } catch (err) {
+                                    showFeedback(
+                                        err.message ||
+                                            "Could not send price offer.",
+                                        true,
+                                    );
+                                    button.disabled = false;
+                                    button.textContent = previousText;
+                                }
+                            });
                         });
                 }
 

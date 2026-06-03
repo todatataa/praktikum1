@@ -35,6 +35,12 @@ async function ensureReviewSchema() {
       ON review (client_id, event_id)
       WHERE event_id IS NOT NULL
     `);
+
+    await pool.query(`
+      ALTER TABLE zahtev
+      ADD COLUMN IF NOT EXISTS organizer_price INTEGER,
+      ADD COLUMN IF NOT EXISTS price_offer_status VARCHAR(255) DEFAULT 'none'
+    `);
   } catch (err) {
     console.error("❌  Greška pri migraciji review sheme:", err.message);
   }
@@ -995,6 +1001,8 @@ app.get("/api/requests", async (req, res) => {
       z.ocena,
       z.cena,
       z.gosti,
+      z.organizer_price,
+      z.price_offer_status,
       z.TK_clientid_client,
       z.TK_organizatorid_organizator,
       c.ime AS client_ime,
@@ -1147,6 +1155,97 @@ app.patch("/api/requests/:id/client-action", async (req, res) => {
     res.json({ success: true, request: result.rows[0] });
   } catch (err) {
     console.error("PATCH /api/requests/:id/client-action error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PATCH /api/requests/:id/price-offer ────────────────────
+app.patch("/api/requests/:id/price-offer", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const { organizer_id, price } = req.body;
+  const organizerId = parseInt(organizer_id);
+  const organizerPrice = parseInt(price);
+
+  if (
+    !Number.isInteger(requestId) ||
+    !Number.isInteger(organizerId) ||
+    !Number.isInteger(organizerPrice)
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Valid request id, organizer_id and price are required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE zahtev
+       SET organizer_price = $1,
+           price_offer_status = 'pending'
+       WHERE id_zahtev = $2
+         AND TK_organizatorid_organizator = $3
+       RETURNING id_zahtev, organizer_price, price_offer_status`,
+      [organizerPrice, requestId, organizerId],
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Request not found for this organizer" });
+    }
+
+    res.json({ success: true, request: result.rows[0] });
+  } catch (err) {
+    console.error("PATCH /api/requests/:id/price-offer error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── PATCH /api/requests/:id/price-offer/respond ────────────
+app.patch("/api/requests/:id/price-offer/respond", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const { client_id, response } = req.body;
+  const clientId = parseInt(client_id);
+  const safeResponse = String(response || "")
+    .trim()
+    .toLowerCase();
+
+  if (!Number.isInteger(requestId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid request id and client_id are required" });
+  }
+  if (safeResponse !== "approved" && safeResponse !== "declined") {
+    return res
+      .status(400)
+      .json({ error: "Response must be either 'approved' or 'declined'" });
+  }
+
+  try {
+    const checkQuery = await pool.query(
+      `SELECT organizer_price FROM zahtev WHERE id_zahtev = $1 AND TK_clientid_client = $2`,
+      [requestId, clientId],
+    );
+    if (checkQuery.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Request not found for this client" });
+    }
+
+    const result = await pool.query(
+      `UPDATE zahtev
+       SET price_offer_status = $1
+       WHERE id_zahtev = $2
+         AND TK_clientid_client = $3
+       RETURNING id_zahtev, organizer_price, price_offer_status`,
+      [safeResponse, requestId, clientId],
+    );
+
+    res.json({ success: true, request: result.rows[0] });
+  } catch (err) {
+    console.error(
+      "PATCH /api/requests/:id/price-offer/respond error:",
+      err.message,
+    );
     res.status(500).json({ error: err.message });
   }
 });

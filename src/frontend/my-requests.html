@@ -178,12 +178,9 @@
                                 >
                             </li>
                             <li>
-                                <a href="index.html#featured" class="footer-link"
-                                    >Top Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="index.html#how-it-works" class="footer-link"
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
                                     >How It Works</a
                                 >
                             </li>
@@ -202,17 +199,14 @@
                         </h4>
                         <ul class="space-y-4">
                             <li>
-                                <a href="index.html#how-it-works" class="footer-link">About Us</a>
+                                <a href="#" class="footer-link">About Us</a>
                             </li>
-                            <li>
-                                <a href="pricing.html" class="footer-link">For Organizers</a>
-                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
                             <li>
                                 <a href="#" class="footer-link"
                                     >Privacy Policy</a
                                 >
                             </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
                         </ul>
                     </div>
                 </div>
@@ -335,6 +329,37 @@
                                 ${request.proposed_cena ? `<p><span class="font-medium text-navy">Proposed budget:</span> ${escapeHtml(request.proposed_cena)} EUR</p>` : ""}
                                 ${request.proposed_gosti ? `<p><span class="font-medium text-navy">Proposed guests:</span> ${escapeHtml(request.proposed_gosti)}</p>` : ""}
                                 ${request.client_change_details ? `<p><span class="font-medium text-navy">Action details:</span> ${escapeHtml(request.client_change_details)}</p>` : ""}
+                                ${
+                                    request.organizer_price
+                                        ? `
+                                <div class="border-t border-navy/10 pt-2 space-y-2">
+                                    <p><span class="font-medium text-navy">Organizer's Price Offer:</span> <span class="font-semibold text-gold">${request.organizer_price} EUR</span></p>
+                                    <p><span class="font-medium text-navy">Offer Status:</span>
+                                        <span class="px-2 py-0.5 rounded text-xs uppercase font-medium ${
+                                            request.price_offer_status ===
+                                            "approved"
+                                                ? "bg-green-100 text-green-700"
+                                                : request.price_offer_status ===
+                                                    "declined"
+                                                  ? "bg-red-100 text-red-700"
+                                                  : "bg-amber-100 text-amber-700"
+                                        }">${escapeHtml(request.price_offer_status || "pending")}</span>
+                                    </p>
+
+                                    ${
+                                        request.price_offer_status === "pending"
+                                            ? `
+                                    <div class="flex gap-2 pt-1">
+                                        <button type="button" class="respond-offer-btn w-1/2 py-2 text-xs tracking-widest uppercase font-medium border border-green-200 text-green-700 hover:bg-green-50 transition-colors" data-request-id="${request.id_zahtev}" data-response="approved">Approve</button>
+                                        <button type="button" class="respond-offer-btn w-1/2 py-2 text-xs tracking-widest uppercase font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors" data-request-id="${request.id_zahtev}" data-response="declined">Decline</button>
+                                    </div>
+                                    `
+                                            : ""
+                                    }
+                                </div>
+                                `
+                                        : ""
+                                }
                             </div>
 
                             <form class="client-action-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${request.id_zahtev}">
@@ -381,6 +406,57 @@
                 }
 
                 function bindForms() {
+                    document
+                        .querySelectorAll(".respond-offer-btn")
+                        .forEach((button) => {
+                            button.addEventListener("click", async () => {
+                                const requestId = button.dataset.requestId;
+                                const responseValue = button.dataset.response;
+
+                                button.disabled = true;
+                                const previousText = button.textContent;
+                                button.textContent = "Processing...";
+
+                                try {
+                                    const response = await fetch(
+                                        `/api/requests/${requestId}/price-offer/respond`,
+                                        {
+                                            method: "PATCH",
+                                            headers: {
+                                                "Content-Type":
+                                                    "application/json",
+                                            },
+                                            body: JSON.stringify({
+                                                client_id: session.clientDbId,
+                                                response: responseValue,
+                                            }),
+                                        },
+                                    );
+
+                                    const data = await response.json();
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            data.error ||
+                                                "Could not respond to price offer.",
+                                        );
+                                    }
+
+                                    showFeedback(
+                                        `Price offer ${responseValue} successfully.`,
+                                    );
+                                    await loadRequests();
+                                } catch (err) {
+                                    showFeedback(
+                                        err.message ||
+                                            "Could not respond to price offer.",
+                                        true,
+                                    );
+                                    button.disabled = false;
+                                    button.textContent = previousText;
+                                }
+                            });
+                        });
+
                     document
                         .querySelectorAll(".client-action-form")
                         .forEach((form) => {
