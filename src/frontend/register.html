@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>White Orchid Events — Reset Password</title>
+    <title>White Orchid Events — Register</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,51 +75,134 @@
         <div class="max-w-md w-full bg-white p-8 md:p-10 shadow-lg rounded-lg border border-gold/10">
             <div>
                 <h2 class="mt-6 text-center text-3xl font-display font-semibold text-navy">
-                    Reset Your Password
+                    Create a new account
                 </h2>
                 <p class="mt-2 text-center text-sm text-navy/70">
-                    Enter your email and choose a new password.
+                    Or
+                    <a href="login.html" class="font-medium text-gold hover:text-gold-dark">
+                        log in to your existing account
+                    </a>
                 </p>
             </div>
-
-            <form id="resetForm" class="mt-8 space-y-6" action="#" method="POST">
+            <form id="registerForm" class="mt-8 space-y-6" action="#" method="POST">
                 <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="first-name" class="sr-only">First Name</label>
+                        <input id="first-name" name="first-name" type="text" autocomplete="given-name" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="First Name" />
+                    </div>
+                    <div>
+                        <label for="last-name" class="sr-only">Last Name</label>
+                        <input id="last-name" name="last-name" type="text" autocomplete="family-name" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            placeholder="Last Name" />
+                    </div>
                     <div>
                         <label for="email-address" class="sr-only">Email address</label>
                         <input id="email-address" name="email" type="email" autocomplete="email" required
-                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
                             placeholder="Email address" />
                     </div>
                     <div>
-                        <label for="new-password" class="sr-only">New Password</label>
-                        <input id="new-password" name="new-password" type="password" autocomplete="new-password"
-                            required
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" autocomplete="new-password" required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                            placeholder="New Password (min. 8 characters)" />
+                            placeholder="Password (min. 8 characters)" />
                     </div>
                     <div>
-                        <label for="confirm-password" class="sr-only">Confirm New Password</label>
-                        <input id="confirm-password" name="confirm-password" type="password"
-                            autocomplete="new-password" required
+                        <label for="confirm-password" class="sr-only">Confirm Password</label>
+                        <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password"
+                            required
                             class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
-                            placeholder="Confirm New Password" />
+                            placeholder="Confirm Password" />
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Account Type</p>
+                    <div class="flex gap-6">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light">
+                            <input type="radio" name="user-type" value="client" id="type-client" checked
+                                class="h-4 w-4 text-gold focus:ring-gold border-navy/20"
+                                onchange="toggleOrganizerFields()" />
+                            Client
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light">
+                            <input type="radio" name="user-type" value="organizer" id="type-organizer"
+                                class="h-4 w-4 text-gold focus:ring-gold border-navy/20"
+                                onchange="toggleOrganizerFields()" />
+                            Organizer
+                        </label>
+                    </div>
+                </div>
+
+                <div id="organizer-fields" style="display:none;">
+                    <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Organizer Details</p>
+                    <div class="rounded-md shadow-sm -space-y-px">
+                        <div>
+                            <label for="location" class="sr-only">Location</label>
+                            <input id="location" name="location" type="text" autocomplete="address-level2"
+                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                                placeholder="Location (City)" />
+                        </div>
+                        <div>
+                            <label for="telephone" class="sr-only">Telephone</label>
+                            <input id="telephone" name="telephone" type="tel" autocomplete="tel"
+                                class="appearance-none rounded-none relative block w-full px-3 py-3 border border-t-0 border-navy/20 placeholder-navy/40 text-navy focus:outline-none focus:ring-gold focus:border-gold focus:z-10 sm:text-sm"
+                                placeholder="Telephone (optional)" />
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-xs tracking-widest uppercase text-navy/50 font-medium mb-3">Event Types (select all that apply)</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="poroka"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                💒 Poroka
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="rojstni dan"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🎂 Rojstni dan
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="konferenca"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                💼 Konferenca
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="koncert"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🎵 Koncert
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="festival"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🎪 Festival
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="teambuilding"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                🤝 Teambuilding
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-navy/80 font-light py-1">
+                                <input type="checkbox" name="event-types" value="gala večer"
+                                    class="h-4 w-4 text-gold focus:ring-gold border-navy/20 rounded" />
+                                ✨ Gala večer
+                            </label>
+                        </div>
                     </div>
                 </div>
 
                 <p id="form-error" style="display:none;" class="text-red-500 text-xs text-center"></p>
-                <p id="form-success" style="display:none;" class="text-green-600 text-xs text-center"></p>
 
                 <div>
-                    <button type="button" onclick="handleResetPassword()"
+                    <button type="button" onclick="handleRegister()"
                         class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium uppercase tracking-widest text-navy bg-gold hover:bg-gold-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition-colors duration-300">
-                        Update Password
+                        Register
                     </button>
-                </div>
-
-                <div class="text-center">
-                    <a href="login.html" class="text-sm font-medium text-gold hover:text-gold-dark">
-                        Back to Log In
-                    </a>
                 </div>
             </form>
         </div>
@@ -129,62 +212,35 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-14">
                 <div class="md:col-span-2">
-                    <div class="font-display text-2xl text-white mb-1">
-                        White Orchid
-                    </div>
-                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">
-                        Event Organizers
-                    </p>
+                    <div class="font-display text-2xl text-white mb-1">White Orchid</div>
+                    <p class="text-gold tracking-widest uppercase text-xs font-light mb-5">Event Organizers</p>
                     <p class="text-white/40 text-sm font-light leading-relaxed max-w-xs">
-                        The premier platform for discovering and connecting
-                        with elite event organizers across Slovenia and
-                        beyond.
+                        The premier platform for discovering and connecting with elite event organizers across Slovenia and beyond.
                     </p>
                 </div>
                 <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
-                        Platform
-                    </h4>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Platform</h4>
                     <ul class="space-y-4">
-                        <li>
-                            <a href="org-search.html" class="footer-link">Browse Organizers</a>
-                        </li>
-                        <li>
-                            <a href="index.html#featured" class="footer-link">Top Organizers</a>
-                        </li>
-                        <li>
-                            <a href="index.html#how-it-works" class="footer-link">How It Works</a>
-                        </li>
-                        <li>
-                            <a href="pricing.html" class="footer-link">Service Pricing</a>
-                        </li>
+                        <li><a href="org-search.html" class="footer-link">Browse Organizers</a></li>
+                        <li><a href="index.html#featured" class="footer-link">Top Organizers</a></li>
+                        <li><a href="index.html#how-it-works" class="footer-link">How It Works</a></li>
+                        <li><a href="pricing.html" class="footer-link">Service Pricing</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">
-                        Company
-                    </h4>
+                    <h4 class="text-white text-xs tracking-widest uppercase mb-6 font-medium">Company</h4>
                     <ul class="space-y-4">
-                        <li>
-                            <a href="index.html#how-it-works" class="footer-link">About Us</a>
-                        </li>
-                        <li>
-                            <a href="pricing.html" class="footer-link">For Organizers</a>
-                        </li>
-                        <li>
-                            <a href="#" class="footer-link">Privacy Policy</a>
-                        </li>
+                        <li><a href="index.html#how-it-works" class="footer-link">About Us</a></li>
+                        <li><a href="pricing.html" class="footer-link">For Organizers</a></li>
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
                         <li><a href="#" class="footer-link">Contact</a></li>
                     </ul>
                 </div>
             </div>
-
             <div class="h-px bg-white/[0.07] mb-8"></div>
-
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-white/25 text-xs font-light">
-                    © 2026 White Orchid Events. Built for Praktikum 1, FERI
-                    IPT 1st Year.
+                    © 2026 White Orchid Events. Built for Praktikum 1, FERI IPT 1st Year.
                 </p>
                 <div class="flex space-x-6">
                     <a href="#" class="footer-link text-xs">Terms</a>
