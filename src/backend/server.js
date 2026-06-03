@@ -2,6 +2,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const path = require("path");
 const cors = require("cors");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,29 +24,100 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || "superVarnoGeslo",
 });
 
+function generateReviewToken() {
+  return crypto.randomBytes(24).toString("hex");
+}
+
+function buildGuestReviewLink(req, token) {
+  return `${req.protocol}://${req.get("host")}/api/event-review-access?token=${encodeURIComponent(token)}`;
+}
+
 async function ensureReviewSchema() {
   try {
-    await pool.query(`
-      ALTER TABLE review
-      ADD COLUMN IF NOT EXISTS event_id INTEGER REFERENCES event(id_event)
-    `);
-
-    await pool.query(`
-      CREATE UNIQUE INDEX IF NOT EXISTS review_unique_client_event_idx
-      ON review (client_id, event_id)
-      WHERE event_id IS NOT NULL
-    `);
-
     await pool.query(`
       ALTER TABLE zahtev
       ADD COLUMN IF NOT EXISTS organizer_price INTEGER,
       ADD COLUMN IF NOT EXISTS price_offer_status VARCHAR(255) DEFAULT 'none'
     `);
 
-    // Fix: image_content mora biti TEXT, ne VARCHAR(755)
     await pool.query(`
       ALTER TABLE image
       ALTER COLUMN image_content TYPE TEXT
+    `);
+
+    await pool.query(`
+      ALTER TABLE invitation
+      ADD COLUMN IF NOT EXISTS guest_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS review_token VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS review_sent BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS review_sent_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS review_submitted BOOLEAN DEFAULT FALSE
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS invitation_unique_event_email_idx
+      ON invitation (TK_eventid_event, e_mail)
+      WHERE e_mail IS NOT NULL
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS invitation_unique_review_token_idx
+      ON invitation (review_token)
+      WHERE review_token IS NOT NULL
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS organizer_review (
+        review_id SERIAL PRIMARY KEY,
+        client_id INTEGER NOT NULL REFERENCES client(id_client),
+        organizator_id INTEGER NOT NULL REFERENCES organizator(id_organizator),
+        event_id INTEGER REFERENCES event(id_event),
+        rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        comment TEXT,
+        review_date DATE NOT NULL DEFAULT CURRENT_DATE
+      )
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS organizer_review_unique_client_organizer_idx
+      ON organizer_review (client_id, organizator_id)
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS event_review (
+        event_review_id SERIAL PRIMARY KEY,
+        event_id INTEGER NOT NULL REFERENCES event(id_event),
+        invitation_id INTEGER NOT NULL REFERENCES invitation(id_invitation),
+        guest_email VARCHAR(255) NOT NULL,
+        guest_name VARCHAR(255),
+        rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        comment TEXT,
+        review_date DATE NOT NULL DEFAULT CURRENT_DATE
+      )
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS event_review_unique_invitation_idx
+      ON event_review (invitation_id)
+    `);
+
+    await pool.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = 'review'
+        ) THEN
+          ALTER TABLE review
+          ADD COLUMN IF NOT EXISTS event_id INTEGER REFERENCES event(id_event);
+
+          INSERT INTO organizer_review (client_id, organizator_id, event_id, rating, comment, review_date)
+          SELECT client_id, organizator_id, event_id, rating, comment, review_date
+          FROM review
+          ON CONFLICT DO NOTHING;
+        END IF;
+      END $$;
     `);
   } catch (err) {
     console.error("❌  Greška pri migraciji review sheme:", err.message);
@@ -130,7 +202,7 @@ app.get("/api/organizers", async (req, res) => {
                 organizator_id,
                 ROUND(AVG(rating)::numeric, 1) AS avg_rating,
                 COUNT(*) AS review_count
-            FROM review
+            FROM organizer_review
             GROUP BY organizator_id
         ) rs ON rs.organizator_id = o.id_organizator
         LEFT JOIN (
@@ -171,7 +243,7 @@ app.get("/api/organizers/:id", async (req, res) => {
                 organizator_id,
                 ROUND(AVG(rating)::numeric, 1) AS avg_rating,
                 COUNT(*) AS review_count
-            FROM review
+            FROM organizer_review
             GROUP BY organizator_id
         ) rs ON rs.organizator_id = o.id_organizator
         LEFT JOIN (
@@ -208,25 +280,35 @@ app.get("/api/organizers/:id/reviewable-events", async (req, res) => {
       .json({ error: "Valid organizer id and client_id are required" });
   }
 
-  const sql = `
-        SELECT
-            e.id_event,
-            e.naziv,
-            e.datum_eventa,
-            e.venue_name,
-            e.venue_lokacija
-        FROM event e
-        INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
-        LEFT JOIN review r ON r.event_id = e.id_event AND r.client_id = $2
-        WHERE e.TK_organizatorid_organizator = $1
-          AND z.TK_clientid_client = $2
-          AND z.TK_organizatorid_organizator = $1
-          AND r.review_id IS NULL
-        ORDER BY e.datum_eventa DESC, e.id_event DESC
-    `;
-
   try {
-    const result = await pool.query(sql, [organizerId, clientId]);
+    const existingReview = await pool.query(
+      `SELECT review_id
+       FROM organizer_review
+       WHERE client_id = $1 AND organizator_id = $2
+       LIMIT 1`,
+      [clientId, organizerId],
+    );
+
+    if (existingReview.rows.length > 0) {
+      return res.json([]);
+    }
+
+    const result = await pool.query(
+      `SELECT
+          e.id_event,
+          e.naziv,
+          e.datum_eventa,
+          e.venue_name,
+          e.venue_lokacija
+       FROM event e
+       INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
+       WHERE e.TK_organizatorid_organizator = $1
+         AND z.TK_clientid_client = $2
+         AND z.TK_organizatorid_organizator = $1
+       ORDER BY e.datum_eventa DESC, e.id_event DESC`,
+      [organizerId, clientId],
+    );
+
     res.json(result.rows);
   } catch (err) {
     console.error("SQL greška (GET reviewable events):", err.message);
@@ -251,7 +333,7 @@ app.get("/api/organizers/:id/reviews", async (req, res) => {
             e.naziv AS event_name,
             e.datum_eventa,
             CONCAT(c.ime, ' ', c.priimek) AS client_name
-        FROM review r
+        FROM organizer_review r
         INNER JOIN client c ON c.id_client = r.client_id
         LEFT JOIN event e ON e.id_event = r.event_id
         WHERE r.organizator_id = $1
@@ -273,7 +355,11 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
   const organizerId = parseInt(req.params.id);
   const parsedRating = parseInt(req.body.rating);
   const clientId = parseInt(req.body.client_id);
-  const eventId = parseInt(req.body.event_id);
+  const rawEventId = req.body.event_id;
+  const eventId =
+    rawEventId !== undefined && rawEventId !== null && rawEventId !== ""
+      ? parseInt(rawEventId)
+      : null;
   const safeComment = String(req.body.comment || "").trim() || null;
 
   if (!Number.isInteger(organizerId)) {
@@ -284,8 +370,13 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
     return res.status(400).json({ error: "Valid client_id is required" });
   }
 
-  if (!Number.isInteger(eventId)) {
-    return res.status(400).json({ error: "Valid event_id is required" });
+  if (
+    rawEventId !== undefined &&
+    rawEventId !== null &&
+    rawEventId !== "" &&
+    !Number.isInteger(eventId)
+  ) {
+    return res.status(400).json({ error: "event_id must be a valid integer" });
   }
 
   if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
@@ -321,46 +412,58 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
       return res.status(404).json({ error: "Client nije pronađen" });
     }
 
-    const eligibleEvent = await db.query(
+    const eligibleEvents = await db.query(
       `SELECT
           e.id_event,
           e.naziv
        FROM event e
        INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
-       WHERE e.id_event = $1
-         AND e.TK_organizatorid_organizator = $2
-         AND z.TK_clientid_client = $3
-         AND z.TK_organizatorid_organizator = $2
-       LIMIT 1`,
-      [eventId, organizerId, clientId],
+       WHERE e.TK_organizatorid_organizator = $1
+         AND z.TK_clientid_client = $2
+         AND z.TK_organizatorid_organizator = $1
+       ORDER BY e.datum_eventa DESC, e.id_event DESC`,
+      [organizerId, clientId],
     );
 
-    if (eligibleEvent.rows.length === 0) {
+    if (eligibleEvents.rows.length === 0) {
       await db.query("ROLLBACK");
       return res.status(403).json({
-        error:
-          "You can only review this organizer for an event that you booked with them.",
+        error: "You can only review an organizer that you booked.",
       });
+    }
+
+    let selectedEvent = null;
+    if (Number.isInteger(eventId)) {
+      selectedEvent = eligibleEvents.rows.find(
+        (event) => event.id_event === eventId,
+      );
+      if (!selectedEvent) {
+        await db.query("ROLLBACK");
+        return res.status(403).json({
+          error:
+            "You can only link an organizer review to an event that you booked with them.",
+        });
+      }
     }
 
     const existingReview = await db.query(
       `SELECT review_id
-       FROM review
+       FROM organizer_review
        WHERE client_id = $1
-         AND event_id = $2
+         AND organizator_id = $2
        LIMIT 1`,
-      [clientId, eventId],
+      [clientId, organizerId],
     );
 
     if (existingReview.rows.length > 0) {
       await db.query("ROLLBACK");
       return res.status(409).json({
-        error: "You have already submitted a review for this event.",
+        error: "You have already submitted a review for this organizer.",
       });
     }
 
     const insertReview = await db.query(
-      `INSERT INTO review (client_id, organizator_id, event_id, rating, comment, review_date)
+      `INSERT INTO organizer_review (client_id, organizator_id, event_id, rating, comment, review_date)
        VALUES ($1, $2, $3, $4, $5, CURRENT_DATE)
        RETURNING review_id, client_id, organizator_id, event_id, rating, comment, review_date`,
       [clientId, organizerId, eventId, parsedRating, safeComment],
@@ -374,12 +477,372 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
       review: {
         ...insertReview.rows[0],
         client_name: clientCheck.rows[0].client_name,
-        event_name: eligibleEvent.rows[0].naziv,
+        event_name: selectedEvent ? selectedEvent.naziv : null,
       },
     });
   } catch (err) {
     await db.query("ROLLBACK");
     console.error("SQL greška (POST organizer review):", err.message);
+    res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
+  }
+});
+
+app.get("/api/events/:id/reviews", async (req, res) => {
+  const eventId = parseInt(req.params.id);
+
+  if (!Number.isInteger(eventId)) {
+    return res.status(400).json({ error: "Invalid event id" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+          er.event_review_id,
+          er.event_id,
+          er.invitation_id,
+          er.guest_email,
+          er.guest_name,
+          er.rating,
+          er.comment,
+          er.review_date
+       FROM event_review er
+       WHERE er.event_id = $1
+       ORDER BY er.review_date DESC, er.event_review_id DESC`,
+      [eventId],
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("SQL greška (GET event reviews):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/events/:id/review-links/generate", async (req, res) => {
+  const eventId = parseInt(req.params.id);
+  const clientId = parseInt(req.body.client_id);
+
+  if (!Number.isInteger(eventId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid event id and client_id are required" });
+  }
+
+  const db = await pool.connect();
+
+  try {
+    await db.query("BEGIN");
+
+    const eventCheck = await db.query(
+      `SELECT e.id_event, e.naziv
+       FROM event e
+       INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
+       WHERE e.id_event = $1
+         AND z.TK_clientid_client = $2
+       LIMIT 1`,
+      [eventId, clientId],
+    );
+
+    if (eventCheck.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({
+        error: "Event not found for this client",
+      });
+    }
+
+    const invitationsResult = await db.query(
+      `SELECT id_invitation, guest_name, e_mail, review_token, review_submitted
+       FROM invitation
+       WHERE TK_eventid_event = $1
+         AND TK_clientid_client = $2
+         AND e_mail IS NOT NULL
+       ORDER BY id_invitation ASC`,
+      [eventId, clientId],
+    );
+
+    if (invitationsResult.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({
+        error: "No guest invitations found for this event",
+      });
+    }
+
+    const generatedLinks = [];
+
+    for (const invitation of invitationsResult.rows) {
+      let token = invitation.review_token;
+
+      if (!token) {
+        token = generateReviewToken();
+        await db.query(
+          `UPDATE invitation
+           SET review_token = $1,
+               review_sent = TRUE,
+               review_sent_at = CURRENT_TIMESTAMP
+           WHERE id_invitation = $2`,
+          [token, invitation.id_invitation],
+        );
+      } else {
+        await db.query(
+          `UPDATE invitation
+           SET review_sent = TRUE,
+               review_sent_at = CURRENT_TIMESTAMP
+           WHERE id_invitation = $1`,
+          [invitation.id_invitation],
+        );
+      }
+
+      generatedLinks.push({
+        invitation_id: invitation.id_invitation,
+        guest_name: invitation.guest_name,
+        guest_email: invitation.e_mail,
+        review_submitted: Boolean(invitation.review_submitted),
+        review_link: buildGuestReviewLink(req, token),
+      });
+    }
+
+    await db.query("COMMIT");
+
+    res.json({
+      success: true,
+      event_id: eventId,
+      event_name: eventCheck.rows[0].naziv,
+      simulated_emails: generatedLinks,
+    });
+  } catch (err) {
+    await db.query("ROLLBACK");
+    console.error("SQL greška (POST generate review links):", err.message);
+    res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
+  }
+});
+
+app.get("/api/events/:id/review-links", async (req, res) => {
+  const eventId = parseInt(req.params.id);
+  const clientId = parseInt(req.query.client_id);
+
+  if (!Number.isInteger(eventId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid event id and client_id are required" });
+  }
+
+  try {
+    const eventCheck = await pool.query(
+      `SELECT e.id_event, e.naziv
+       FROM event e
+       INNER JOIN zahtev z ON z.id_zahtev = e.TK_zahtevid_zahtev
+       WHERE e.id_event = $1
+         AND z.TK_clientid_client = $2
+       LIMIT 1`,
+      [eventId, clientId],
+    );
+
+    if (eventCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Event not found for this client" });
+    }
+
+    const result = await pool.query(
+      `SELECT
+          i.id_invitation AS invitation_id,
+          i.guest_name,
+          i.e_mail AS guest_email,
+          i.review_sent,
+          i.review_sent_at,
+          i.review_submitted,
+          i.review_token
+       FROM invitation i
+       WHERE i.TK_eventid_event = $1
+         AND i.TK_clientid_client = $2
+         AND i.e_mail IS NOT NULL
+       ORDER BY i.id_invitation ASC`,
+      [eventId, clientId],
+    );
+
+    res.json({
+      event_id: eventId,
+      event_name: eventCheck.rows[0].naziv,
+      simulated_emails: result.rows.map((row) => ({
+        invitation_id: row.invitation_id,
+        guest_name: row.guest_name,
+        guest_email: row.guest_email,
+        review_sent: row.review_sent,
+        review_sent_at: row.review_sent_at,
+        review_submitted: row.review_submitted,
+        review_link: row.review_token
+          ? buildGuestReviewLink(req, row.review_token)
+          : null,
+      })),
+    });
+  } catch (err) {
+    console.error("SQL greška (GET review links):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/event-review-access", async (req, res) => {
+  const token = String(req.query.token || "").trim();
+
+  if (!token) {
+    return res.status(400).json({ error: "token is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+          i.id_invitation,
+          i.guest_name,
+          i.e_mail,
+          i.review_submitted,
+          e.id_event,
+          e.naziv AS event_name,
+          e.datum_eventa,
+          e.venue_name,
+          e.venue_lokacija,
+          o.id_organizator,
+          CONCAT(o.ime, ' ', o.priimek) AS organizer_name
+       FROM invitation i
+       INNER JOIN event e ON e.id_event = i.TK_eventid_event
+       INNER JOIN organizator o ON o.id_organizator = e.TK_organizatorid_organizator
+       WHERE i.review_token = $1
+       LIMIT 1`,
+      [token],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Invalid review token" });
+    }
+
+    res.json({
+      valid: true,
+      invitation_id: result.rows[0].id_invitation,
+      guest_name: result.rows[0].guest_name,
+      guest_email: result.rows[0].e_mail,
+      review_submitted: result.rows[0].review_submitted,
+      event: {
+        id_event: result.rows[0].id_event,
+        naziv: result.rows[0].event_name,
+        datum_eventa: result.rows[0].datum_eventa,
+        venue_name: result.rows[0].venue_name,
+        venue_lokacija: result.rows[0].venue_lokacija,
+      },
+      organizer: {
+        id_organizator: result.rows[0].id_organizator,
+        name: result.rows[0].organizer_name,
+      },
+    });
+  } catch (err) {
+    console.error("SQL greška (GET event review access):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/event-reviews", async (req, res) => {
+  const token = String(req.body.token || "").trim();
+  const rating = parseInt(req.body.rating);
+  const safeComment = String(req.body.comment || "").trim() || null;
+
+  if (!token) {
+    return res.status(400).json({ error: "token is required" });
+  }
+
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    return res
+      .status(400)
+      .json({ error: "Rating must be an integer between 1 and 5" });
+  }
+
+  const db = await pool.connect();
+
+  try {
+    await db.query("BEGIN");
+
+    const invitationResult = await db.query(
+      `SELECT
+          i.id_invitation,
+          i.TK_eventid_event,
+          i.e_mail,
+          i.guest_name,
+          i.review_submitted,
+          e.naziv AS event_name
+       FROM invitation i
+       INNER JOIN event e ON e.id_event = i.TK_eventid_event
+       WHERE i.review_token = $1
+       LIMIT 1`,
+      [token],
+    );
+
+    if (invitationResult.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({ error: "Invalid review token" });
+    }
+
+    const invitation = invitationResult.rows[0];
+
+    if (invitation.review_submitted) {
+      await db.query("ROLLBACK");
+      return res
+        .status(409)
+        .json({ error: "This guest review was already submitted" });
+    }
+
+    const existingReview = await db.query(
+      `SELECT event_review_id
+       FROM event_review
+       WHERE invitation_id = $1
+       LIMIT 1`,
+      [invitation.id_invitation],
+    );
+
+    if (existingReview.rows.length > 0) {
+      await db.query("ROLLBACK");
+      return res
+        .status(409)
+        .json({ error: "This guest review already exists" });
+    }
+
+    const insertedReview = await db.query(
+      `INSERT INTO event_review (
+          event_id,
+          invitation_id,
+          guest_email,
+          guest_name,
+          rating,
+          comment,
+          review_date
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_DATE)
+       RETURNING event_review_id, event_id, invitation_id, guest_email, guest_name, rating, comment, review_date`,
+      [
+        invitation.TK_eventid_event,
+        invitation.id_invitation,
+        invitation.e_mail,
+        invitation.guest_name,
+        rating,
+        safeComment,
+      ],
+    );
+
+    await db.query(
+      `UPDATE invitation
+       SET review_submitted = TRUE
+       WHERE id_invitation = $1`,
+      [invitation.id_invitation],
+    );
+
+    await db.query("COMMIT");
+
+    res.status(201).json({
+      success: true,
+      event_name: invitation.event_name,
+      review: insertedReview.rows[0],
+    });
+  } catch (err) {
+    await db.query("ROLLBACK");
+    console.error("SQL greška (POST event review):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
@@ -576,7 +1039,9 @@ app.patch("/api/events/:id", async (req, res) => {
   } = req.body;
 
   if (!naziv || !datum_eventa) {
-    return res.status(400).json({ error: "naziv and datum_eventa are required" });
+    return res
+      .status(400)
+      .json({ error: "naziv and datum_eventa are required" });
   }
 
   const sql = `
@@ -618,20 +1083,69 @@ app.patch("/api/events/:id", async (req, res) => {
 });
 
 app.delete("/api/events/:id", async (req, res) => {
-  const { id } = req.params;
+  const eventId = parseInt(req.params.id);
+
+  if (!Number.isInteger(eventId)) {
+    return res.status(400).json({ error: "Invalid event id" });
+  }
+
+  const db = await pool.connect();
 
   try {
-    const result = await pool.query(
-      "DELETE FROM event WHERE id_event = $1 RETURNING id_event",
-      [id],
+    await db.query("BEGIN");
+
+    const eventCheck = await db.query(
+      `SELECT id_event FROM event WHERE id_event = $1 LIMIT 1`,
+      [eventId],
     );
-    if (result.rows.length === 0) {
+
+    if (eventCheck.rows.length === 0) {
+      await db.query("ROLLBACK");
       return res.status(404).json({ error: "Event nije pronađen" });
     }
+
+    await db.query(
+      `DELETE FROM event_review
+       WHERE event_id = $1
+          OR invitation_id IN (
+            SELECT id_invitation FROM invitation WHERE TK_eventid_event = $1
+          )`,
+      [eventId],
+    );
+
+    await db.query(
+      `DELETE FROM invitation
+       WHERE TK_eventid_event = $1`,
+      [eventId],
+    );
+
+    await db.query(
+      `DELETE FROM image
+       WHERE eventid_event = $1`,
+      [eventId],
+    );
+
+    await db.query(
+      `UPDATE organizer_review
+       SET event_id = NULL
+       WHERE event_id = $1`,
+      [eventId],
+    );
+
+    await db.query(
+      `DELETE FROM event
+       WHERE id_event = $1`,
+      [eventId],
+    );
+
+    await db.query("COMMIT");
     res.json({ success: true });
   } catch (err) {
+    await db.query("ROLLBACK");
     console.error("SQL greška (DELETE event):", err.message);
     res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
   }
 });
 
@@ -703,6 +1217,31 @@ app.delete("/api/organizers/:id", async (req, res) => {
   try {
     await db.query("BEGIN");
 
+    const organizerCheck = await db.query(
+      `SELECT id_organizator FROM organizator WHERE id_organizator = $1 LIMIT 1`,
+      [organizerId],
+    );
+
+    if (organizerCheck.rows.length === 0) {
+      await db.query("ROLLBACK");
+      return res.status(404).json({ error: "Organizator nije pronađen" });
+    }
+
+    await db.query(
+      `DELETE FROM event_review
+       WHERE event_id IN (
+         SELECT id_event FROM event WHERE TK_organizatorid_organizator = $1
+       )
+          OR invitation_id IN (
+            SELECT id_invitation
+            FROM invitation
+            WHERE TK_eventid_event IN (
+              SELECT id_event FROM event WHERE TK_organizatorid_organizator = $1
+            )
+          )`,
+      [organizerId],
+    );
+
     await db.query(
       `DELETE FROM invitation
        WHERE TK_eventid_event IN (
@@ -719,7 +1258,7 @@ app.delete("/api/organizers/:id", async (req, res) => {
       [organizerId],
     );
 
-    await db.query(`DELETE FROM review WHERE organizator_id = $1`, [
+    await db.query(`DELETE FROM organizer_review WHERE organizator_id = $1`, [
       organizerId,
     ]);
 
@@ -735,17 +1274,11 @@ app.delete("/api/organizers/:id", async (req, res) => {
       [organizerId],
     );
 
-    const result = await db.query(
+    await db.query(
       `DELETE FROM organizator
-       WHERE id_organizator = $1
-       RETURNING id_organizator`,
+       WHERE id_organizator = $1`,
       [organizerId],
     );
-
-    if (result.rows.length === 0) {
-      await db.query("ROLLBACK");
-      return res.status(404).json({ error: "Organizator nije pronađen" });
-    }
 
     await db.query("COMMIT");
     res.json({ success: true });
