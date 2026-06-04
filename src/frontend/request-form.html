@@ -39,42 +39,6 @@
             };
         </script>
         <link rel="stylesheet" href="css/style.css" />
-        <style>
-            .form-input {
-                width: 100%;
-                padding: 0.7rem 0.9rem;
-                font-family: "Jost", sans-serif;
-                font-size: 0.85rem;
-                color: #0d1b2a;
-                background: #fafaf7;
-                border: 1px solid rgba(13, 27, 42, 0.15);
-                outline: none;
-                transition:
-                    border-color 0.25s,
-                    box-shadow 0.25s;
-            }
-            .form-input:focus {
-                border-color: #c9a84c;
-                box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
-            }
-            .form-input::placeholder {
-                color: rgba(13, 27, 42, 0.35);
-            }
-            .form-label {
-                display: block;
-                font-family: "Jost", sans-serif;
-                font-size: 0.65rem;
-                font-weight: 500;
-                letter-spacing: 0.12em;
-                text-transform: uppercase;
-                color: rgba(13, 27, 42, 0.5);
-                margin-bottom: 0.4rem;
-            }
-            .form-label .required {
-                color: #c9a84c;
-                margin-left: 2px;
-            }
-        </style>
     </head>
     <body class="bg-cream font-sans text-navy flex flex-col min-h-screen">
         <nav
@@ -292,12 +256,9 @@
                                 >
                             </li>
                             <li>
-                                <a href="index.html#featured" class="footer-link"
-                                    >Top Organizers</a
-                                >
-                            </li>
-                            <li>
-                                <a href="index.html#how-it-works" class="footer-link"
+                                <a
+                                    href="index.html#how-it-works"
+                                    class="footer-link"
                                     >How It Works</a
                                 >
                             </li>
@@ -316,17 +277,14 @@
                         </h4>
                         <ul class="space-y-4">
                             <li>
-                                <a href="index.html#how-it-works" class="footer-link">About Us</a>
+                                <a href="#" class="footer-link">About Us</a>
                             </li>
-                            <li>
-                                <a href="pricing.html" class="footer-link">For Organizers</a>
-                            </li>
+                            <li><a href="#" class="footer-link">Contact</a></li>
                             <li>
                                 <a href="#" class="footer-link"
                                     >Privacy Policy</a
                                 >
                             </li>
-                            <li><a href="#" class="footer-link">Contact</a></li>
                         </ul>
                     </div>
                 </div>
@@ -357,6 +315,7 @@
             document.getElementById("organizer-name-display").innerHTML =
                 `Sending request to <span class="font-semibold text-gold">${organizerName}</span>`;
 
+            // Preveri ali je client prijavljen
             const session = JSON.parse(
                 localStorage.getItem("wo_session") || "null",
             );

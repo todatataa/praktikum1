@@ -1,9 +1,4 @@
-// ============================================================
-//  White Orchid Events — shared script
-//  Used by: register.html, login.html, forgot-password.html
-// ============================================================
-
-// --- Hash password using Web Crypto API (SHA-256) ---
+// Hash password using Web Crypto API (SHA-256) 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -15,7 +10,7 @@ async function hashPassword(password) {
   return hashHex;
 }
 
-// --- Generate a random token ---
+// Generate a random token 
 function generateToken() {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
@@ -24,7 +19,7 @@ function generateToken() {
     .join("");
 }
 
-// --- Show / clear inline error message ---
+// Show / clear inline error message 
 function showError(message) {
   const errorEl = document.getElementById("form-error");
   if (errorEl) {
@@ -41,9 +36,7 @@ function clearError() {
   }
 }
 
-// ============================================================
-//  NAV — prikaži avatar ali Login/Register glede na sejo
-// ============================================================
+//  NAV prikaži avatar ali Login/Register glede na sejo
 
 function handleLogout() {
   localStorage.removeItem("wo_session");
@@ -169,9 +162,7 @@ function updateNav() {
   }
 }
 
-// ============================================================
-//  SEED — obstoječi organizatorji iz initPostgre.sql
-// ============================================================
+//  SEED obstoječi organizatorji iz initPostgre.sql
 
 const SEED_ORGANIZERS = [
   {
@@ -283,9 +274,7 @@ async function initSeedUsers() {
   localStorage.setItem("wo_seed_done", "true");
 }
 
-// ============================================================
 //  REGISTER
-// ============================================================
 
 function toggleOrganizerFields() {
   const isOrganizer = document.getElementById("type-organizer")?.checked;
@@ -453,9 +442,7 @@ async function handleRegister() {
   window.location.href = "login.html";
 }
 
-// ============================================================
 //  FORGOT PASSWORD
-// ============================================================
 
 async function handleResetPassword() {
   const errorEl = document.getElementById("form-error");
@@ -517,9 +504,7 @@ async function handleResetPassword() {
   }, 2000);
 }
 
-// ============================================================
 //  LOGIN
-// ============================================================
 
 async function handleLogin(event) {
   if (event) event.preventDefault();
@@ -613,9 +598,7 @@ async function handleLogin(event) {
   window.location.href = "index.html";
 }
 
-// ============================================================
 //  DOMContentLoaded
-// ============================================================
 
 window.addEventListener("DOMContentLoaded", async () => {
   await initSeedUsers();
@@ -657,9 +640,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// ============================================================
-//  GET IN TOUCH BUTTON - za cliente (samo za prijavljene cliente, pošlje na request form)
-// ============================================================
+//  GET IN TOUCH BUTTON za cliente (samo za prijavljene cliente, pošlje na request form)
 
 function setupGetInTouchButton() {
   const getInTouchBtn = document.getElementById("profile-email-btn");
@@ -673,7 +654,7 @@ function setupGetInTouchButton() {
 
   if (!getInTouchBtn) return;
 
-  // Če je organizator na svojem profilu - spremeni gumb v "See My Orders"
+  // Če je organizator na svojem profilu spremeni gumb v "See My Orders"
   if (isOwner) {
     getInTouchBtn.textContent = "See My Orders";
     getInTouchBtn.href = "#";
@@ -684,7 +665,7 @@ function setupGetInTouchButton() {
     return;
   }
 
-  // Ni lastnik - normalen Get in Touch (samo za prijavljene cliente)
+  // Ni lastnik normalen Get in Touch (samo za prijavljene cliente)
   if (!session) {
     getInTouchBtn.disabled = true;
     getInTouchBtn.classList.add("opacity-60", "cursor-not-allowed");
@@ -708,7 +689,7 @@ function setupGetInTouchButton() {
     return;
   }
 
-  // Client je prijavljen - omogoči klik in pošlji na request form
+  // Client je prijavljen omogoči klik in pošlji na request form
   getInTouchBtn.disabled = false;
   getInTouchBtn.classList.remove("opacity-60", "cursor-not-allowed");
   getInTouchBtn.textContent = "Get in Touch";
@@ -736,9 +717,7 @@ function openRequestForm() {
   window.location.href = `request-form.html?org_id=${organizerId}&org_name=${encodeURIComponent(organizerName)}`;
 }
 
-// ============================================================
 //  OSTALE FUNKCIJE (loadFeaturedOrganizers, renderStars, reviews, etc.)
-// ============================================================
 
 async function loadFeaturedOrganizers() {
   const grid = document.getElementById("featured-organizers-grid");
