@@ -679,18 +679,18 @@
                     const datum =
                         document.getElementById("f-datum_eventa").value;
                     if (!naziv) {
-                        alert("Please enter the event name.");
+                        woAlert("Please enter the event name.", "Missing information");
                         return;
                     }
                     if (!datum) {
-                        alert("Please select the event date.");
+                        woAlert("Please select the event date.", "Missing information");
                         return;
                     }
 
                     const rsvp =
                         document.getElementById("f-rsvp_due_date").value;
                     if (rsvp && rsvp >= datum) {
-                        alert("RSVP deadline must be before the event date.");
+                        woAlert("RSVP deadline must be before the event date.", "Invalid date");
                         return;
                     }
                 }

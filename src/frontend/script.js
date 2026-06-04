@@ -1,3 +1,135 @@
+
+// White Orchid custom messages (replaces browser alert/confirm/prompt)
+(function () {
+  function ensureWoUiStyles() {
+    if (document.getElementById("wo-ui-styles")) return;
+    const style = document.createElement("style");
+    style.id = "wo-ui-styles";
+    style.textContent = `
+      .wo-toast-wrap{position:fixed;top:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:12px;max-width:min(420px,calc(100vw - 32px));}
+      .wo-toast{display:flex;align-items:flex-start;gap:14px;background:#fff;border:1px solid rgba(13,27,42,.10);border-left:4px solid #C9A84C;box-shadow:0 18px 45px rgba(13,27,42,.16);padding:16px 18px;font-family:'Jost',system-ui,sans-serif;color:#0D1B2A;animation:woSlideIn .25s ease-out;border-radius:2px;}
+      .wo-toast-icon{width:30px;height:30px;border-radius:50%;border:1px solid #C9A84C;color:#C9A84C;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-weight:600;}
+      .wo-toast-title{font-weight:600;font-size:.9rem;letter-spacing:.03em;margin-bottom:2px;}
+      .wo-toast-text{font-size:.86rem;color:rgba(13,27,42,.68);line-height:1.35;}
+      .wo-toast-close{margin-left:auto;background:transparent;border:0;color:#A8883A;font-size:1.25rem;line-height:1;cursor:pointer;padding:0 0 0 10px;}
+      .wo-modal-backdrop{position:fixed;inset:0;z-index:99998;background:rgba(8,17,26,.58);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px;animation:woFadeIn .18s ease-out;}
+      .wo-modal{width:min(520px,100%);background:#fff;border:1px solid rgba(201,168,76,.22);box-shadow:0 28px 80px rgba(8,17,26,.30);padding:34px 34px 28px;text-align:center;font-family:'Jost',system-ui,sans-serif;color:#0D1B2A;position:relative;}
+      .wo-modal-x{position:absolute;top:16px;right:18px;background:transparent;border:0;color:rgba(13,27,42,.55);font-size:1.7rem;line-height:1;cursor:pointer;}
+      .wo-modal-icon{width:58px;height:58px;border-radius:50%;border:1px solid #C9A84C;color:#C9A84C;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.8rem;font-weight:300;}
+      .wo-modal-title{font-family:'Playfair Display',Georgia,serif;font-size:2rem;font-weight:600;margin:0 0 10px;color:#0D1B2A;}
+      .wo-modal-line{width:48px;height:1px;background:#C9A84C;margin:0 auto 18px;}
+      .wo-modal-message{margin:0 0 24px;color:rgba(13,27,42,.65);line-height:1.45;font-size:1rem;}
+      .wo-modal-input{width:100%;padding:.85rem 1rem;margin:0 0 22px;border:1px solid rgba(13,27,42,.16);background:#FAFAF7;color:#0D1B2A;outline:none;font-family:'Jost',system-ui,sans-serif;}
+      .wo-modal-input:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,.12);}
+      .wo-modal-actions{display:flex;gap:14px;justify-content:center;}
+      .wo-btn{flex:1;padding:.9rem 1.2rem;border:1px solid #C9A84C;background:#fff;color:#A8883A;letter-spacing:.22em;text-transform:uppercase;font-size:.78rem;font-weight:600;cursor:pointer;transition:.2s;}
+      .wo-btn:hover{background:#FAFAF7;}
+      .wo-btn-primary{background:#C9A84C;color:#fff;}
+      .wo-btn-primary:hover{background:#A8883A;border-color:#A8883A;}
+      @keyframes woFadeIn{from{opacity:0}to{opacity:1}}
+      @keyframes woSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+      @media(max-width:520px){.wo-toast-wrap{left:16px;right:16px;top:16px}.wo-modal{padding:28px 22px}.wo-modal-actions{flex-direction:column}.wo-modal-title{font-size:1.65rem}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getToastWrap() {
+    ensureWoUiStyles();
+    let wrap = document.getElementById("wo-toast-wrap");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "wo-toast-wrap";
+      wrap.className = "wo-toast-wrap";
+      document.body.appendChild(wrap);
+    }
+    return wrap;
+  }
+
+  window.woAlert = function (message, title = "Notice") {
+    return new Promise((resolve) => {
+      const toast = document.createElement("div");
+      toast.className = "wo-toast";
+      toast.innerHTML = `
+        <div class="wo-toast-icon">!</div>
+        <div style="flex:1">
+          <div class="wo-toast-title"></div>
+          <div class="wo-toast-text"></div>
+        </div>
+        <button class="wo-toast-close" type="button" aria-label="Close">×</button>
+      `;
+      toast.querySelector(".wo-toast-title").textContent = title;
+      toast.querySelector(".wo-toast-text").textContent = message;
+      const close = () => { toast.remove(); resolve(); };
+      toast.querySelector(".wo-toast-close").addEventListener("click", close);
+      getToastWrap().appendChild(toast);
+      setTimeout(close, 4200);
+    });
+  };
+
+  window.woConfirm = function (message, title = "Are you sure?", confirmText = "Confirm", cancelText = "Cancel") {
+    return new Promise((resolve) => {
+      ensureWoUiStyles();
+      const backdrop = document.createElement("div");
+      backdrop.className = "wo-modal-backdrop";
+      backdrop.innerHTML = `
+        <div class="wo-modal" role="dialog" aria-modal="true">
+          <button class="wo-modal-x" type="button" aria-label="Close">×</button>
+          <div class="wo-modal-icon">!</div>
+          <h2 class="wo-modal-title"></h2>
+          <div class="wo-modal-line"></div>
+          <p class="wo-modal-message"></p>
+          <div class="wo-modal-actions">
+            <button class="wo-btn wo-cancel" type="button"></button>
+            <button class="wo-btn wo-btn-primary wo-ok" type="button"></button>
+          </div>
+        </div>`;
+      backdrop.querySelector(".wo-modal-title").textContent = title;
+      backdrop.querySelector(".wo-modal-message").textContent = message;
+      backdrop.querySelector(".wo-cancel").textContent = cancelText;
+      backdrop.querySelector(".wo-ok").textContent = confirmText;
+      const done = (value) => { backdrop.remove(); resolve(value); };
+      backdrop.querySelector(".wo-ok").addEventListener("click", () => done(true));
+      backdrop.querySelector(".wo-cancel").addEventListener("click", () => done(false));
+      backdrop.querySelector(".wo-modal-x").addEventListener("click", () => done(false));
+      backdrop.addEventListener("click", (e) => { if (e.target === backdrop) done(false); });
+      document.body.appendChild(backdrop);
+    });
+  };
+
+  window.woPrompt = function (message, defaultValue = "", title = "Enter value", confirmText = "Save", cancelText = "Cancel") {
+    return new Promise((resolve) => {
+      ensureWoUiStyles();
+      const backdrop = document.createElement("div");
+      backdrop.className = "wo-modal-backdrop";
+      backdrop.innerHTML = `
+        <div class="wo-modal" role="dialog" aria-modal="true">
+          <button class="wo-modal-x" type="button" aria-label="Close">×</button>
+          <h2 class="wo-modal-title"></h2>
+          <div class="wo-modal-line"></div>
+          <p class="wo-modal-message"></p>
+          <input class="wo-modal-input" type="text" />
+          <div class="wo-modal-actions">
+            <button class="wo-btn wo-cancel" type="button"></button>
+            <button class="wo-btn wo-btn-primary wo-ok" type="button"></button>
+          </div>
+        </div>`;
+      backdrop.querySelector(".wo-modal-title").textContent = title;
+      backdrop.querySelector(".wo-modal-message").textContent = message;
+      backdrop.querySelector(".wo-cancel").textContent = cancelText;
+      backdrop.querySelector(".wo-ok").textContent = confirmText;
+      const input = backdrop.querySelector(".wo-modal-input");
+      input.value = defaultValue;
+      const done = (value) => { backdrop.remove(); resolve(value); };
+      backdrop.querySelector(".wo-ok").addEventListener("click", () => done(input.value));
+      backdrop.querySelector(".wo-cancel").addEventListener("click", () => done(null));
+      backdrop.querySelector(".wo-modal-x").addEventListener("click", () => done(null));
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") done(input.value); if (e.key === "Escape") done(null); });
+      document.body.appendChild(backdrop);
+      input.focus();
+    });
+  };
+})();
+
 // Hash password using Web Crypto API (SHA-256) 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -438,7 +570,7 @@ async function handleRegister() {
     }
   }
 
-  alert("Account successfully created! You can now log in.");
+  woAlert("Account successfully created! You can now log in.", "Success");
   window.location.href = "login.html";
 }
 
@@ -672,7 +804,7 @@ function setupGetInTouchButton() {
     getInTouchBtn.textContent = "Log in to Contact";
     getInTouchBtn.onclick = (e) => {
       e.preventDefault();
-      alert("Please log in as a client to contact organizers.");
+      woAlert("Please log in as a client to contact organizers.", "Log in required");
       window.location.href = "login.html";
     };
     return;
@@ -684,7 +816,7 @@ function setupGetInTouchButton() {
     getInTouchBtn.textContent = "Only clients can contact";
     getInTouchBtn.onclick = (e) => {
       e.preventDefault();
-      alert("Only logged-in clients can send requests to organizers.");
+      woAlert("Only logged-in clients can send requests to organizers.", "Client account required");
     };
     return;
   }
@@ -708,7 +840,7 @@ function openRequestForm() {
     document.getElementById("profile-name")?.textContent || "Organizer";
 
   if (!session || session.userType !== "client") {
-    alert("Please log in as a client to send a request.");
+    woAlert("Please log in as a client to send a request.", "Log in required");
     window.location.href = "login.html";
     return;
   }
