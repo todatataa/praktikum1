@@ -60,7 +60,8 @@ CREATE TABLE zahtev (
     cena                            INTEGER,
     gosti                           INTEGER,
     organizer_price                 INTEGER,
-    price_offer_status              VARCHAR(255) DEFAULT 'none'
+    price_offer_status              VARCHAR(255) DEFAULT 'none',
+    guest_list                      JSONB        DEFAULT '[]'::jsonb
 );
 
 -- ── Tabela: event ───────────────────────────────────────────
@@ -93,7 +94,14 @@ CREATE TABLE invitation (
     review_token        VARCHAR(255),
     review_sent         BOOLEAN      DEFAULT FALSE,
     review_sent_at      TIMESTAMP,
-    review_submitted    BOOLEAN      DEFAULT FALSE
+    review_submitted    BOOLEAN      DEFAULT FALSE,
+    rsvp_token          VARCHAR(255),
+    rsvp_status         VARCHAR(255) DEFAULT 'pending',
+    rsvp_sent           BOOLEAN      DEFAULT FALSE,
+    rsvp_sent_at        TIMESTAMP,
+    rsvp_responded_at   TIMESTAMP,
+    reminder_sent       BOOLEAN      DEFAULT FALSE,
+    reminder_sent_at    TIMESTAMP
 );
 
 CREATE UNIQUE INDEX invitation_unique_event_email_idx
@@ -103,6 +111,10 @@ CREATE UNIQUE INDEX invitation_unique_event_email_idx
 CREATE UNIQUE INDEX invitation_unique_review_token_idx
     ON invitation (review_token)
     WHERE review_token IS NOT NULL;
+
+CREATE UNIQUE INDEX invitation_unique_rsvp_token_idx
+    ON invitation (rsvp_token)
+    WHERE rsvp_token IS NOT NULL;
 
 -- ── Tabela: image ───────────────────────────────────────────
 CREATE TABLE image (
