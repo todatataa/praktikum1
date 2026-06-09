@@ -279,6 +279,28 @@
                     });
                 }
 
+                function normalizeGuestList(value) {
+                    if (!value) return [];
+                    if (Array.isArray(value)) return value;
+                    try {
+                        const parsed = JSON.parse(value);
+                        return Array.isArray(parsed) ? parsed : [];
+                    } catch {
+                        return [];
+                    }
+                }
+
+                function formatGuestList(value) {
+                    return normalizeGuestList(value)
+                        .map((guest) => {
+                            const email = guest.email || guest.e_mail || "";
+                            const name = guest.guest_name || guest.name || "";
+                            return name ? `${name} <${email}>` : email;
+                        })
+                        .filter(Boolean)
+                        .join("\n");
+                }
+
                 function showFeedback(message, isError = false) {
                     feedback.textContent = message;
                     feedback.className = `mb-6 text-center text-sm font-light ${isError ? "text-red-600" : "text-green-600"}`;
@@ -362,6 +384,21 @@
                                 }
                             </div>
 
+                            ${
+                                request.price_offer_status === "approved"
+                                    ? `
+                            <form class="guest-list-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${request.id_zahtev}">
+                                <div>
+                                    <p class="text-xs uppercase tracking-[0.18em] text-navy/50">RSVP guest emails</p>
+                                    <p class="text-xs text-navy/45 mt-1">Add one guest per line. Use either email only or Name &lt;email&gt;.</p>
+                                </div>
+                                <textarea name="guest-list" rows="5" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Nika Bizjak &lt;nika@example.com&gt;&#10;luka@example.com">${escapeHtml(formatGuestList(request.guest_list))}</textarea>
+                                <button type="submit" class="btn-gold w-full py-3 text-xs tracking-widest uppercase font-medium">Save RSVP Guests</button>
+                            </form>
+                            `
+                                    : ""
+                            }
+
                             <form class="client-action-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${request.id_zahtev}">
                                 <p class="text-xs uppercase tracking-[0.18em] text-navy/50">Request changes or cancellation</p>
                                 <input type="date" name="proposed-date" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" value="${request.proposed_datum ? escapeHtml(String(request.proposed_datum).slice(0, 10)) : ""}">
@@ -406,6 +443,70 @@
                 }
 
                 function bindForms() {
+                    document
+                        .querySelectorAll(".guest-list-form")
+                        .forEach((form) => {
+                            form.addEventListener("submit", async (event) => {
+                                event.preventDefault();
+                                const requestId = form.dataset.requestId;
+                                const guestList = form
+                                    .querySelector('textarea[name="guest-list"]')
+                                    .value.trim();
+
+                                if (!guestList) {
+                                    showFeedback(
+                                        "Add at least one guest email before saving.",
+                                        true,
+                                    );
+                                    return;
+                                }
+
+                                const submitBtn = form.querySelector(
+                                    'button[type="submit"]',
+                                );
+                                submitBtn.disabled = true;
+                                submitBtn.textContent = "Saving...";
+
+                                try {
+                                    const response = await fetch(
+                                        `/api/requests/${requestId}/guests`,
+                                        {
+                                            method: "PUT",
+                                            headers: {
+                                                "Content-Type":
+                                                    "application/json",
+                                            },
+                                            body: JSON.stringify({
+                                                client_id: session.clientDbId,
+                                                guests: guestList,
+                                            }),
+                                        },
+                                    );
+
+                                    const data = await response.json();
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            data.error ||
+                                                "Could not save guest emails.",
+                                        );
+                                    }
+
+                                    showFeedback(
+                                        "RSVP guest emails saved successfully.",
+                                    );
+                                    await loadRequests();
+                                } catch (err) {
+                                    showFeedback(
+                                        err.message ||
+                                            "Could not save guest emails.",
+                                        true,
+                                    );
+                                    submitBtn.disabled = false;
+                                    submitBtn.textContent = "Save RSVP Guests";
+                                }
+                            });
+                        });
+
                     document
                         .querySelectorAll(".respond-offer-btn")
                         .forEach((button) => {

@@ -1,8 +1,10 @@
 const express = require("express");
+require("dotenv").config();
 const { Pool } = require("pg");
 const path = require("path");
 const cors = require("cors");
 const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,8 +30,362 @@ function generateReviewToken() {
   return crypto.randomBytes(24).toString("hex");
 }
 
+function generateRsvpToken() {
+  return crypto.randomBytes(24).toString("hex");
+}
+
+function getAppBaseUrl(req) {
+  const fallbackUrl = req
+    ? `${req.protocol}://${req.get("host")}`
+    : `http://localhost:${PORT}`;
+  return (process.env.APP_BASE_URL || fallbackUrl).replace(/\/$/, "");
+}
+
 function buildGuestReviewLink(req, token) {
-  return `${req.protocol}://${req.get("host")}/event-review.html?token=${encodeURIComponent(token)}`;
+  return `${getAppBaseUrl(req)}/event-review.html?token=${encodeURIComponent(token)}`;
+}
+
+function buildRsvpLink(req, token) {
+  return `${getAppBaseUrl(req)}/rsvp.html?token=${encodeURIComponent(token)}`;
+}
+
+function normalizeGuestList(rawGuests) {
+  const source =
+    typeof rawGuests === "string"
+      ? rawGuests
+          .split(/\r?\n|;/)
+          .map((line) => line.trim())
+          .filter(Boolean)
+      : Array.isArray(rawGuests)
+        ? rawGuests
+        : [];
+
+  const seen = new Set();
+  const guests = [];
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  for (const item of source) {
+    let guestName = "";
+    let email = "";
+
+    if (typeof item === "string") {
+      const angleMatch = item.match(/^(.*?)<([^>]+)>$/);
+      if (angleMatch) {
+        guestName = angleMatch[1].trim();
+        email = angleMatch[2].trim().toLowerCase();
+      } else {
+        const parts = item.split(",").map((part) => part.trim());
+        if (parts.length >= 2 && emailRegex.test(parts[parts.length - 1])) {
+          email = parts.pop().toLowerCase();
+          guestName = parts.join(" ");
+        } else {
+          email = item.trim().toLowerCase();
+        }
+      }
+    } else if (item && typeof item === "object") {
+      guestName = String(item.guest_name || item.name || "").trim();
+      email = String(item.email || item.e_mail || "").trim().toLowerCase();
+    }
+
+    if (!emailRegex.test(email) || seen.has(email)) continue;
+    seen.add(email);
+    guests.push({ guest_name: guestName || null, email });
+  }
+
+  return guests;
+}
+
+function createMailer() {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: String(process.env.SMTP_SECURE || "false").toLowerCase() === "true",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+}
+
+function formatEventDate(value) {
+  if (!value) return "Date not specified";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+async function sendRsvpEmail(req, invitation) {
+  const mailer = createMailer();
+  const rsvpLink = buildRsvpLink(req, invitation.rsvp_token);
+
+  if (!mailer) {
+    return { sent: false, reason: "SMTP is not configured", rsvp_link: rsvpLink };
+  }
+
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const subject = `RSVP for ${invitation.event_name}`;
+  const guestLine = invitation.guest_name ? `Hi ${invitation.guest_name},` : "Hi,";
+  const dueLine = invitation.rsvp_due_date
+    ? `<p>Please confirm your attendance by <strong>${formatEventDate(invitation.rsvp_due_date)}</strong>.</p>`
+    : "";
+
+  await mailer.sendMail({
+    from,
+    to: invitation.guest_email,
+    subject,
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0D1B2A">
+        <p>${guestLine}</p>
+        <p>You are invited to <strong>${invitation.event_name}</strong>.</p>
+        <p><strong>Date:</strong> ${formatEventDate(invitation.event_date)}</p>
+        <p><strong>Venue:</strong> ${invitation.venue_name || invitation.venue_location || "Venue not specified"}</p>
+        ${dueLine}
+        <p>
+          <a href="${rsvpLink}" style="display:inline-block;background:#C9A84C;color:white;padding:12px 18px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
+            Confirm RSVP
+          </a>
+        </p>
+        <p>If the button does not work, open this link:<br>${rsvpLink}</p>
+      </div>
+    `,
+    text: `${guestLine}
+
+You are invited to ${invitation.event_name}.
+Date: ${formatEventDate(invitation.event_date)}
+Venue: ${invitation.venue_name || invitation.venue_location || "Venue not specified"}
+${invitation.rsvp_due_date ? `Please confirm by ${formatEventDate(invitation.rsvp_due_date)}.` : ""}
+
+Confirm RSVP: ${rsvpLink}`,
+  });
+
+  return { sent: true, rsvp_link: rsvpLink };
+}
+
+async function sendRsvpReminderEmail(invitation) {
+  const mailer = createMailer();
+  const rsvpLink = buildRsvpLink(null, invitation.rsvp_token);
+
+  if (!mailer) {
+    return { sent: false, reason: "SMTP is not configured", rsvp_link: rsvpLink };
+  }
+
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const guestLine = invitation.guest_name ? `Hi ${invitation.guest_name},` : "Hi,";
+
+  await mailer.sendMail({
+    from,
+    to: invitation.guest_email,
+    subject: `Reminder: RSVP for ${invitation.event_name}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0D1B2A">
+        <p>${guestLine}</p>
+        <p>This is a reminder to confirm your attendance for <strong>${invitation.event_name}</strong>.</p>
+        <p><strong>Date:</strong> ${formatEventDate(invitation.event_date)}</p>
+        <p><strong>Venue:</strong> ${invitation.venue_name || invitation.venue_location || "Venue not specified"}</p>
+        <p>
+          <a href="${rsvpLink}" style="display:inline-block;background:#C9A84C;color:white;padding:12px 18px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
+            Confirm RSVP
+          </a>
+        </p>
+        <p>If the button does not work, open this link:<br>${rsvpLink}</p>
+      </div>
+    `,
+    text: `${guestLine}
+
+This is a reminder to confirm your attendance for ${invitation.event_name}.
+Date: ${formatEventDate(invitation.event_date)}
+Venue: ${invitation.venue_name || invitation.venue_location || "Venue not specified"}
+
+Confirm RSVP: ${rsvpLink}`,
+  });
+
+  return { sent: true, rsvp_link: rsvpLink };
+}
+
+async function sendDueRsvpReminders() {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return;
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+          i.id_invitation,
+          i.guest_name,
+          i.e_mail AS guest_email,
+          i.rsvp_token,
+          e.naziv AS event_name,
+          e.datum_eventa AS event_date,
+          e.venue_name,
+          e.venue_lokacija AS venue_location
+       FROM invitation i
+       INNER JOIN event e ON e.id_event = i.TK_eventid_event
+       WHERE i.rsvp_token IS NOT NULL
+         AND i.rsvp_status = 'pending'
+         AND i.rsvp_sent = TRUE
+         AND COALESCE(i.reminder_sent, FALSE) = FALSE
+         AND e.rsvp_due_date IS NOT NULL
+         AND e.rsvp_due_date <= CURRENT_DATE
+       ORDER BY e.rsvp_due_date ASC, i.id_invitation ASC
+       LIMIT 50`,
+    );
+
+    for (const invitation of result.rows) {
+      try {
+        const sent = await sendRsvpReminderEmail(invitation);
+        if (sent.sent) {
+          await pool.query(
+            `UPDATE invitation
+             SET reminder_sent = TRUE,
+                 reminder_sent_at = CURRENT_TIMESTAMP
+             WHERE id_invitation = $1`,
+            [invitation.id_invitation],
+          );
+        }
+      } catch (err) {
+        console.error("RSVP reminder email error:", err.message);
+      }
+    }
+  } catch (err) {
+    console.error("RSVP reminder scan error:", err.message);
+  }
+}
+
+async function sendRsvpEmailsForInvitations(req, invitations) {
+  const results = [];
+
+  for (const invitation of invitations) {
+    try {
+      const result = await sendRsvpEmail(req, invitation);
+      if (result.sent) {
+        await pool.query(
+          `UPDATE invitation
+           SET rsvp_sent = TRUE,
+               rsvp_sent_at = CURRENT_TIMESTAMP
+           WHERE id_invitation = $1`,
+          [invitation.id_invitation],
+        );
+      }
+      results.push({ invitation_id: invitation.id_invitation, ...result });
+    } catch (err) {
+      results.push({
+        invitation_id: invitation.id_invitation,
+        sent: false,
+        reason: err.message,
+        rsvp_link: buildRsvpLink(req, invitation.rsvp_token),
+      });
+    }
+  }
+
+  return results;
+}
+
+async function sendUnsentRsvpInvitations() {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    return;
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+          i.id_invitation,
+          i.guest_name,
+          i.e_mail AS guest_email,
+          i.rsvp_token,
+          i.rsvp_status,
+          e.naziv AS event_name,
+          e.datum_eventa AS event_date,
+          e.venue_name,
+          e.venue_lokacija AS venue_location,
+          e.rsvp_due_date
+       FROM invitation i
+       INNER JOIN event e ON e.id_event = i.TK_eventid_event
+       WHERE i.rsvp_token IS NOT NULL
+         AND COALESCE(i.rsvp_sent, FALSE) = FALSE
+       ORDER BY i.id_invitation ASC
+       LIMIT 50`,
+    );
+
+    await sendRsvpEmailsForInvitations(null, result.rows);
+  } catch (err) {
+    console.error("Unsent RSVP email scan error:", err.message);
+  }
+}
+
+async function createRsvpInvitationsForRequest(db, eventId, requestId, eventData) {
+  if (!requestId) return [];
+
+  const requestResult = await db.query(
+    `SELECT z.guest_list, z.TK_clientid_client AS client_id
+     FROM zahtev z
+     WHERE z.id_zahtev = $1`,
+    [requestId],
+  );
+
+  if (requestResult.rows.length === 0) return [];
+
+  const request = requestResult.rows[0];
+  const guests = normalizeGuestList(request.guest_list || []);
+  const invitations = [];
+
+  for (const guest of guests) {
+    const token = generateRsvpToken();
+    const inserted = await db.query(
+      `INSERT INTO invitation (
+         naziv,
+         guest_name,
+         TK_clientid_client,
+         TK_eventid_event,
+         e_mail,
+         invited_guests,
+         rsvp_token,
+         rsvp_status,
+         rsvp_sent,
+         review_token
+       )
+       VALUES ($1,$2,$3,$4,$5,1,$6,'pending',FALSE,$7)
+       ON CONFLICT (TK_eventid_event, e_mail)
+       WHERE e_mail IS NOT NULL
+       DO UPDATE SET
+         guest_name = EXCLUDED.guest_name,
+         rsvp_token = COALESCE(invitation.rsvp_token, EXCLUDED.rsvp_token),
+         rsvp_status = COALESCE(invitation.rsvp_status, 'pending')
+       RETURNING id_invitation, guest_name, e_mail, rsvp_token, rsvp_status`,
+      [
+        `RSVP - ${eventData.naziv}`,
+        guest.guest_name,
+        request.client_id,
+        eventId,
+        guest.email,
+        token,
+        generateReviewToken(),
+      ],
+    );
+
+    const row = inserted.rows[0];
+    invitations.push({
+      id_invitation: row.id_invitation,
+      guest_name: row.guest_name,
+      guest_email: row.e_mail,
+      rsvp_token: row.rsvp_token,
+      rsvp_status: row.rsvp_status,
+      event_name: eventData.naziv,
+      event_date: eventData.datum_eventa,
+      venue_name: eventData.venue_name,
+      venue_location: eventData.venue_lokacija,
+      rsvp_due_date: eventData.rsvp_due_date,
+    });
+  }
+
+  return invitations;
 }
 
 async function ensureReviewSchema() {
@@ -37,7 +393,8 @@ async function ensureReviewSchema() {
     await pool.query(`
       ALTER TABLE zahtev
       ADD COLUMN IF NOT EXISTS organizer_price INTEGER,
-      ADD COLUMN IF NOT EXISTS price_offer_status VARCHAR(255) DEFAULT 'none'
+      ADD COLUMN IF NOT EXISTS price_offer_status VARCHAR(255) DEFAULT 'none',
+      ADD COLUMN IF NOT EXISTS guest_list JSONB DEFAULT '[]'::jsonb
     `);
 
     await pool.query(`
@@ -51,7 +408,14 @@ async function ensureReviewSchema() {
       ADD COLUMN IF NOT EXISTS review_token VARCHAR(255),
       ADD COLUMN IF NOT EXISTS review_sent BOOLEAN DEFAULT FALSE,
       ADD COLUMN IF NOT EXISTS review_sent_at TIMESTAMP,
-      ADD COLUMN IF NOT EXISTS review_submitted BOOLEAN DEFAULT FALSE
+      ADD COLUMN IF NOT EXISTS review_submitted BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS rsvp_token VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS rsvp_status VARCHAR(255) DEFAULT 'pending',
+      ADD COLUMN IF NOT EXISTS rsvp_sent BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS rsvp_sent_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS rsvp_responded_at TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS reminder_sent_at TIMESTAMP
     `);
 
     await pool.query(`
@@ -64,6 +428,12 @@ async function ensureReviewSchema() {
       CREATE UNIQUE INDEX IF NOT EXISTS invitation_unique_review_token_idx
       ON invitation (review_token)
       WHERE review_token IS NOT NULL
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS invitation_unique_rsvp_token_idx
+      ON invitation (rsvp_token)
+      WHERE rsvp_token IS NOT NULL
     `);
 
     await pool.query(`
@@ -120,7 +490,7 @@ async function ensureReviewSchema() {
       END $$;
     `);
   } catch (err) {
-    console.error("❌  Greška pri migraciji review sheme:", err.message);
+    console.error("âŒ  GreÅ¡ka pri migraciji review sheme:", err.message);
   }
 }
 
@@ -128,14 +498,17 @@ pool
   .connect()
   .then(async (client) => {
     client.release();
-    console.log("✅  Spojen na PostgreSQL bazu");
+    console.log("âœ…  Spojen na PostgreSQL bazu");
     await ensureReviewSchema();
+    await sendUnsentRsvpInvitations();
+    await sendDueRsvpReminders();
+    setInterval(sendDueRsvpReminders, 60 * 60 * 1000);
   })
   .catch((err) =>
-    console.error("❌  Greška pri spajanju na bazu:", err.message),
+    console.error("âŒ  GreÅ¡ka pri spajanju na bazu:", err.message),
   );
 
-// ── Serviraj frontend statičke fajlove ───────────────────────
+// â”€â”€ Serviraj frontend statiÄke fajlove â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.use(express.static(path.join(__dirname, "..", "frontend")));
 
@@ -220,10 +593,10 @@ app.get("/api/organizers", async (req, res) => {
     const result = await pool.query(sql, params);
     res.json(result.rows);
   } catch (err) {
-    console.error("SQL greška:", err.message);
+    console.error("SQL greÅ¡ka:", err.message);
     res
       .status(500)
-      .json({ error: "Greška pri dohvatanju podataka: " + err.message });
+      .json({ error: "GreÅ¡ka pri dohvatanju podataka: " + err.message });
   }
 });
 
@@ -259,14 +632,14 @@ app.get("/api/organizers/:id", async (req, res) => {
   try {
     const result = await pool.query(sql, [id]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Organizator nije pronađen" });
+      return res.status(404).json({ error: "Organizator nije pronaÄ‘en" });
     }
     res.json(result.rows[0]);
   } catch (err) {
-    console.error("SQL greška:", err.message);
+    console.error("SQL greÅ¡ka:", err.message);
     res
       .status(500)
-      .json({ error: "Greška pri dohvatanju podataka: " + err.message });
+      .json({ error: "GreÅ¡ka pri dohvatanju podataka: " + err.message });
   }
 });
 
@@ -311,7 +684,7 @@ app.get("/api/organizers/:id/reviewable-events", async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    console.error("SQL greška (GET reviewable events):", err.message);
+    console.error("SQL greÅ¡ka (GET reviewable events):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -344,10 +717,10 @@ app.get("/api/organizers/:id/reviews", async (req, res) => {
     const result = await pool.query(sql, [id]);
     res.json(result.rows);
   } catch (err) {
-    console.error("SQL greška (GET organizer reviews):", err.message);
+    console.error("SQL greÅ¡ka (GET organizer reviews):", err.message);
     res
       .status(500)
-      .json({ error: "Greška pri dohvatanju review podataka: " + err.message });
+      .json({ error: "GreÅ¡ka pri dohvatanju review podataka: " + err.message });
   }
 });
 
@@ -397,7 +770,7 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
 
     if (organizerCheck.rows.length === 0) {
       await db.query("ROLLBACK");
-      return res.status(404).json({ error: "Organizator nije pronađen" });
+      return res.status(404).json({ error: "Organizator nije pronaÄ‘en" });
     }
 
     const clientCheck = await db.query(
@@ -409,7 +782,7 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
 
     if (clientCheck.rows.length === 0) {
       await db.query("ROLLBACK");
-      return res.status(404).json({ error: "Client nije pronađen" });
+      return res.status(404).json({ error: "Client nije pronaÄ‘en" });
     }
 
     const eligibleEvents = await db.query(
@@ -482,7 +855,7 @@ app.post("/api/organizers/:id/reviews", async (req, res) => {
     });
   } catch (err) {
     await db.query("ROLLBACK");
-    console.error("SQL greška (POST organizer review):", err.message);
+    console.error("SQL greÅ¡ka (POST organizer review):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
@@ -515,7 +888,7 @@ app.get("/api/events/:id/reviews", async (req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    console.error("SQL greška (GET event reviews):", err.message);
+    console.error("SQL greÅ¡ka (GET event reviews):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -613,7 +986,7 @@ app.post("/api/events/:id/review-links/generate", async (req, res) => {
     });
   } catch (err) {
     await db.query("ROLLBACK");
-    console.error("SQL greška (POST generate review links):", err.message);
+    console.error("SQL greÅ¡ka (POST generate review links):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
@@ -713,7 +1086,7 @@ app.get("/api/events/:id/review-links/generate", async (req, res) => {
     });
   } catch (err) {
     await db.query("ROLLBACK");
-    console.error("SQL greška (GET generate review links):", err.message);
+    console.error("SQL greÅ¡ka (GET generate review links):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
@@ -778,7 +1151,7 @@ app.get("/api/events/:id/review-links", async (req, res) => {
       })),
     });
   } catch (err) {
-    console.error("SQL greška (GET review links):", err.message);
+    console.error("SQL greÅ¡ka (GET review links):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -835,7 +1208,7 @@ app.get("/api/event-review-access", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("SQL greška (GET event review access):", err.message);
+    console.error("SQL greÅ¡ka (GET event review access):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -942,15 +1315,91 @@ app.post("/api/event-reviews", async (req, res) => {
     });
   } catch (err) {
     await db.query("ROLLBACK");
-    console.error("SQL greška (POST event review):", err.message);
+    console.error("SQL greÅ¡ka (POST event review):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
   }
 });
 
-// ── API: POST /api/organizers ─────────────────────────────────
-// Registracija novega organizatorja — kliče register.html
+app.get("/api/rsvp-access", async (req, res) => {
+  const token = String(req.query.token || "").trim();
+
+  if (!token) {
+    return res.status(400).json({ error: "RSVP token is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT
+          i.id_invitation,
+          i.guest_name,
+          i.e_mail AS guest_email,
+          i.rsvp_status,
+          i.rsvp_responded_at,
+          e.naziv AS event_name,
+          e.datum_eventa,
+          e.venue_name,
+          e.venue_lokacija,
+          e.rsvp_due_date,
+          CONCAT(o.ime, ' ', o.priimek) AS organizer_name
+       FROM invitation i
+       INNER JOIN event e ON e.id_event = i.TK_eventid_event
+       INNER JOIN organizator o ON o.id_organizator = e.TK_organizatorid_organizator
+       WHERE i.rsvp_token = $1
+       LIMIT 1`,
+      [token],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "RSVP link was not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("SQL greÅ¡ka (GET RSVP access):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/rsvp", async (req, res) => {
+  const token = String(req.body.token || "").trim();
+  const status = String(req.body.status || "").trim().toLowerCase();
+
+  if (!token) {
+    return res.status(400).json({ error: "RSVP token is required" });
+  }
+
+  if (status !== "accepted" && status !== "declined") {
+    return res
+      .status(400)
+      .json({ error: "RSVP status must be accepted or declined" });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE invitation
+       SET rsvp_status = $1,
+           rsvp_approved_guest = $2,
+           rsvp_responded_at = CURRENT_TIMESTAMP
+       WHERE rsvp_token = $3
+       RETURNING id_invitation, guest_name, e_mail AS guest_email, rsvp_status, rsvp_responded_at`,
+      [status, status === "accepted" ? 1 : 0, token],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "RSVP link was not found" });
+    }
+
+    res.json({ success: true, invitation: result.rows[0] });
+  } catch (err) {
+    console.error("SQL greÅ¡ka (POST RSVP):", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// â”€â”€ API: POST /api/organizers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Registracija novega organizatorja â€” kliÄe register.html
 app.post("/api/organizers", async (req, res) => {
   const { ime, priimek, email, geslo, city, telefon, tip_eventa } = req.body;
 
@@ -958,7 +1407,7 @@ app.post("/api/organizers", async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  // Preveri če email že obstaja
+  // Preveri Äe email Å¾e obstaja
   const checkSql = `SELECT id_organizator FROM organizator WHERE email = $1`;
   try {
     const checkResult = await pool.query(checkSql, [email]);
@@ -987,12 +1436,12 @@ app.post("/api/organizers", async (req, res) => {
     ]);
     res.status(201).json({ id_organizator: result.rows[0].id_organizator });
   } catch (err) {
-    console.error("SQL greška:", err.message);
+    console.error("SQL greÅ¡ka:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── API: GET /api/events ──────────────────────────────────────
+// â”€â”€ API: GET /api/events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Dohvati sve evente (opciono filtrirano po org_id)
 app.get("/api/events", async (req, res) => {
   const { org_id } = req.query;
@@ -1026,12 +1475,12 @@ app.get("/api/events", async (req, res) => {
     const result = await pool.query(sql, params);
     res.json(result.rows);
   } catch (err) {
-    console.error("SQL greška (GET events):", err.message);
+    console.error("SQL greÅ¡ka (GET events):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── API: POST /api/organizers/:id/image ──────────────────────
+// â”€â”€ API: POST /api/organizers/:id/image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Upload profilne slike organizatora (base64)
 app.post("/api/organizers/:id/image", async (req, res) => {
   const { id } = req.params;
@@ -1041,7 +1490,7 @@ app.post("/api/organizers/:id/image", async (req, res) => {
     return res.status(400).json({ error: "image_base64 is required" });
   }
 
-  // Provjeri veličinu — max ~2MB base64
+  // Provjeri veliÄinu â€” max ~2MB base64
   if (image_base64.length > 2_800_000) {
     return res.status(400).json({ error: "Image too large. Max 2MB." });
   }
@@ -1052,17 +1501,17 @@ app.post("/api/organizers/:id/image", async (req, res) => {
       [image_base64, id],
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Organizator nije pronađen" });
+      return res.status(404).json({ error: "Organizator nije pronaÄ‘en" });
     }
     res.json({ success: true });
   } catch (err) {
-    console.error("SQL greška (POST organizer image):", err.message);
+    console.error("SQL greÅ¡ka (POST organizer image):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── API: POST /api/events/:id/image ──────────────────────────
-// Upload slike za event (base64) — čuva u image tabeli
+// â”€â”€ API: POST /api/events/:id/image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Upload slike za event (base64) â€” Äuva u image tabeli
 app.post("/api/events/:id/image", async (req, res) => {
   const { id } = req.params;
   const { image_base64, cover_image = true } = req.body;
@@ -1082,7 +1531,7 @@ app.post("/api/events/:id/image", async (req, res) => {
       [id],
     );
     if (eventCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Event nije pronađen" });
+      return res.status(404).json({ error: "Event nije pronaÄ‘en" });
     }
 
     // Ako je cover, ukloni stari cover
@@ -1099,12 +1548,12 @@ app.post("/api/events/:id/image", async (req, res) => {
     );
     res.status(201).json({ success: true, id_image: result.rows[0].id_image });
   } catch (err) {
-    console.error("SQL greška (POST event image):", err.message);
+    console.error("SQL greÅ¡ka (POST event image):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── API: GET /api/events/:id/image ───────────────────────────
+// â”€â”€ API: GET /api/events/:id/image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Dohvati cover sliku za event
 app.get("/api/events/:id/image", async (req, res) => {
   const { id } = req.params;
@@ -1122,8 +1571,8 @@ app.get("/api/events/:id/image", async (req, res) => {
   }
 });
 
-// ── API: PATCH /api/events/:id ────────────────────────────────
-// Ažuriranje postojećeg eventa — kliče Modify modal u profile-detail.html
+// â”€â”€ API: PATCH /api/events/:id â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// AÅ¾uriranje postojeÄ‡eg eventa â€” kliÄe Modify modal u profile-detail.html
 app.patch("/api/events/:id", async (req, res) => {
   const { id } = req.params;
   const {
@@ -1172,12 +1621,12 @@ app.patch("/api/events/:id", async (req, res) => {
     ]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Event nije pronađen" });
+      return res.status(404).json({ error: "Event nije pronaÄ‘en" });
     }
 
     res.json({ success: true, id_event: result.rows[0].id_event });
   } catch (err) {
-    console.error("SQL greška (PATCH event):", err.message);
+    console.error("SQL greÅ¡ka (PATCH event):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -1201,7 +1650,7 @@ app.delete("/api/events/:id", async (req, res) => {
 
     if (eventCheck.rows.length === 0) {
       await db.query("ROLLBACK");
-      return res.status(404).json({ error: "Event nije pronađen" });
+      return res.status(404).json({ error: "Event nije pronaÄ‘en" });
     }
 
     await db.query(
@@ -1242,15 +1691,15 @@ app.delete("/api/events/:id", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     await db.query("ROLLBACK");
-    console.error("SQL greška (DELETE event):", err.message);
+    console.error("SQL greÅ¡ka (DELETE event):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
   }
 });
 
-// ── API: PATCH /api/organizers/:id ───────────────────────────
-// Posodobitev profila organizatorja — kliče profile-detail.html (Edit Profile modal)
+// â”€â”€ API: PATCH /api/organizers/:id â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Posodobitev profila organizatorja â€” kliÄe profile-detail.html (Edit Profile modal)
 app.patch("/api/organizers/:id", async (req, res) => {
   const { id } = req.params;
   const {
@@ -1295,11 +1744,11 @@ app.patch("/api/organizers/:id", async (req, res) => {
       id,
     ]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Organizator nije pronađen" });
+      return res.status(404).json({ error: "Organizator nije pronaÄ‘en" });
     }
     res.json({ success: true, id_organizator: result.rows[0].id_organizator });
   } catch (err) {
-    console.error("SQL greška (PATCH organizer):", err.message);
+    console.error("SQL greÅ¡ka (PATCH organizer):", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -1324,7 +1773,7 @@ app.delete("/api/organizers/:id", async (req, res) => {
 
     if (organizerCheck.rows.length === 0) {
       await db.query("ROLLBACK");
-      return res.status(404).json({ error: "Organizator nije pronađen" });
+      return res.status(404).json({ error: "Organizator nije pronaÄ‘en" });
     }
 
     await db.query(
@@ -1384,15 +1833,15 @@ app.delete("/api/organizers/:id", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     await db.query("ROLLBACK");
-    console.error("SQL greška (DELETE organizer):", err.message);
+    console.error("SQL greÅ¡ka (DELETE organizer):", err.message);
     res.status(500).json({ error: err.message });
   } finally {
     db.release();
   }
 });
 
-// ── API: POST /api/events ──────────────────────────────────────
-// Kreiranje novog eventa — kliče create-event.html
+// â”€â”€ API: POST /api/events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Kreiranje novog eventa â€” kliÄe create-event.html
 app.post("/api/events", async (req, res) => {
   const {
     naziv,
@@ -1422,8 +1871,13 @@ app.post("/api/events", async (req, res) => {
         RETURNING id_event
     `;
 
+  const db = await pool.connect();
+  let rsvpInvitations = [];
+
   try {
-    const result = await pool.query(sql, [
+    await db.query("BEGIN");
+
+    const result = await db.query(sql, [
       naziv,
       datum_eventa,
       opis || null,
@@ -1436,8 +1890,10 @@ app.post("/api/events", async (req, res) => {
       TK_zahtevid_zahtev ? parseInt(TK_zahtevid_zahtev) : null,
     ]);
 
+    const eventId = result.rows[0].id_event;
+
     if (TK_zahtevid_zahtev) {
-      await pool.query(
+      await db.query(
         `UPDATE zahtev
          SET status = 'accepted',
              organizator_notified_change = FALSE,
@@ -1446,16 +1902,43 @@ app.post("/api/events", async (req, res) => {
            AND TK_organizatorid_organizator = $2`,
         [parseInt(TK_zahtevid_zahtev), parseInt(TK_organizatorid_organizator)],
       );
+
+      rsvpInvitations = await createRsvpInvitationsForRequest(
+        db,
+        eventId,
+        parseInt(TK_zahtevid_zahtev),
+        {
+          naziv,
+          datum_eventa,
+          venue_name,
+          venue_lokacija,
+          rsvp_due_date,
+        },
+      );
     }
 
-    res.status(201).json({ id_event: result.rows[0].id_event });
+    await db.query("COMMIT");
+
+    const rsvpEmailResults = await sendRsvpEmailsForInvitations(
+      req,
+      rsvpInvitations,
+    );
+
+    res.status(201).json({
+      id_event: eventId,
+      rsvp_invitations: rsvpInvitations.length,
+      rsvp_email_results: rsvpEmailResults,
+    });
   } catch (err) {
-    console.error("SQL greška (POST event):", err.message);
+    await db.query("ROLLBACK");
+    console.error("SQL greÅ¡ka (POST event):", err.message);
     res.status(500).json({ error: err.message });
+  } finally {
+    db.release();
   }
 });
 
-// ── POST /api/login ───────────────────────────────────────
+// â”€â”€ POST /api/login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Preveri organizatorja ali clienta v bazi po emailu in geslu
 app.post("/api/login", async (req, res) => {
   const { email, passwordHash } = req.body;
@@ -1519,12 +2002,12 @@ app.post("/api/login", async (req, res) => {
       .status(404)
       .json({ error: "No account found with this email address" });
   } catch (err) {
-    console.error("SQL greška (POST login):", err.message);
+    console.error("SQL greÅ¡ka (POST login):", err.message);
     return res.status(500).json({ error: err.message });
   }
 });
 
-// ── POST /api/client ──────────────────────────────────────
+// â”€â”€ POST /api/client â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post("/api/client", async (req, res) => {
   const { ime, priimek, email, geslo } = req.body;
   if (!ime || !priimek || !email || !geslo)
@@ -1547,7 +2030,7 @@ app.post("/api/client", async (req, res) => {
   }
 });
 
-// ── GET /api/client/by-email ──────────────────────────────
+// â”€â”€ GET /api/client/by-email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get("/api/client/by-email", async (req, res) => {
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: "email required" });
@@ -1564,7 +2047,7 @@ app.get("/api/client/by-email", async (req, res) => {
   }
 });
 
-// ── POST /api/requests ─────────────────────────────────────
+// â”€â”€ POST /api/requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post("/api/requests", async (req, res) => {
   const {
     organizer_id,
@@ -1651,7 +2134,7 @@ app.post("/api/requests", async (req, res) => {
   }
 });
 
-// ── GET /api/requests ──────────────────────────────────────
+// â”€â”€ GET /api/requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get("/api/requests", async (req, res) => {
   const { client_id, organizer_id } = req.query;
 
@@ -1700,6 +2183,7 @@ app.get("/api/requests", async (req, res) => {
       z.gosti,
       z.organizer_price,
       z.price_offer_status,
+      z.guest_list,
       z.TK_clientid_client,
       z.TK_organizatorid_organizator,
       c.ime AS client_ime,
@@ -1724,7 +2208,60 @@ app.get("/api/requests", async (req, res) => {
   }
 });
 
-// ── PATCH /api/requests/:id/status ─────────────────────────
+// â”€â”€ PUT /api/requests/:id/guests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+app.put("/api/requests/:id/guests", async (req, res) => {
+  const requestId = parseInt(req.params.id);
+  const clientId = parseInt(req.body.client_id);
+  const guests = normalizeGuestList(req.body.guests || req.body.guest_list || []);
+
+  if (!Number.isInteger(requestId) || !Number.isInteger(clientId)) {
+    return res
+      .status(400)
+      .json({ error: "Valid request id and client_id are required" });
+  }
+
+  if (guests.length === 0) {
+    return res.status(400).json({
+      error: "Please add at least one valid guest email address.",
+    });
+  }
+
+  try {
+    const requestCheck = await pool.query(
+      `SELECT id_zahtev, price_offer_status
+       FROM zahtev
+       WHERE id_zahtev = $1
+         AND TK_clientid_client = $2`,
+      [requestId, clientId],
+    );
+
+    if (requestCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Request not found for this client" });
+    }
+
+    if (requestCheck.rows[0].price_offer_status !== "approved") {
+      return res.status(403).json({
+        error: "Guest emails can be added after the price offer is approved.",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE zahtev
+       SET guest_list = $1::jsonb
+       WHERE id_zahtev = $2
+         AND TK_clientid_client = $3
+       RETURNING id_zahtev, guest_list`,
+      [JSON.stringify(guests), requestId, clientId],
+    );
+
+    res.json({ success: true, request: result.rows[0] });
+  } catch (err) {
+    console.error("PUT /api/requests/:id/guests error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// â”€â”€ PATCH /api/requests/:id/status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.patch("/api/requests/:id/status", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const { status, organizer_id, komentar } = req.body;
@@ -1769,7 +2306,7 @@ app.patch("/api/requests/:id/status", async (req, res) => {
   }
 });
 
-// ── PATCH /api/requests/:id/client-action ──────────────────
+// â”€â”€ PATCH /api/requests/:id/client-action â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.patch("/api/requests/:id/client-action", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const {
@@ -1856,7 +2393,7 @@ app.patch("/api/requests/:id/client-action", async (req, res) => {
   }
 });
 
-// ── PATCH /api/requests/:id/price-offer ────────────────────
+// â”€â”€ PATCH /api/requests/:id/price-offer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.patch("/api/requests/:id/price-offer", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const { organizer_id, price } = req.body;
@@ -1897,7 +2434,7 @@ app.patch("/api/requests/:id/price-offer", async (req, res) => {
   }
 });
 
-// ── PATCH /api/requests/:id/price-offer/respond ────────────
+// â”€â”€ PATCH /api/requests/:id/price-offer/respond â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.patch("/api/requests/:id/price-offer/respond", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const { client_id, response } = req.body;
@@ -1947,7 +2484,7 @@ app.patch("/api/requests/:id/price-offer/respond", async (req, res) => {
   }
 });
 
-// ── DELETE /api/requests/:id ───────────────────────────────
+// â”€â”€ DELETE /api/requests/:id â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.delete("/api/requests/:id", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const { client_id } = req.query;
@@ -1984,7 +2521,7 @@ app.delete("/api/requests/:id", async (req, res) => {
   }
 });
 
-// ── GET /api/organizers/:id/notifications ──────────────────
+// â”€â”€ GET /api/organizers/:id/notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.get("/api/organizers/:id/notifications", async (req, res) => {
   const organizerId = parseInt(req.params.id);
 
@@ -2008,7 +2545,7 @@ app.get("/api/organizers/:id/notifications", async (req, res) => {
   }
 });
 
-// ── POST /api/requests/:id/create-event ────────────────────
+// â”€â”€ POST /api/requests/:id/create-event â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.post("/api/requests/:id/create-event", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const {
@@ -2037,6 +2574,8 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
   }
 
   const db = await pool.connect();
+  let rsvpInvitations = [];
+
   try {
     await db.query("BEGIN");
 
@@ -2094,6 +2633,19 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
       ],
     );
 
+    rsvpInvitations = await createRsvpInvitationsForRequest(
+      db,
+      createdEvent.rows[0].id_event,
+      requestId,
+      {
+        naziv,
+        datum_eventa,
+        venue_name,
+        venue_lokacija,
+        rsvp_due_date,
+      },
+    );
+
     await db.query(
       `UPDATE zahtev
        SET status = 'accepted',
@@ -2104,9 +2656,18 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
     );
 
     await db.query("COMMIT");
-    res
-      .status(201)
-      .json({ success: true, id_event: createdEvent.rows[0].id_event });
+
+    const rsvpEmailResults = await sendRsvpEmailsForInvitations(
+      req,
+      rsvpInvitations,
+    );
+
+    res.status(201).json({
+      success: true,
+      id_event: createdEvent.rows[0].id_event,
+      rsvp_invitations: rsvpInvitations.length,
+      rsvp_email_results: rsvpEmailResults,
+    });
   } catch (err) {
     await db.query("ROLLBACK");
     console.error("POST /api/requests/:id/create-event error:", err.message);
@@ -2116,9 +2677,9 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
   }
 });
 
-// ── Start ─────────────────────────────────────────────────────
+// â”€â”€ Start â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.listen(PORT, () => {
-  console.log(`🌸  White Orchid server pokrenut: http://localhost:${PORT}`);
+  console.log(`ðŸŒ¸  White Orchid server pokrenut: http://localhost:${PORT}`);
   console.log(`    Pritisnite Ctrl+C za zaustavljanje`);
 });

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>RSVP — White Orchid Events</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            navy: "#0D1B2A",
+                            gold: "#C9A84C",
+                            cream: "#FAFAF7",
+                        },
+                        fontFamily: {
+                            sans: ["Jost", "sans-serif"],
+                            display: ["Playfair Display", "serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="bg-cream text-navy font-sans min-h-screen">
+        <main class="min-h-screen flex items-center justify-center px-6 py-12">
+            <section
+                class="w-full max-w-2xl bg-white border border-gold/15 shadow-xl rounded-lg p-8 md:p-12"
+            >
+                <p class="text-xs tracking-[0.25em] uppercase text-gold mb-4">
+                    White Orchid Events
+                </p>
+                <h1 class="font-display text-4xl md:text-5xl text-navy mb-4">
+                    RSVP
+                </h1>
+
+                <div id="loading" class="text-navy/55">
+                    Loading your invitation...
+                </div>
+
+                <div
+                    id="error-box"
+                    class="hidden border border-red-200 bg-red-50 text-red-700 p-4 rounded text-sm"
+                ></div>
+
+                <div id="rsvp-content" class="hidden space-y-7">
+                    <div class="space-y-3 text-sm text-navy/70">
+                        <p>
+                            <span class="font-medium text-navy">Guest:</span>
+                            <span id="guest-name">-</span>
+                        </p>
+                        <p>
+                            <span class="font-medium text-navy">Email:</span>
+                            <span id="guest-email">-</span>
+                        </p>
+                        <p>
+                            <span class="font-medium text-navy">Organizer:</span>
+                            <span id="organizer-name">-</span>
+                        </p>
+                        <p>
+                            <span class="font-medium text-navy">Event:</span>
+                            <span id="event-name">-</span>
+                        </p>
+                        <p>
+                            <span class="font-medium text-navy">Date:</span>
+                            <span id="event-date">-</span>
+                        </p>
+                        <p>
+                            <span class="font-medium text-navy">Venue:</span>
+                            <span id="event-location">-</span>
+                        </p>
+                        <p id="due-row" class="hidden">
+                            <span class="font-medium text-navy">RSVP by:</span>
+                            <span id="rsvp-due">-</span>
+                        </p>
+                    </div>
+
+                    <div
+                        id="current-status"
+                        class="hidden border border-navy/10 bg-cream p-4 rounded text-sm"
+                    ></div>
+
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <button
+                            id="accept-btn"
+                            type="button"
+                            class="btn-gold py-3 text-xs tracking-widest uppercase font-medium"
+                        >
+                            I Will Attend
+                        </button>
+                        <button
+                            id="decline-btn"
+                            type="button"
+                            class="py-3 text-xs tracking-widest uppercase font-medium border border-navy/20 text-navy hover:bg-navy/5 transition-colors"
+                        >
+                            I Cannot Attend
+                        </button>
+                    </div>
+
+                    <div
+                        id="success-box"
+                        class="hidden border border-green-200 bg-green-50 text-green-700 p-4 rounded text-sm"
+                    ></div>
+                </div>
+            </section>
+        </main>
+
+        <script>
+            (function () {
+                const params = new URLSearchParams(window.location.search);
+                const token = params.get("token");
+                const loading = document.getElementById("loading");
+                const errorBox = document.getElementById("error-box");
+                const content = document.getElementById("rsvp-content");
+                const successBox = document.getElementById("success-box");
+                const acceptBtn = document.getElementById("accept-btn");
+                const declineBtn = document.getElementById("decline-btn");
+
+                function setText(id, value) {
+                    document.getElementById(id).textContent = value || "-";
+                }
+
+                function showError(message) {
+                    loading.style.display = "none";
+                    content.style.display = "none";
+                    errorBox.textContent = message;
+                    errorBox.classList.remove("hidden");
+                }
+
+                function formatDate(value) {
+                    if (!value) return "Not specified";
+                    const date = new Date(value);
+                    if (Number.isNaN(date.getTime())) return value;
+                    return date.toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                    });
+                }
+
+                async function loadInvitation() {
+                    if (!token) {
+                        showError("This RSVP link is missing its token.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(
+                            `/api/rsvp-access?token=${encodeURIComponent(token)}`,
+                        );
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(
+                                data.error || "Could not load RSVP invitation.",
+                            );
+                        }
+
+                        setText("guest-name", data.guest_name || "Guest");
+                        setText("guest-email", data.guest_email);
+                        setText("organizer-name", data.organizer_name);
+                        setText("event-name", data.event_name);
+                        setText("event-date", formatDate(data.datum_eventa));
+                        setText(
+                            "event-location",
+                            data.venue_name || data.venue_lokacija,
+                        );
+
+                        if (data.rsvp_due_date) {
+                            document
+                                .getElementById("due-row")
+                                .classList.remove("hidden");
+                            setText("rsvp-due", formatDate(data.rsvp_due_date));
+                        }
+
+                        if (
+                            data.rsvp_status &&
+                            data.rsvp_status !== "pending"
+                        ) {
+                            const status = document.getElementById(
+                                "current-status",
+                            );
+                            status.textContent = `Current RSVP status: ${data.rsvp_status}`;
+                            status.classList.remove("hidden");
+                        }
+
+                        loading.style.display = "none";
+                        content.classList.remove("hidden");
+                    } catch (err) {
+                        showError(
+                            err.message || "Could not load RSVP invitation.",
+                        );
+                    }
+                }
+
+                async function submitRsvp(status) {
+                    acceptBtn.disabled = true;
+                    declineBtn.disabled = true;
+                    successBox.classList.add("hidden");
+
+                    try {
+                        const response = await fetch("/api/rsvp", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ token, status }),
+                        });
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(
+                                data.error || "Could not submit RSVP.",
+                            );
+                        }
+
+                        successBox.textContent =
+                            status === "accepted"
+                                ? "Thank you, your attendance has been confirmed."
+                                : "Thank you, your RSVP response has been saved.";
+                        successBox.classList.remove("hidden");
+                    } catch (err) {
+                        showError(err.message || "Could not submit RSVP.");
+                    } finally {
+                        acceptBtn.disabled = false;
+                        declineBtn.disabled = false;
+                    }
+                }
+
+                acceptBtn.addEventListener("click", () =>
+                    submitRsvp("accepted"),
+                );
+                declineBtn.addEventListener("click", () =>
+                    submitRsvp("declined"),
+                );
+
+                loadInvitation();
+            })();
+        </script>
+    </body>
+</html>
