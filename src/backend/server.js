@@ -511,9 +511,9 @@ pool
 
 // â”€â”€ Serviraj frontend statiÄke fajlove â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-app.use(express.static(path.join(__dirname, "..", "..", "frontend")));
+app.use(express.static(path.join(__dirname, "..", "frontend")));
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "..", "frontend", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
 
 app.get("/api/organizers", async (req, res) => {
