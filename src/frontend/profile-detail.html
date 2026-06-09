@@ -1314,6 +1314,10 @@
                         const guests = ev.stevilo_gostov
                             ? `${ev.stevilo_gostov.toLocaleString()} guests`
                             : "";
+                        const rsvpTotal = Number(ev.rsvp_total || 0);
+                        const rsvpSummary = rsvpTotal
+                            ? `${Number(ev.rsvp_accepted || 0)} attending · ${Number(ev.rsvp_declined || 0)} declined · ${Number(ev.rsvp_pending || 0)} pending`
+                            : "";
 
                         const fallbackSrc = FALLBACK_IMAGES[ev.id_event % FALLBACK_IMAGES.length];
 
@@ -1349,6 +1353,7 @@
                                 <p class="text-xs text-navy/70"><span class="text-gold mr-1">📍</span>${venue}</p>
                                 ${guests ? `<p class="text-xs text-navy/70"><span class="text-gold mr-1">👥</span>${guests}</p>` : ""}
                                 ${rsvp ? `<p class="text-xs text-navy/50 mt-1">RSVP by ${rsvp}</p>` : ""}
+                                ${rsvpSummary ? `<p class="text-xs text-navy/70"><span class="text-gold mr-1">✓</span>${rsvpSummary}</p>` : ""}
                             </div>
                             ${ownerButtons}
                         </div>
@@ -1372,6 +1377,7 @@
                     errorEl.style.display = "block";
                     badge.textContent = "";
                 }
+                setTimeout(loadEvents, 15000);
             })();
 
             async function deleteEvent(eventId, btn) {

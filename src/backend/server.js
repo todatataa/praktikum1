@@ -358,7 +358,7 @@ async function createRsvpInvitationsForRequest(db, eventId, requestId, eventData
          guest_name = EXCLUDED.guest_name,
          rsvp_token = COALESCE(invitation.rsvp_token, EXCLUDED.rsvp_token),
          rsvp_status = COALESCE(invitation.rsvp_status, 'pending')
-       RETURNING id_invitation, guest_name, e_mail, rsvp_token, rsvp_status`,
+       RETURNING id_invitation, guest_name, e_mail, rsvp_token, rsvp_status, rsvp_sent`,
       [
         `RSVP - ${eventData.naziv}`,
         guest.guest_name,
@@ -377,6 +377,7 @@ async function createRsvpInvitationsForRequest(db, eventId, requestId, eventData
       guest_email: row.e_mail,
       rsvp_token: row.rsvp_token,
       rsvp_status: row.rsvp_status,
+      rsvp_sent: Boolean(row.rsvp_sent),
       event_name: eventData.naziv,
       event_date: eventData.datum_eventa,
       venue_name: eventData.venue_name,
@@ -1465,8 +1466,23 @@ app.get("/api/events", async (req, res) => {
             e.id_event, e.naziv, e.datum_eventa, e.opis,
             e.stevilo_gostov, e.venue_name, e.venue_lokacija,
             e.rsvp_due_date, e.e_mail_notification,
-            e.TK_organizatorid_organizator
+            e.TK_organizatorid_organizator,
+            COALESCE(rsvp_stats.rsvp_total, 0) AS rsvp_total,
+            COALESCE(rsvp_stats.rsvp_accepted, 0) AS rsvp_accepted,
+            COALESCE(rsvp_stats.rsvp_declined, 0) AS rsvp_declined,
+            COALESCE(rsvp_stats.rsvp_pending, 0) AS rsvp_pending
         FROM event e
+        LEFT JOIN (
+            SELECT
+                TK_eventid_event,
+                COUNT(*)::int AS rsvp_total,
+                COUNT(*) FILTER (WHERE rsvp_status = 'accepted')::int AS rsvp_accepted,
+                COUNT(*) FILTER (WHERE rsvp_status = 'declined')::int AS rsvp_declined,
+                COUNT(*) FILTER (WHERE COALESCE(rsvp_status, 'pending') = 'pending')::int AS rsvp_pending
+            FROM invitation
+            WHERE rsvp_token IS NOT NULL
+            GROUP BY TK_eventid_event
+        ) rsvp_stats ON rsvp_stats.TK_eventid_event = e.id_event
         ${whereClause}
         ORDER BY e.datum_eventa ASC
     `;
@@ -1921,7 +1937,7 @@ app.post("/api/events", async (req, res) => {
 
     const rsvpEmailResults = await sendRsvpEmailsForInvitations(
       req,
-      rsvpInvitations,
+      rsvpInvitations.filter((invitation) => !invitation.rsvp_sent),
     );
 
     res.status(201).json({
@@ -2184,6 +2200,10 @@ app.get("/api/requests", async (req, res) => {
       z.organizer_price,
       z.price_offer_status,
       z.guest_list,
+      COALESCE(rsvp_stats.rsvp_total, 0) AS rsvp_total,
+      COALESCE(rsvp_stats.rsvp_accepted, 0) AS rsvp_accepted,
+      COALESCE(rsvp_stats.rsvp_declined, 0) AS rsvp_declined,
+      COALESCE(rsvp_stats.rsvp_pending, 0) AS rsvp_pending,
       z.TK_clientid_client,
       z.TK_organizatorid_organizator,
       c.ime AS client_ime,
@@ -2195,6 +2215,18 @@ app.get("/api/requests", async (req, res) => {
     FROM zahtev z
     INNER JOIN client c ON c.id_client = z.TK_clientid_client
     LEFT JOIN organizator o ON o.id_organizator = z.TK_organizatorid_organizator
+    LEFT JOIN event request_event ON request_event.TK_zahtevid_zahtev = z.id_zahtev
+    LEFT JOIN (
+      SELECT
+        TK_eventid_event,
+        COUNT(*)::int AS rsvp_total,
+        COUNT(*) FILTER (WHERE rsvp_status = 'accepted')::int AS rsvp_accepted,
+        COUNT(*) FILTER (WHERE rsvp_status = 'declined')::int AS rsvp_declined,
+        COUNT(*) FILTER (WHERE COALESCE(rsvp_status, 'pending') = 'pending')::int AS rsvp_pending
+      FROM invitation
+      WHERE rsvp_token IS NOT NULL
+      GROUP BY TK_eventid_event
+    ) rsvp_stats ON rsvp_stats.TK_eventid_event = request_event.id_event
     ${whereClause}
     ORDER BY z.datum DESC, z.id_zahtev DESC
   `;
@@ -2228,10 +2260,19 @@ app.put("/api/requests/:id/guests", async (req, res) => {
 
   try {
     const requestCheck = await pool.query(
-      `SELECT id_zahtev, price_offer_status
-       FROM zahtev
-       WHERE id_zahtev = $1
-         AND TK_clientid_client = $2`,
+      `SELECT
+          z.id_zahtev,
+          z.price_offer_status,
+          e.id_event,
+          e.naziv,
+          e.datum_eventa,
+          e.venue_name,
+          e.venue_lokacija,
+          e.rsvp_due_date
+       FROM zahtev z
+       LEFT JOIN event e ON e.TK_zahtevid_zahtev = z.id_zahtev
+       WHERE z.id_zahtev = $1
+         AND z.TK_clientid_client = $2`,
       [requestId, clientId],
     );
 
@@ -2254,7 +2295,46 @@ app.put("/api/requests/:id/guests", async (req, res) => {
       [JSON.stringify(guests), requestId, clientId],
     );
 
-    res.json({ success: true, request: result.rows[0] });
+    let rsvpEmailResults = [];
+    const request = requestCheck.rows[0];
+
+    if (request.id_event) {
+      const db = await pool.connect();
+      let rsvpInvitations = [];
+
+      try {
+        await db.query("BEGIN");
+        rsvpInvitations = await createRsvpInvitationsForRequest(
+          db,
+          request.id_event,
+          requestId,
+          {
+            naziv: request.naziv,
+            datum_eventa: request.datum_eventa,
+            venue_name: request.venue_name,
+            venue_lokacija: request.venue_lokacija,
+            rsvp_due_date: request.rsvp_due_date,
+          },
+        );
+        await db.query("COMMIT");
+      } catch (err) {
+        await db.query("ROLLBACK");
+        throw err;
+      } finally {
+        db.release();
+      }
+
+      rsvpEmailResults = await sendRsvpEmailsForInvitations(
+        req,
+        rsvpInvitations.filter((invitation) => !invitation.rsvp_sent),
+      );
+    }
+
+    res.json({
+      success: true,
+      request: result.rows[0],
+      rsvp_email_results: rsvpEmailResults,
+    });
   } catch (err) {
     console.error("PUT /api/requests/:id/guests error:", err.message);
     res.status(500).json({ error: err.message });
@@ -2659,7 +2739,7 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
 
     const rsvpEmailResults = await sendRsvpEmailsForInvitations(
       req,
-      rsvpInvitations,
+      rsvpInvitations.filter((invitation) => !invitation.rsvp_sent),
     );
 
     res.status(201).json({

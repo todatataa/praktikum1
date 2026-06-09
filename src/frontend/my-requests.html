@@ -301,6 +301,25 @@
                         .join("\n");
                 }
 
+                function renderRsvpSummary(item) {
+                    const total = Number(item.rsvp_total || 0);
+                    if (!total) return "";
+                    const accepted = Number(item.rsvp_accepted || 0);
+                    const declined = Number(item.rsvp_declined || 0);
+                    const pending = Number(item.rsvp_pending || 0);
+                    return `
+                        <div class="border border-navy/10 bg-cream/70 rounded p-3 text-sm text-navy/70">
+                            <p class="text-xs uppercase tracking-[0.18em] text-navy/50 mb-2">RSVP status</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <p><span class="font-medium text-navy">${total}</span> invited</p>
+                                <p><span class="font-medium text-green-700">${accepted}</span> attending</p>
+                                <p><span class="font-medium text-red-600">${declined}</span> declined</p>
+                                <p><span class="font-medium text-amber-700">${pending}</span> pending</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 function showFeedback(message, isError = false) {
                     feedback.textContent = message;
                     feedback.className = `mb-6 text-center text-sm font-light ${isError ? "text-red-600" : "text-green-600"}`;
@@ -351,6 +370,7 @@
                                 ${request.proposed_cena ? `<p><span class="font-medium text-navy">Proposed budget:</span> ${escapeHtml(request.proposed_cena)} EUR</p>` : ""}
                                 ${request.proposed_gosti ? `<p><span class="font-medium text-navy">Proposed guests:</span> ${escapeHtml(request.proposed_gosti)}</p>` : ""}
                                 ${request.client_change_details ? `<p><span class="font-medium text-navy">Action details:</span> ${escapeHtml(request.client_change_details)}</p>` : ""}
+                                ${renderRsvpSummary(request)}
                                 ${
                                     request.organizer_price
                                         ? `
@@ -491,8 +511,13 @@
                                         );
                                     }
 
+                                    const sentCount = (
+                                        data.rsvp_email_results || []
+                                    ).filter((result) => result.sent).length;
                                     showFeedback(
-                                        "RSVP guest emails saved successfully.",
+                                        sentCount
+                                            ? `RSVP guest emails saved. ${sentCount} new invitation email${sentCount !== 1 ? "s" : ""} sent.`
+                                            : "RSVP guest emails saved successfully.",
                                     );
                                     await loadRequests();
                                 } catch (err) {
@@ -692,6 +717,7 @@
                 }
 
                 loadRequests();
+                setInterval(loadRequests, 15000);
             })();
         </script>
     </body>

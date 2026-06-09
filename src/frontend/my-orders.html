@@ -242,6 +242,25 @@
                     feedback.style.display = "block";
                 }
 
+                function renderRsvpSummary(item) {
+                    const total = Number(item.rsvp_total || 0);
+                    if (!total) return "";
+                    const accepted = Number(item.rsvp_accepted || 0);
+                    const declined = Number(item.rsvp_declined || 0);
+                    const pending = Number(item.rsvp_pending || 0);
+                    return `
+                        <div class="border border-navy/10 bg-cream/70 rounded p-3 text-sm text-navy/70">
+                            <p class="text-xs uppercase tracking-[0.18em] text-navy/50 mb-2">RSVP status</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <p><span class="font-medium text-navy">${total}</span> invited</p>
+                                <p><span class="font-medium text-green-700">${accepted}</span> attending</p>
+                                <p><span class="font-medium text-red-600">${declined}</span> declined</p>
+                                <p><span class="font-medium text-amber-700">${pending}</span> pending</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 function renderOrders(orders) {
                     if (!orders.length) {
                         grid.style.display = "none";
@@ -287,6 +306,7 @@
                                 ${order.proposed_gosti ? `<p><span class="font-medium text-navy">Proposed guests:</span> ${escapeHtml(order.proposed_gosti)}</p>` : ""}
                                 ${order.client_change_details ? `<p><span class="font-medium text-navy">Action details:</span> ${escapeHtml(order.client_change_details)}</p>` : ""}
                                 ${order.komentar ? `<p><span class="font-medium text-navy">Your note:</span> ${escapeHtml(order.komentar)}</p>` : ""}
+                                ${renderRsvpSummary(order)}
                                 ${
                                     order.organizer_price
                                         ? `
@@ -564,6 +584,7 @@
                 }
 
                 loadOrders();
+                setInterval(loadOrders, 15000);
             })();
         </script>
     </body>
