@@ -512,6 +512,9 @@ pool
 // â”€â”€ Serviraj frontend statiÄke fajlove â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.use(express.static(path.join(__dirname, "..", "frontend")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+});
 
 app.get("/api/organizers", async (req, res) => {
   const { search, city, tip_eventa, min_price, max_price, ocena_min } =
