@@ -1,4 +1,3 @@
-
 // White Orchid custom messages (replaces browser alert/confirm/prompt)
 (function () {
   function ensureWoUiStyles() {
@@ -59,14 +58,22 @@
       `;
       toast.querySelector(".wo-toast-title").textContent = title;
       toast.querySelector(".wo-toast-text").textContent = message;
-      const close = () => { toast.remove(); resolve(); };
+      const close = () => {
+        toast.remove();
+        resolve();
+      };
       toast.querySelector(".wo-toast-close").addEventListener("click", close);
       getToastWrap().appendChild(toast);
       setTimeout(close, 4200);
     });
   };
 
-  window.woConfirm = function (message, title = "Are you sure?", confirmText = "Confirm", cancelText = "Cancel") {
+  window.woConfirm = function (
+    message,
+    title = "Are you sure?",
+    confirmText = "Confirm",
+    cancelText = "Cancel",
+  ) {
     return new Promise((resolve) => {
       ensureWoUiStyles();
       const backdrop = document.createElement("div");
@@ -87,16 +94,33 @@
       backdrop.querySelector(".wo-modal-message").textContent = message;
       backdrop.querySelector(".wo-cancel").textContent = cancelText;
       backdrop.querySelector(".wo-ok").textContent = confirmText;
-      const done = (value) => { backdrop.remove(); resolve(value); };
-      backdrop.querySelector(".wo-ok").addEventListener("click", () => done(true));
-      backdrop.querySelector(".wo-cancel").addEventListener("click", () => done(false));
-      backdrop.querySelector(".wo-modal-x").addEventListener("click", () => done(false));
-      backdrop.addEventListener("click", (e) => { if (e.target === backdrop) done(false); });
+      const done = (value) => {
+        backdrop.remove();
+        resolve(value);
+      };
+      backdrop
+        .querySelector(".wo-ok")
+        .addEventListener("click", () => done(true));
+      backdrop
+        .querySelector(".wo-cancel")
+        .addEventListener("click", () => done(false));
+      backdrop
+        .querySelector(".wo-modal-x")
+        .addEventListener("click", () => done(false));
+      backdrop.addEventListener("click", (e) => {
+        if (e.target === backdrop) done(false);
+      });
       document.body.appendChild(backdrop);
     });
   };
 
-  window.woPrompt = function (message, defaultValue = "", title = "Enter value", confirmText = "Save", cancelText = "Cancel") {
+  window.woPrompt = function (
+    message,
+    defaultValue = "",
+    title = "Enter value",
+    confirmText = "Save",
+    cancelText = "Cancel",
+  ) {
     return new Promise((resolve) => {
       ensureWoUiStyles();
       const backdrop = document.createElement("div");
@@ -119,18 +143,30 @@
       backdrop.querySelector(".wo-ok").textContent = confirmText;
       const input = backdrop.querySelector(".wo-modal-input");
       input.value = defaultValue;
-      const done = (value) => { backdrop.remove(); resolve(value); };
-      backdrop.querySelector(".wo-ok").addEventListener("click", () => done(input.value));
-      backdrop.querySelector(".wo-cancel").addEventListener("click", () => done(null));
-      backdrop.querySelector(".wo-modal-x").addEventListener("click", () => done(null));
-      input.addEventListener("keydown", (e) => { if (e.key === "Enter") done(input.value); if (e.key === "Escape") done(null); });
+      const done = (value) => {
+        backdrop.remove();
+        resolve(value);
+      };
+      backdrop
+        .querySelector(".wo-ok")
+        .addEventListener("click", () => done(input.value));
+      backdrop
+        .querySelector(".wo-cancel")
+        .addEventListener("click", () => done(null));
+      backdrop
+        .querySelector(".wo-modal-x")
+        .addEventListener("click", () => done(null));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") done(input.value);
+        if (e.key === "Escape") done(null);
+      });
       document.body.appendChild(backdrop);
       input.focus();
     });
   };
 })();
 
-// Hash password using Web Crypto API (SHA-256) 
+// Hash password using Web Crypto API (SHA-256)
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -142,7 +178,7 @@ async function hashPassword(password) {
   return hashHex;
 }
 
-// Generate a random token 
+// Generate a random token
 function generateToken() {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
@@ -151,7 +187,7 @@ function generateToken() {
     .join("");
 }
 
-// Show / clear inline error message 
+// Show / clear inline error message
 function showError(message) {
   const errorEl = document.getElementById("form-error");
   if (errorEl) {
@@ -804,7 +840,10 @@ function setupGetInTouchButton() {
     getInTouchBtn.textContent = "Log in to Contact";
     getInTouchBtn.onclick = (e) => {
       e.preventDefault();
-      woAlert("Please log in as a client to contact organizers.", "Log in required");
+      woAlert(
+        "Please log in as a client to contact organizers.",
+        "Log in required",
+      );
       window.location.href = "login.html";
     };
     return;
@@ -816,7 +855,10 @@ function setupGetInTouchButton() {
     getInTouchBtn.textContent = "Only clients can contact";
     getInTouchBtn.onclick = (e) => {
       e.preventDefault();
-      woAlert("Only logged-in clients can send requests to organizers.", "Client account required");
+      woAlert(
+        "Only logged-in clients can send requests to organizers.",
+        "Client account required",
+      );
     };
     return;
   }
@@ -1104,6 +1146,129 @@ function openReviewModal() {
 
 function closeReviewModal() {
   const modal = document.getElementById("review-modal");
+  if (modal) modal.style.display = "none";
+  document.body.style.overflow = "";
+}
+
+async function openEventDetailModal(eventId) {
+  // Create modal DOM on demand (keeps HTML file small)
+  if (!document.getElementById("event-detail-modal")) {
+    const wrapper = document.createElement("div");
+    wrapper.id = "event-detail-modal";
+    wrapper.className =
+      "fixed inset-0 z-[230] flex items-center justify-center px-4";
+    wrapper.style.display = "none";
+    wrapper.innerHTML = `
+      <div class="absolute inset-0 bg-navy/60 backdrop-blur-sm" id="event-detail-backdrop"></div>
+      <div class="relative z-10 bg-white w-full max-w-3xl p-6 md:p-8 shadow-2xl rounded-lg border border-gold/15 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 id="event-detail-title" class="font-display text-2xl font-semibold text-navy">Event Details</h2>
+          <button id="event-detail-close" class="text-navy/30 hover:text-navy text-2xl leading-none">&times;</button>
+        </div>
+        <div id="event-detail-body" class="space-y-4">
+          <p id="event-detail-name" class="font-display text-xl font-semibold text-navy"></p>
+          <p id="event-detail-date" class="text-sm text-navy/60"></p>
+          <p id="event-detail-location" class="text-sm text-navy/60"></p>
+          <p id="event-detail-description" class="text-navy/70"></p>
+          <div class="mt-4">
+            <h3 class="font-display text-lg font-semibold">Guest Reviews</h3>
+            <div id="event-reviews-list" class="space-y-4 mt-3"></div>
+            <div id="event-reviews-empty" class="text-sm text-navy/40 mt-2">Loading...</div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(wrapper);
+    document
+      .getElementById("event-detail-close")
+      .addEventListener("click", closeEventDetailModal);
+    document
+      .getElementById("event-detail-backdrop")
+      .addEventListener("click", closeEventDetailModal);
+  }
+
+  const modal = document.getElementById("event-detail-modal");
+  const reviewsList = document.getElementById("event-reviews-list");
+  const reviewsEmpty = document.getElementById("event-reviews-empty");
+
+  if (reviewsList) reviewsList.innerHTML = "";
+  if (reviewsEmpty) {
+    reviewsEmpty.style.display = "block";
+    reviewsEmpty.textContent = "Loading reviews...";
+  }
+
+  try {
+    // Try to fetch event metadata (best-effort)
+    let ev = null;
+    try {
+      const resp = await fetch(`/api/events`);
+      if (resp.ok) {
+        const events = await resp.json();
+        ev = events.find((e) => String(e.id_event) === String(eventId));
+      }
+    } catch (e) {
+      /* ignore */
+    }
+
+    if (ev) {
+      document.getElementById("event-detail-name").textContent =
+        ev.naziv || `Event #${eventId}`;
+      document.getElementById("event-detail-date").textContent = ev.datum_eventa
+        ? formatReviewDate(ev.datum_eventa)
+        : "";
+      document.getElementById("event-detail-location").textContent =
+        [ev.venue_name, ev.venue_lokacija].filter(Boolean).join(" — ") || "";
+      document.getElementById("event-detail-description").textContent =
+        ev.opis || "";
+    } else {
+      document.getElementById("event-detail-name").textContent =
+        `Event #${eventId}`;
+      document.getElementById("event-detail-date").textContent = "";
+      document.getElementById("event-detail-location").textContent = "";
+      document.getElementById("event-detail-description").textContent = "";
+    }
+
+    const rresp = await fetch(`/api/events/${eventId}/reviews`);
+    if (!rresp.ok) {
+      reviewsList.innerHTML = "";
+      if (reviewsEmpty) reviewsEmpty.textContent = "Could not load reviews.";
+    } else {
+      const reviews = await rresp.json();
+      if (!reviews || reviews.length === 0) {
+        reviewsList.innerHTML = "";
+        if (reviewsEmpty) reviewsEmpty.textContent = "No guest reviews yet.";
+      } else {
+        if (reviewsEmpty) reviewsEmpty.style.display = "none";
+        reviewsList.innerHTML = reviews
+          .map(
+            (review) => `
+          <div class="border border-navy/10 rounded-lg p-4 bg-cream/50">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p class="text-navy/45 text-xs tracking-widest uppercase">${escapeHtml(formatReviewDate(review.review_date))}</p>
+                <p class="font-semibold text-navy">${escapeHtml(review.guest_name || review.guest_email || "Guest")}</p>
+              </div>
+              <div class="text-gold text-sm">${renderStars(review.rating)}</div>
+            </div>
+            <p class="text-navy/70 text-sm leading-relaxed">"${escapeHtml(review.comment || "")}"</p>
+          </div>
+        `,
+          )
+          .join("");
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    if (reviewsEmpty)
+      reviewsEmpty.textContent = "Could not load event details.";
+  }
+
+  if (modal) modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closeEventDetailModal() {
+  const modal = document.getElementById("event-detail-modal");
   if (modal) modal.style.display = "none";
   document.body.style.overflow = "";
 }
