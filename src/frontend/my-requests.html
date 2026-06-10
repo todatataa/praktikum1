@@ -429,17 +429,18 @@
                             </div>
 
                             ${
-                                request.price_offer_status === "approved"
+                                request.price_offer_status === "approved" ||
+                                request.status === "accepted"
                                     ? `
-                            <form class="guest-list-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${request.id_zahtev}">
-                                <div>
-                                    <p class="text-xs uppercase tracking-[0.18em] text-navy/50">RSVP guest emails</p>
-                                    <p class="text-xs text-navy/45 mt-1">Add one guest per line. Use either email only or Name &lt;email&gt;.</p>
-                                </div>
-                                <textarea name="guest-list" rows="5" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Nika Bizjak &lt;nika@example.com&gt;&#10;luka@example.com" oninput="localStorage.setItem('wo_guest_list_draft_${request.id_zahtev}', this.value)" onfocus="localStorage.setItem('wo_guest_list_active', '${request.id_zahtev}')">${escapeHtml(getGuestListText(request))}</textarea>
-                                <button type="submit" class="btn-gold w-full py-3 text-xs tracking-widest uppercase font-medium">Save RSVP Guests</button>
-                            </form>
-                            `
+                        <form class="guest-list-form border-t border-navy/10 pt-4 space-y-3" data-request-id="${request.id_zahtev}">
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.18em] text-navy/50">RSVP guest emails</p>
+                                <p class="text-xs text-navy/45 mt-1">Add one guest per line. Use either email only or Name &lt;email&gt;.</p>
+                            </div>
+                            <textarea name="guest-list" rows="5" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Nika Bizjak &lt;nika@example.com&gt;&#10;luka@example.com" oninput="localStorage.setItem('wo_guest_list_draft_${request.id_zahtev}', this.value)" onfocus="localStorage.setItem('wo_guest_list_active', '${request.id_zahtev}')">${escapeHtml(getGuestListText(request))}</textarea>
+                            <button type="submit" class="btn-gold w-full py-3 text-xs tracking-widest uppercase font-medium">Save RSVP Guests</button>
+                        </form>
+                        `
                                     : ""
                             }
 
@@ -468,9 +469,7 @@
                         guestListEditing ||
                         Boolean(
                             document.activeElement &&
-                                document.activeElement.closest(
-                                    ".guest-list-form",
-                                ),
+                            document.activeElement.closest(".guest-list-form"),
                         )
                     );
                 }
@@ -522,8 +521,9 @@
                                 });
                                 guestTextarea.addEventListener("input", () => {
                                     guestListEditing = true;
-                                    guestListDrafts[String(form.dataset.requestId)] =
-                                        guestTextarea.value;
+                                    guestListDrafts[
+                                        String(form.dataset.requestId)
+                                    ] = guestTextarea.value;
                                     localStorage.setItem(
                                         guestDraftKey(form.dataset.requestId),
                                         guestTextarea.value,
@@ -542,7 +542,9 @@
                                 event.preventDefault();
                                 const requestId = form.dataset.requestId;
                                 const guestList = form
-                                    .querySelector('textarea[name="guest-list"]')
+                                    .querySelector(
+                                        'textarea[name="guest-list"]',
+                                    )
                                     .value.trim();
 
                                 if (!guestList) {
