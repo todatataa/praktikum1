@@ -84,7 +84,9 @@ function normalizeGuestList(rawGuests) {
       }
     } else if (item && typeof item === "object") {
       guestName = String(item.guest_name || item.name || "").trim();
-      email = String(item.email || item.e_mail || "").trim().toLowerCase();
+      email = String(item.email || item.e_mail || "")
+        .trim()
+        .toLowerCase();
     }
 
     if (!emailRegex.test(email) || seen.has(email)) continue;
@@ -96,7 +98,11 @@ function normalizeGuestList(rawGuests) {
 }
 
 function createMailer() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS
+  ) {
     return null;
   }
 
@@ -127,12 +133,18 @@ async function sendRsvpEmail(req, invitation) {
   const rsvpLink = buildRsvpLink(req, invitation.rsvp_token);
 
   if (!mailer) {
-    return { sent: false, reason: "SMTP is not configured", rsvp_link: rsvpLink };
+    return {
+      sent: false,
+      reason: "SMTP is not configured",
+      rsvp_link: rsvpLink,
+    };
   }
 
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const subject = `RSVP for ${invitation.event_name}`;
-  const guestLine = invitation.guest_name ? `Hi ${invitation.guest_name},` : "Hi,";
+  const guestLine = invitation.guest_name
+    ? `Hi ${invitation.guest_name},`
+    : "Hi,";
   const dueLine = invitation.rsvp_due_date
     ? `<p>Please confirm your attendance by <strong>${formatEventDate(invitation.rsvp_due_date)}</strong>.</p>`
     : "";
@@ -174,11 +186,17 @@ async function sendRsvpReminderEmail(invitation) {
   const rsvpLink = buildRsvpLink(null, invitation.rsvp_token);
 
   if (!mailer) {
-    return { sent: false, reason: "SMTP is not configured", rsvp_link: rsvpLink };
+    return {
+      sent: false,
+      reason: "SMTP is not configured",
+      rsvp_link: rsvpLink,
+    };
   }
 
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-  const guestLine = invitation.guest_name ? `Hi ${invitation.guest_name},` : "Hi,";
+  const guestLine = invitation.guest_name
+    ? `Hi ${invitation.guest_name},`
+    : "Hi,";
 
   await mailer.sendMail({
     from,
@@ -211,7 +229,11 @@ Confirm RSVP: ${rsvpLink}`,
 }
 
 async function sendDueRsvpReminders() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS
+  ) {
     return;
   }
 
@@ -301,7 +323,11 @@ async function sendRsvpEmailsForInvitations(req, invitations) {
 }
 
 async function sendUnsentRsvpInvitations() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS
+  ) {
     return;
   }
 
@@ -332,7 +358,12 @@ async function sendUnsentRsvpInvitations() {
   }
 }
 
-async function createRsvpInvitationsForRequest(db, eventId, requestId, eventData) {
+async function createRsvpInvitationsForRequest(
+  db,
+  eventId,
+  requestId,
+  eventData,
+) {
   if (!requestId) return [];
 
   const requestResult = await db.query(
@@ -736,7 +767,9 @@ app.get("/api/organizers/:id/reviews", async (req, res) => {
     console.error("SQL greÅ¡ka (GET organizer reviews):", err.message);
     res
       .status(500)
-      .json({ error: "GreÅ¡ka pri dohvatanju review podataka: " + err.message });
+      .json({
+        error: "GreÅ¡ka pri dohvatanju review podataka: " + err.message,
+      });
   }
 });
 
@@ -1252,7 +1285,7 @@ app.post("/api/event-reviews", async (req, res) => {
     const invitationResult = await db.query(
       `SELECT
           i.id_invitation,
-          i.TK_eventid_event,
+          i.TK_eventid_event AS event_id,
           i.e_mail,
           i.guest_name,
           i.review_submitted,
@@ -1306,7 +1339,7 @@ app.post("/api/event-reviews", async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6, CURRENT_DATE)
        RETURNING event_review_id, event_id, invitation_id, guest_email, guest_name, rating, comment, review_date`,
       [
-        invitation.TK_eventid_event,
+        invitation.event_id,
         invitation.id_invitation,
         invitation.e_mail,
         invitation.guest_name,
@@ -1380,7 +1413,9 @@ app.get("/api/rsvp-access", async (req, res) => {
 
 app.post("/api/rsvp", async (req, res) => {
   const token = String(req.body.token || "").trim();
-  const status = String(req.body.status || "").trim().toLowerCase();
+  const status = String(req.body.status || "")
+    .trim()
+    .toLowerCase();
 
   if (!token) {
     return res.status(400).json({ error: "RSVP token is required" });
@@ -2259,7 +2294,9 @@ app.get("/api/requests", async (req, res) => {
 app.put("/api/requests/:id/guests", async (req, res) => {
   const requestId = parseInt(req.params.id);
   const clientId = parseInt(req.body.client_id);
-  const guests = normalizeGuestList(req.body.guests || req.body.guest_list || []);
+  const guests = normalizeGuestList(
+    req.body.guests || req.body.guest_list || [],
+  );
 
   if (!Number.isInteger(requestId) || !Number.isInteger(clientId)) {
     return res
@@ -2292,7 +2329,9 @@ app.put("/api/requests/:id/guests", async (req, res) => {
     );
 
     if (requestCheck.rows.length === 0) {
-      return res.status(404).json({ error: "Request not found for this client" });
+      return res
+        .status(404)
+        .json({ error: "Request not found for this client" });
     }
 
     if (requestCheck.rows[0].price_offer_status !== "approved") {
@@ -2776,6 +2815,6 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
 // â”€â”€ Start â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 app.listen(PORT, () => {
-  console.log(`ðŸŒ¸  White Orchid server pokrenut: http://localhost:${PORT}`);
+  console.log(`  White Orchid server pokrenut: http://localhost:${PORT}`);
   console.log(`    Pritisnite Ctrl+C za zaustavljanje`);
 });
