@@ -288,6 +288,20 @@ async function sendRsvpEmailsForInvitations(req, invitations) {
   return results;
 }
 
+function sendRsvpEmailsInBackground(req, invitations) {
+  const pendingInvitations = invitations.filter(
+    (invitation) => !invitation.rsvp_sent,
+  );
+
+  if (pendingInvitations.length === 0) return;
+
+  setTimeout(() => {
+    sendRsvpEmailsForInvitations(req, pendingInvitations).catch((err) => {
+      console.error("Background RSVP email error:", err.message);
+    });
+  }, 0);
+}
+
 async function sendUnsentRsvpInvitations() {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     return;
@@ -1938,15 +1952,12 @@ app.post("/api/events", async (req, res) => {
 
     await db.query("COMMIT");
 
-    const rsvpEmailResults = await sendRsvpEmailsForInvitations(
-      req,
-      rsvpInvitations.filter((invitation) => !invitation.rsvp_sent),
-    );
+    sendRsvpEmailsInBackground(req, rsvpInvitations);
 
     res.status(201).json({
       id_event: eventId,
       rsvp_invitations: rsvpInvitations.length,
-      rsvp_email_results: rsvpEmailResults,
+      rsvp_email_status: "queued",
     });
   } catch (err) {
     await db.query("ROLLBACK");
@@ -2298,7 +2309,6 @@ app.put("/api/requests/:id/guests", async (req, res) => {
       [JSON.stringify(guests), requestId, clientId],
     );
 
-    let rsvpEmailResults = [];
     const request = requestCheck.rows[0];
 
     if (request.id_event) {
@@ -2327,16 +2337,13 @@ app.put("/api/requests/:id/guests", async (req, res) => {
         db.release();
       }
 
-      rsvpEmailResults = await sendRsvpEmailsForInvitations(
-        req,
-        rsvpInvitations.filter((invitation) => !invitation.rsvp_sent),
-      );
+      sendRsvpEmailsInBackground(req, rsvpInvitations);
     }
 
     res.json({
       success: true,
       request: result.rows[0],
-      rsvp_email_results: rsvpEmailResults,
+      rsvp_email_status: request.id_event ? "queued" : "not_created_yet",
     });
   } catch (err) {
     console.error("PUT /api/requests/:id/guests error:", err.message);
@@ -2740,16 +2747,13 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
 
     await db.query("COMMIT");
 
-    const rsvpEmailResults = await sendRsvpEmailsForInvitations(
-      req,
-      rsvpInvitations.filter((invitation) => !invitation.rsvp_sent),
-    );
+    sendRsvpEmailsInBackground(req, rsvpInvitations);
 
     res.status(201).json({
       success: true,
       id_event: createdEvent.rows[0].id_event,
       rsvp_invitations: rsvpInvitations.length,
-      rsvp_email_results: rsvpEmailResults,
+      rsvp_email_status: "queued",
     });
   } catch (err) {
     await db.query("ROLLBACK");
