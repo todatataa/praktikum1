@@ -171,11 +171,3 @@ There are also endpoints for uploading images (`/api/organizers/:id/image`), eve
 - To reset the database: drop the DB and run the `initPostgre.sql` file again.
 
 ---
-
-If you want, I can:
-
-- Add runnable npm scripts for common tasks (e.g., `db:init`, `dev`),
-- Add a small Makefile or Docker Compose for easier local setup, or
-- Expand this README with examples and screenshots.
-
-Tell me which you prefer and I will update the README accordingly.
