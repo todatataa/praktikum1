@@ -528,6 +528,10 @@
                 <p class="text-white/50 text-sm mb-8">
                     Your event has been added successfully.
                 </p>
+                <p
+                    id="rsvp-email-status"
+                    class="text-white/60 text-sm mb-8 max-w-lg mx-auto"
+                ></p>
                 <a
                     id="back-to-profile"
                     href="#"
@@ -816,6 +820,26 @@
 
                     const created = await resp.json();
                     const newEventId = created.id_event;
+                    const rsvpStatusEl =
+                        document.getElementById("rsvp-email-status");
+                    const rsvpResults = created.rsvp_email_results || [];
+                    const sentCount = rsvpResults.filter(
+                        (result) => result.sent,
+                    ).length;
+                    const failed = rsvpResults.filter(
+                        (result) => !result.sent,
+                    );
+
+                    if (rsvpStatusEl) {
+                        if (created.rsvp_invitations === 0) {
+                            rsvpStatusEl.textContent =
+                                "No RSVP emails were sent because this event has no saved guest emails or was not created from a client request.";
+                        } else if (failed.length === 0) {
+                            rsvpStatusEl.textContent = `${sentCount} RSVP email${sentCount !== 1 ? "s" : ""} sent successfully.`;
+                        } else {
+                            rsvpStatusEl.textContent = `${sentCount} RSVP email${sentCount !== 1 ? "s" : ""} sent, ${failed.length} failed: ${failed.map((result) => result.reason || "unknown error").join("; ")}`;
+                        }
+                    }
 
                     const imgInput = document.getElementById("f-cover-image");
                     if (imgInput && imgInput.files && imgInput.files[0]) {

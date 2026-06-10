@@ -311,6 +311,10 @@ async function sendRsvpEmailsForInvitations(req, invitations) {
         }
         return { invitation_id: invitation.id_invitation, ...result };
       } catch (err) {
+        console.error(
+          `RSVP email failed for invitation ${invitation.id_invitation}:`,
+          err.message,
+        );
         return {
           invitation_id: invitation.id_invitation,
           sent: false,
