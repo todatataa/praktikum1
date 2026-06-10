@@ -2,3 +2,9 @@ node_modules/
 .DS_Store
 node_modules/
 .DS_Store
+.env
+src/backend/.env
+src/backend/node_modules/
+.idea/
+src/backend/.idea/
+*.bak_*

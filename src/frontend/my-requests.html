@@ -237,6 +237,13 @@
                 const grid = document.getElementById("requests-grid");
                 const empty = document.getElementById("requests-empty");
                 const feedback = document.getElementById("requests-feedback");
+                let guestListEditing = false;
+                let guestListBlurTimer = null;
+                const guestListDrafts = {};
+
+                function guestDraftKey(requestId) {
+                    return `wo_guest_list_draft_${requestId}`;
+                }
 
                 if (!session || session.userType !== "client") {
                     accessDenied.style.display = "block";
@@ -299,6 +306,23 @@
                         })
                         .filter(Boolean)
                         .join("\n");
+                }
+
+                function getGuestListText(request) {
+                    const requestId = String(request.id_zahtev);
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            guestListDrafts,
+                            requestId,
+                        )
+                    ) {
+                        return guestListDrafts[requestId];
+                    }
+                    const storedDraft = localStorage.getItem(
+                        guestDraftKey(requestId),
+                    );
+                    if (storedDraft !== null) return storedDraft;
+                    return formatGuestList(request.guest_list);
                 }
 
                 function renderRsvpSummary(item) {
@@ -412,7 +436,7 @@
                                     <p class="text-xs uppercase tracking-[0.18em] text-navy/50">RSVP guest emails</p>
                                     <p class="text-xs text-navy/45 mt-1">Add one guest per line. Use either email only or Name &lt;email&gt;.</p>
                                 </div>
-                                <textarea name="guest-list" rows="5" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Nika Bizjak &lt;nika@example.com&gt;&#10;luka@example.com">${escapeHtml(formatGuestList(request.guest_list))}</textarea>
+                                <textarea name="guest-list" rows="5" class="w-full border border-navy/15 rounded px-3 py-2 text-sm bg-cream" placeholder="Nika Bizjak &lt;nika@example.com&gt;&#10;luka@example.com" oninput="localStorage.setItem('wo_guest_list_draft_${request.id_zahtev}', this.value)" onfocus="localStorage.setItem('wo_guest_list_active', '${request.id_zahtev}')">${escapeHtml(getGuestListText(request))}</textarea>
                                 <button type="submit" class="btn-gold w-full py-3 text-xs tracking-widest uppercase font-medium">Save RSVP Guests</button>
                             </form>
                             `
@@ -439,7 +463,27 @@
                     bindForms();
                 }
 
-                async function loadRequests() {
+                function isGuestListEditing() {
+                    return (
+                        guestListEditing ||
+                        Boolean(
+                            document.activeElement &&
+                                document.activeElement.closest(
+                                    ".guest-list-form",
+                                ),
+                        )
+                    );
+                }
+
+                async function loadRequests(force = false) {
+                    if (
+                        !force &&
+                        (isGuestListEditing() ||
+                            localStorage.getItem("wo_guest_list_active"))
+                    ) {
+                        return;
+                    }
+
                     try {
                         const response = await fetch(
                             `/api/requests?client_id=${encodeURIComponent(session.clientDbId)}`,
@@ -466,6 +510,34 @@
                     document
                         .querySelectorAll(".guest-list-form")
                         .forEach((form) => {
+                            const guestTextarea = form.querySelector(
+                                'textarea[name="guest-list"]',
+                            );
+
+                            if (guestTextarea) {
+                                guestTextarea.addEventListener("focus", () => {
+                                    guestListEditing = true;
+                                    if (guestListBlurTimer)
+                                        clearTimeout(guestListBlurTimer);
+                                });
+                                guestTextarea.addEventListener("input", () => {
+                                    guestListEditing = true;
+                                    guestListDrafts[String(form.dataset.requestId)] =
+                                        guestTextarea.value;
+                                    localStorage.setItem(
+                                        guestDraftKey(form.dataset.requestId),
+                                        guestTextarea.value,
+                                    );
+                                    if (guestListBlurTimer)
+                                        clearTimeout(guestListBlurTimer);
+                                });
+                                guestTextarea.addEventListener("blur", () => {
+                                    guestListBlurTimer = setTimeout(() => {
+                                        guestListEditing = false;
+                                    }, 30000);
+                                });
+                            }
+
                             form.addEventListener("submit", async (event) => {
                                 event.preventDefault();
                                 const requestId = form.dataset.requestId;
@@ -519,7 +591,15 @@
                                             ? `RSVP guest emails saved. ${sentCount} new invitation email${sentCount !== 1 ? "s" : ""} sent.`
                                             : "RSVP guest emails saved successfully.",
                                     );
-                                    await loadRequests();
+                                    guestListEditing = false;
+                                    delete guestListDrafts[String(requestId)];
+                                    localStorage.removeItem(
+                                        guestDraftKey(requestId),
+                                    );
+                                    localStorage.removeItem(
+                                        "wo_guest_list_active",
+                                    );
+                                    await loadRequests(true);
                                 } catch (err) {
                                     showFeedback(
                                         err.message ||
@@ -716,8 +796,28 @@
                         });
                 }
 
-                loadRequests();
-                setInterval(loadRequests, 15000);
+                document.addEventListener("input", (event) => {
+                    const target = event.target;
+                    if (
+                        !target.matches ||
+                        !target.matches(
+                            '.guest-list-form textarea[name="guest-list"]',
+                        )
+                    ) {
+                        return;
+                    }
+                    const form = target.closest(".guest-list-form");
+                    if (!form) return;
+                    guestListEditing = true;
+                    guestListDrafts[String(form.dataset.requestId)] =
+                        target.value;
+                    localStorage.setItem(
+                        guestDraftKey(form.dataset.requestId),
+                        target.value,
+                    );
+                });
+
+                loadRequests(true);
             })();
         </script>
     </body>
