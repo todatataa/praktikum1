@@ -1,0 +1,16 @@
+{
+  "name": "white-orchid-events",
+  "version": "1.0.0",
+  "description": "White Orchid Events – Praktikum 1, FERI IPT",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "cors": "^2.8.5",
+    "nodemailer": "^6.9.16"
+  }
+}
