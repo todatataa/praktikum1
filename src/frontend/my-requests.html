@@ -584,8 +584,9 @@
                                     }
 
                                     showFeedback(
-                                        data.rsvp_email_status === "queued"
-                                            ? "RSVP guest emails saved. New invitation emails are being sent."
+                                        data.rsvp_email_results &&
+                                            data.rsvp_email_results.length
+                                            ? `RSVP guest emails saved. ${data.rsvp_email_results.filter((result) => result.sent).length} new invitation email(s) sent.`
                                             : "RSVP guest emails saved successfully.",
                                     );
                                     guestListEditing = false;

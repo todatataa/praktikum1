@@ -260,46 +260,44 @@ async function sendDueRsvpReminders() {
 }
 
 async function sendRsvpEmailsForInvitations(req, invitations) {
-  const results = [];
-
-  for (const invitation of invitations) {
-    try {
-      const result = await sendRsvpEmail(req, invitation);
-      if (result.sent) {
-        await pool.query(
-          `UPDATE invitation
-           SET rsvp_sent = TRUE,
-               rsvp_sent_at = CURRENT_TIMESTAMP
-           WHERE id_invitation = $1`,
-          [invitation.id_invitation],
-        );
-      }
-      results.push({ invitation_id: invitation.id_invitation, ...result });
-    } catch (err) {
-      results.push({
-        invitation_id: invitation.id_invitation,
-        sent: false,
-        reason: err.message,
-        rsvp_link: buildRsvpLink(req, invitation.rsvp_token),
-      });
-    }
-  }
-
-  return results;
-}
-
-function sendRsvpEmailsInBackground(req, invitations) {
   const pendingInvitations = invitations.filter(
     (invitation) => !invitation.rsvp_sent,
   );
+  const sendWithTimeout = (invitation) =>
+    Promise.race([
+      sendRsvpEmail(req, invitation),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Email sending timed out after 20 seconds")),
+          20000,
+        ),
+      ),
+    ]);
 
-  if (pendingInvitations.length === 0) return;
-
-  setTimeout(() => {
-    sendRsvpEmailsForInvitations(req, pendingInvitations).catch((err) => {
-      console.error("Background RSVP email error:", err.message);
-    });
-  }, 0);
+  return Promise.all(
+    pendingInvitations.map(async (invitation) => {
+      try {
+        const result = await sendWithTimeout(invitation);
+        if (result.sent) {
+          await pool.query(
+            `UPDATE invitation
+             SET rsvp_sent = TRUE,
+                 rsvp_sent_at = CURRENT_TIMESTAMP
+             WHERE id_invitation = $1`,
+            [invitation.id_invitation],
+          );
+        }
+        return { invitation_id: invitation.id_invitation, ...result };
+      } catch (err) {
+        return {
+          invitation_id: invitation.id_invitation,
+          sent: false,
+          reason: err.message,
+          rsvp_link: buildRsvpLink(req, invitation.rsvp_token),
+        };
+      }
+    }),
+  );
 }
 
 async function sendUnsentRsvpInvitations() {
@@ -1952,12 +1950,15 @@ app.post("/api/events", async (req, res) => {
 
     await db.query("COMMIT");
 
-    sendRsvpEmailsInBackground(req, rsvpInvitations);
+    const rsvpEmailResults = await sendRsvpEmailsForInvitations(
+      req,
+      rsvpInvitations,
+    );
 
     res.status(201).json({
       id_event: eventId,
       rsvp_invitations: rsvpInvitations.length,
-      rsvp_email_status: "queued",
+      rsvp_email_results: rsvpEmailResults,
     });
   } catch (err) {
     await db.query("ROLLBACK");
@@ -2310,6 +2311,7 @@ app.put("/api/requests/:id/guests", async (req, res) => {
     );
 
     const request = requestCheck.rows[0];
+    let rsvpEmailResults = [];
 
     if (request.id_event) {
       const db = await pool.connect();
@@ -2337,13 +2339,17 @@ app.put("/api/requests/:id/guests", async (req, res) => {
         db.release();
       }
 
-      sendRsvpEmailsInBackground(req, rsvpInvitations);
+      rsvpEmailResults = await sendRsvpEmailsForInvitations(
+        req,
+        rsvpInvitations,
+      );
     }
 
     res.json({
       success: true,
       request: result.rows[0],
-      rsvp_email_status: request.id_event ? "queued" : "not_created_yet",
+      rsvp_email_status: request.id_event ? "sent" : "not_created_yet",
+      rsvp_email_results: rsvpEmailResults,
     });
   } catch (err) {
     console.error("PUT /api/requests/:id/guests error:", err.message);
@@ -2747,13 +2753,16 @@ app.post("/api/requests/:id/create-event", async (req, res) => {
 
     await db.query("COMMIT");
 
-    sendRsvpEmailsInBackground(req, rsvpInvitations);
+    const rsvpEmailResults = await sendRsvpEmailsForInvitations(
+      req,
+      rsvpInvitations,
+    );
 
     res.status(201).json({
       success: true,
       id_event: createdEvent.rows[0].id_event,
       rsvp_invitations: rsvpInvitations.length,
-      rsvp_email_status: "queued",
+      rsvp_email_results: rsvpEmailResults,
     });
   } catch (err) {
     await db.query("ROLLBACK");
