@@ -616,6 +616,39 @@ pool
     await sendUnsentRsvpInvitations();
     await sendDueRsvpReminders();
     setInterval(sendDueRsvpReminders, 60 * 60 * 1000);
+
+    // Verify email transport at startup for easier debugging in production logs
+    try {
+      if (process.env.MAILTRAP_API_TOKEN) {
+        console.log(
+          "Mailtrap API token is set — using Mailtrap HTTP API for sending emails",
+        );
+      } else {
+        const mailer = createMailer();
+        if (!mailer) {
+          console.log(
+            "No SMTP mailer configured (SMTP_HOST/SMTP_USER/SMTP_PASS missing)",
+          );
+        } else {
+          mailer
+            .verify()
+            .then(() =>
+              console.log("SMTP transport verified: ready to send emails"),
+            )
+            .catch((err) =>
+              console.error(
+                "SMTP transport verify failed:",
+                err && err.message ? err.message : err,
+              ),
+            );
+        }
+      }
+    } catch (err) {
+      console.error(
+        "Error while verifying email transport:",
+        err && err.message ? err.message : err,
+      );
+    }
   })
   .catch((err) =>
     console.error("âŒ  GreÅ¡ka pri spajanju na bazu:", err.message),
@@ -652,12 +685,10 @@ app.post("/api/test-email", async (req, res) => {
     res.json({ success: true, to: toAddr });
   } catch (err) {
     console.error("Test email failed:", err && err.message ? err.message : err);
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: err && err.message ? err.message : String(err),
-      });
+    res.status(500).json({
+      success: false,
+      error: err && err.message ? err.message : String(err),
+    });
   }
 });
 
