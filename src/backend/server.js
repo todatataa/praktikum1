@@ -149,33 +149,36 @@ async function sendRsvpEmail(req, invitation) {
     ? `<p>Please confirm your attendance by <strong>${formatEventDate(invitation.rsvp_due_date)}</strong>.</p>`
     : "";
 
-  await mailer.sendMail({
-    from,
-    to: invitation.guest_email,
-    subject,
-    html: `
-      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0D1B2A">
-        <p>${guestLine}</p>
-        <p>You are invited to <strong>${invitation.event_name}</strong>.</p>
-        <p><strong>Date:</strong> ${formatEventDate(invitation.event_date)}</p>
-        <p><strong>Venue:</strong> ${invitation.venue_name || invitation.venue_location || "Venue not specified"}</p>
-        ${dueLine}
-        <p>
-          <a href="${rsvpLink}" style="display:inline-block;background:#C9A84C;color:white;padding:12px 18px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
-            Confirm RSVP
-          </a>
-        </p>
-        <p>If the button does not work, open this link:<br>${rsvpLink}</p>
-      </div>
-    `,
-    text: `${guestLine}
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0D1B2A">
+      <p>${guestLine}</p>
+      <p>You are invited to <strong>${invitation.event_name}</strong>.</p>
+      <p><strong>Date:</strong> ${formatEventDate(invitation.event_date)}</p>
+      <p><strong>Venue:</strong> ${invitation.venue_name || invitation.venue_location || "Venue not specified"}</p>
+      ${dueLine}
+      <p>
+        <a href="${rsvpLink}" style="display:inline-block;background:#C9A84C;color:white;padding:12px 18px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
+          Confirm RSVP
+        </a>
+      </p>
+      <p>If the button does not work, open this link:<br>${rsvpLink}</p>
+    </div>
+  `;
+  const text = `${guestLine}
 
 You are invited to ${invitation.event_name}.
 Date: ${formatEventDate(invitation.event_date)}
 Venue: ${invitation.venue_name || invitation.venue_location || "Venue not specified"}
 ${invitation.rsvp_due_date ? `Please confirm by ${formatEventDate(invitation.rsvp_due_date)}.` : ""}
 
-Confirm RSVP: ${rsvpLink}`,
+Confirm RSVP: ${rsvpLink}`;
+
+  await mailer.sendMail({
+    from,
+    to: invitation.guest_email,
+    subject,
+    html,
+    text,
   });
 
   return { sent: true, rsvp_link: rsvpLink };
@@ -198,31 +201,34 @@ async function sendRsvpReminderEmail(invitation) {
     ? `Hi ${invitation.guest_name},`
     : "Hi,";
 
-  await mailer.sendMail({
-    from,
-    to: invitation.guest_email,
-    subject: `Reminder: RSVP for ${invitation.event_name}`,
-    html: `
-      <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0D1B2A">
-        <p>${guestLine}</p>
-        <p>This is a reminder to confirm your attendance for <strong>${invitation.event_name}</strong>.</p>
-        <p><strong>Date:</strong> ${formatEventDate(invitation.event_date)}</p>
-        <p><strong>Venue:</strong> ${invitation.venue_name || invitation.venue_location || "Venue not specified"}</p>
-        <p>
-          <a href="${rsvpLink}" style="display:inline-block;background:#C9A84C;color:white;padding:12px 18px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
-            Confirm RSVP
-          </a>
-        </p>
-        <p>If the button does not work, open this link:<br>${rsvpLink}</p>
-      </div>
-    `,
-    text: `${guestLine}
+  const html = `
+    <div style="font-family:Arial,sans-serif;line-height:1.5;color:#0D1B2A">
+      <p>${guestLine}</p>
+      <p>This is a reminder to confirm your attendance for <strong>${invitation.event_name}</strong>.</p>
+      <p><strong>Date:</strong> ${formatEventDate(invitation.event_date)}</p>
+      <p><strong>Venue:</strong> ${invitation.venue_name || invitation.venue_location || "Venue not specified"}</p>
+      <p>
+        <a href="${rsvpLink}" style="display:inline-block;background:#C9A84C;color:white;padding:12px 18px;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:12px">
+          Confirm RSVP
+        </a>
+      </p>
+      <p>If the button does not work, open this link:<br>${rsvpLink}</p>
+    </div>
+  `;
+  const text = `${guestLine}
 
 This is a reminder to confirm your attendance for ${invitation.event_name}.
 Date: ${formatEventDate(invitation.event_date)}
 Venue: ${invitation.venue_name || invitation.venue_location || "Venue not specified"}
 
-Confirm RSVP: ${rsvpLink}`,
+Confirm RSVP: ${rsvpLink}`;
+
+  await mailer.sendMail({
+    from,
+    to: invitation.guest_email,
+    subject: `Reminder: RSVP for ${invitation.event_name}`,
+    html,
+    text,
   });
 
   return { sent: true, rsvp_link: rsvpLink };
@@ -290,8 +296,8 @@ async function sendRsvpEmailsForInvitations(req, invitations) {
       sendRsvpEmail(req, invitation),
       new Promise((_, reject) =>
         setTimeout(
-          () => reject(new Error("Email sending timed out after 20 seconds")),
-          20000,
+          () => reject(new Error("Email sending timed out after 60 seconds")),
+          60000,
         ),
       ),
     ]);
