@@ -120,7 +120,7 @@ function createMailer() {
 function hasEmailTransport() {
   return Boolean(
     process.env.MAILTRAP_API_TOKEN ||
-      (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
+    (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
   );
 }
 
@@ -626,6 +626,39 @@ pool
 app.use(express.static(path.join(__dirname, "..", "frontend")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+});
+
+// Temporary test endpoint to verify email transport from the running server.
+// POST /api/test-email  body: { to, subject, text, html }
+app.post("/api/test-email", async (req, res) => {
+  try {
+    const { to, subject, text, html } = req.body || {};
+    const from =
+      process.env.SMTP_FROM || process.env.SMTP_USER || "test@example.com";
+    const toAddr = to || from;
+
+    // sendEmailMessage is defined above and will use MAILTRAP API if MAILTRAP_API_TOKEN is set,
+    // otherwise it will use the SMTP transport built from SMTP_* env vars.
+    await sendEmailMessage({
+      from,
+      to: toAddr,
+      subject: subject || "White Orchid — Test email",
+      html:
+        html ||
+        `<p>This is a test email from White Orchid at ${getAppBaseUrl(req)}</p>`,
+      text: text || "This is a test email from White Orchid.",
+    });
+
+    res.json({ success: true, to: toAddr });
+  } catch (err) {
+    console.error("Test email failed:", err && err.message ? err.message : err);
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: err && err.message ? err.message : String(err),
+      });
+  }
 });
 
 app.get("/api/organizers", async (req, res) => {
