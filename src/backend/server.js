@@ -5,6 +5,7 @@ const path = require("path");
 const cors = require("cors");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const net = require("net");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -690,6 +691,48 @@ app.post("/api/test-email", async (req, res) => {
       error: err && err.message ? err.message : String(err),
     });
   }
+});
+
+// Lightweight TCP connectivity check to SMTP host:port so we can test network reachability from the running server.
+app.get("/api/check-smtp", (req, res) => {
+  const host = process.env.SMTP_HOST || null;
+  const port = parseInt(process.env.SMTP_PORT || "2525");
+  if (!host) {
+    return res
+      .status(400)
+      .json({ ok: false, error: "SMTP_HOST not configured" });
+  }
+
+  const socket = new net.Socket();
+  let settled = false;
+  socket.setTimeout(5000);
+
+  socket.once("connect", () => {
+    if (settled) return;
+    settled = true;
+    socket.destroy();
+    res.json({ ok: true, host, port, message: "TCP connect successful" });
+  });
+
+  socket.once("error", (err) => {
+    if (settled) return;
+    settled = true;
+    res
+      .status(502)
+      .json({
+        ok: false,
+        error: String(err && err.message ? err.message : err),
+      });
+  });
+
+  socket.once("timeout", () => {
+    if (settled) return;
+    settled = true;
+    socket.destroy();
+    res.status(504).json({ ok: false, error: "Connection timed out" });
+  });
+
+  socket.connect(port, host);
 });
 
 app.get("/api/organizers", async (req, res) => {
