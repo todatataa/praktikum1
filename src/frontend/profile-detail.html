@@ -1360,6 +1360,16 @@
                     `;
                         grid.appendChild(card);
 
+                        // Make the card clickable to view event details (ignore clicks on buttons/links)
+                        card.addEventListener("click", function (e) {
+                            if (e.target.closest("button") || e.target.closest("a")) return;
+                            if (typeof openEventDetailModal === "function") {
+                                openEventDetailModal(ev.id_event);
+                            } else {
+                                woAlert("Event details are not available right now.", "Info");
+                            }
+                        });
+
                         fetch(`/api/events/${ev.id_event}/image`)
                             .then(r => r.ok ? r.json() : null)
                             .then(data => {

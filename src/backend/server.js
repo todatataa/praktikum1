@@ -775,11 +775,9 @@ app.get("/api/organizers/:id/reviews", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error("SQL greÅ¡ka (GET organizer reviews):", err.message);
-    res
-      .status(500)
-      .json({
-        error: "GreÅ¡ka pri dohvatanju review podataka: " + err.message,
-      });
+    res.status(500).json({
+      error: "GreÅ¡ka pri dohvatanju review podataka: " + err.message,
+    });
   }
 });
 
@@ -2325,6 +2323,7 @@ app.put("/api/requests/:id/guests", async (req, res) => {
       `SELECT
           z.id_zahtev,
           z.price_offer_status,
+          z.status,
           e.id_event,
           e.naziv,
           e.datum_eventa,
@@ -2344,9 +2343,11 @@ app.put("/api/requests/:id/guests", async (req, res) => {
         .json({ error: "Request not found for this client" });
     }
 
-    if (requestCheck.rows[0].price_offer_status !== "approved") {
+    const rq = requestCheck.rows[0];
+    if (rq.price_offer_status !== "approved" && rq.status !== "accepted") {
       return res.status(403).json({
-        error: "Guest emails can be added after the price offer is approved.",
+        error:
+          "Guest emails can be added after the price offer is approved or the organizer accepted the request.",
       });
     }
 

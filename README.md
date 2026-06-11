@@ -1,113 +1,173 @@
-# praktikum1
+# White Orchid Events (praktikum1)
 
-## pomebno!!!!
+A small event-organizer marketplace prototype built for Praktikum 1 (FERI IPT).
 
-Folders
-/frontend: Place all HTML, CSS, and JavaScript files here.
+- Backend: Node.js + Express + PostgreSQL
+- Frontend: static HTML/CSS/JavaScript in `src/frontend`
 
-/backend: This is for all Java logic and server-side code.
+## Authors
 
-/docs: Upload all project documentation here (ER Diagrams, DPU, DFD)
+- Ivan Todic
+- Janja Djokic
+- Mihailo Petkovic
+- Branka Jelaca
 
+This README explains how to run the project locally, initialize the database, and where to find important pieces of the code.
 
+---
 
+## Quick start (local development)
 
-Team Rules Prosim Pratite
+Prerequisites:
 
-If using the Web IDE, always refresh your browser before starting work to get the latest version.
+- Node.js (v16+ recommended) and npm
+- PostgreSQL
 
-Descriptive Commits: When you save (commit), write a short note about what you changed (na primer "Added login button" ili "Updated ER diagram").
+Steps:
 
+1. Open a terminal and go to the project `src` folder:
 
+   ```sh
+   cd praktikum1/src
+   ```
 
+2. Install Node dependencies:
 
+   ```sh
+   npm install
+   ```
 
-## Getting started
+3. Create (or choose) a PostgreSQL database. The project defaults to a database named `moja_baza`.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+   Example (run as a user with permission to create DBs):
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+   ```sh
+   psql -h localhost -U postgres -c "CREATE DATABASE moja_baza;"
+   ```
 
-## Add your files
+4. Initialize the schema and seed data (file included):
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+   ```sh
+   psql -h localhost -U postgres -d moja_baza -f backend/initPostgre.sql
+   ```
 
+   This creates tables and inserts test data (clients, organizers, events, invitations, reviews).
+
+5. Create an environment file (`praktikum1/src/.env`) or export environment variables. Example `.env`:
+
+   ```env
+   # Database
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=moja_baza
+   DB_USER=postgres
+   DB_PASSWORD=superVarnoGeslo
+
+   # Server
+   PORT=3000
+   APP_BASE_URL=http://localhost:3000
+
+   # Optional: SMTP (for real email sending). If not set, server will simulate sending and return links.
+   SMTP_HOST=smtp.example.com
+   SMTP_PORT=587
+   SMTP_USER=your-smtp-user
+   SMTP_PASS=your-smtp-pass
+   SMTP_FROM=no-reply@example.com
+   SMTP_SECURE=false
+   ```
+
+   Note: Do not commit `.env` to version control.
+
+6. Start the server from `praktikum1/src`:
+
+   ```sh
+   npm start
+   ```
+
+   The server will serve the frontend at `http://localhost:3000` (default) and expose the API at `/api/*`.
+
+7. Open your browser at `http://localhost:3000`.
+
+---
+
+## Seed data and login
+
+- The SQL initializer `src/backend/initPostgre.sql` inserts sample organizers and clients. Organizer rows use plain-text passwords like `orgpw1`, `orgpw2`, ... for convenience in the practical exercise.
+- The frontend also contains a localStorage-based seed (`src/frontend/script.js`) to allow working without the backend for some flows.
+
+Quick test login (example):
+
+- Organizer: `info@elegantevents.si` / `orgpw1`
+- Client accounts are defined in the SQL as well (see `initPostgre.sql`).
+
+You can test the login endpoint via curl:
+
+```sh
+curl -X POST http://localhost:3000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"info@elegantevents.si","passwordHash":"orgpw1"}'
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/ekipa101/praktikum1.git
-git branch -M main
-git push -uf origin main
-```
 
-## Integrate with your tools
+The server accepts either a SHA-256 passwordHash (frontend hashes passwords before sending) or the plain seed password inserted by `initPostgre.sql`.
 
-* [Set up project integrations](https://gitlab.com/ekipa101/praktikum1/-/settings/integrations)
+---
 
-## Collaborate with your team
+## Important environment variables
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD — PostgreSQL connection
+- PORT — server port (default 3000)
+- APP_BASE_URL — base URL used when building email links (defaults to http://localhost:3000)
+- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_SECURE — configure these to enable real outgoing email. If SMTP is not configured the server will return generated RSVP / review links in responses but will not send email.
 
-## Test and Deploy
+---
 
-Use the built-in continuous integration in GitLab.
+## Project structure (important files)
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+- `src/`
+  - `backend/`
+    - `server.js` — Express server, API routes and DB interactions
+    - `initPostgre.sql` — DB schema and seed data for testing
+    - `package.json` / `package-lock.json`
+  - `frontend/` — static HTML/CSS/JS used for the UI (many pages in this folder)
+    - `index.html`, `profile-detail.html`, `login.html`, `register.html`, etc.
+    - `script.js` — frontend logic (client-side hashing, localStorage seed, UI helpers)
+- `docs/` — diagrams and design documents (ER diagram, etc.)
+- `todo.md` — project TODO list
 
-***
+---
 
-# Editing this README
+## API (overview)
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+A selection of the most useful endpoints (see `src/backend/server.js` for full details):
 
-## Suggestions for a good README
+- GET /api/organizers — list organizers (supports query params: `search`, `city`, `tip_eventa`, `min_price`, `max_price`, `ocena_min`)
+- GET /api/organizers/:id — get organizer details
+- POST /api/organizers — register new organizer (expects `ime`, `priimek`, `email`, `geslo` (hash), `city`, `telefon`, `tip_eventa`)
+- POST /api/client — register client
+- POST /api/login — login (send `email` + `passwordHash`). Server accepts either SHA-256 hash or plain seed password for seeded accounts
+- GET /api/events — list events
+- GET /api/events/:id/reviews — guest reviews for an event
+- POST /api/events/:id/review-links/generate — generate guest review links (returns simulated emails with links)
+- POST /api/requests — create a client request for an organizer
+- POST /api/rsvp — submit RSVP (token + status accepted/declined)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+There are also endpoints for uploading images (`/api/organizers/:id/image`), event images, organizer reviews and many helper routes for RSVP and review flows. Check `src/backend/server.js` for details and parameters.
 
-## Name
-Choose a self-explaining name for your project.
+---
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Development notes & tips
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- The backend serves the frontend files from `src/frontend`. Many frontend pages call `/api/*` endpoints, so running the backend is recommended for full functionality.
+- Client-side password hashing: the frontend uses `crypto.subtle.digest('SHA-256')` before sending the `passwordHash` to the API. For quick local testing the SQL seed uses plain passwords — the server accepts either.
+- Email sending is optional. If you want to send real emails, configure the SMTP variables in `.env`. If you don't, the API endpoints that would send emails will include the generated links in their JSON responses to help you test flows.
+- Uploaded images are stored in the DB as base64/text; server limits base64 image size to ~2MB.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+---
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Where to look next
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+- To change the UI: edit files in `src/frontend`.
+- To change API or DB logic: edit `src/backend/server.js` and update `src/backend/initPostgre.sql` if you need schema changes.
+- To reset the database: drop the DB and run the `initPostgre.sql` file again.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+---
