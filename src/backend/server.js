@@ -117,6 +117,67 @@ function createMailer() {
   });
 }
 
+function hasEmailTransport() {
+  return Boolean(
+    process.env.MAILTRAP_API_TOKEN ||
+      (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS),
+  );
+}
+
+function parseEmailSender(value) {
+  const fallbackEmail = process.env.SMTP_USER || "notifications@example.com";
+  const rawValue = value || process.env.SMTP_FROM || fallbackEmail;
+  const match = String(rawValue).match(/^(.*?)<([^>]+)>$/);
+
+  if (!match) {
+    return { email: String(rawValue).trim(), name: "White Orchid Events" };
+  }
+
+  return {
+    name: match[1].trim() || "White Orchid Events",
+    email: match[2].trim(),
+  };
+}
+
+async function sendEmailMessage({ from, to, subject, html, text }) {
+  if (process.env.MAILTRAP_API_TOKEN) {
+    const sender = parseEmailSender(from);
+    const response = await fetch(
+      process.env.MAILTRAP_API_URL || "https://send.api.mailtrap.io/api/send",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.MAILTRAP_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: sender,
+          to: [{ email: to }],
+          subject,
+          html,
+          text,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(
+        `Mailtrap API failed (${response.status}): ${details.slice(0, 300)}`,
+      );
+    }
+
+    return;
+  }
+
+  const mailer = createMailer();
+  if (!mailer) {
+    throw new Error("Email transport is not configured");
+  }
+
+  await mailer.sendMail({ from, to, subject, html, text });
+}
+
 function formatEventDate(value) {
   if (!value) return "Date not specified";
   const date = new Date(value);
@@ -129,13 +190,12 @@ function formatEventDate(value) {
 }
 
 async function sendRsvpEmail(req, invitation) {
-  const mailer = createMailer();
   const rsvpLink = buildRsvpLink(req, invitation.rsvp_token);
 
-  if (!mailer) {
+  if (!hasEmailTransport()) {
     return {
       sent: false,
-      reason: "SMTP is not configured",
+      reason: "Email transport is not configured",
       rsvp_link: rsvpLink,
     };
   }
@@ -173,7 +233,7 @@ ${invitation.rsvp_due_date ? `Please confirm by ${formatEventDate(invitation.rsv
 
 Confirm RSVP: ${rsvpLink}`;
 
-  await mailer.sendMail({
+  await sendEmailMessage({
     from,
     to: invitation.guest_email,
     subject,
@@ -185,13 +245,12 @@ Confirm RSVP: ${rsvpLink}`;
 }
 
 async function sendRsvpReminderEmail(invitation) {
-  const mailer = createMailer();
   const rsvpLink = buildRsvpLink(null, invitation.rsvp_token);
 
-  if (!mailer) {
+  if (!hasEmailTransport()) {
     return {
       sent: false,
-      reason: "SMTP is not configured",
+      reason: "Email transport is not configured",
       rsvp_link: rsvpLink,
     };
   }
@@ -223,7 +282,7 @@ Venue: ${invitation.venue_name || invitation.venue_location || "Venue not specif
 
 Confirm RSVP: ${rsvpLink}`;
 
-  await mailer.sendMail({
+  await sendEmailMessage({
     from,
     to: invitation.guest_email,
     subject: `Reminder: RSVP for ${invitation.event_name}`,
